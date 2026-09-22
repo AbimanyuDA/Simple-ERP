@@ -1,0 +1,16 @@
+DROP TRIGGER IF EXISTS stock_movements_no_update ON stock_movements;
+DROP FUNCTION IF EXISTS reject_stock_movement_mutation;
+DROP TABLE IF EXISTS stock_balances;
+DROP TABLE IF EXISTS stock_movements;
+DROP TABLE IF EXISTS inventory_adjustment_lines;
+DROP TABLE IF EXISTS inventory_adjustments;
+DROP TABLE IF EXISTS delivery_lines;
+DROP TABLE IF EXISTS deliveries;
+DROP TABLE IF EXISTS sales_order_lines;
+DROP TABLE IF EXISTS sales_orders;
+DROP TABLE IF EXISTS goods_receipt_lines;
+DROP TABLE IF EXISTS goods_receipts;
+DROP TABLE IF EXISTS purchase_order_lines;
+DROP TABLE IF EXISTS purchase_orders;
+DROP TABLE IF EXISTS purchase_request_lines;
+DROP TABLE IF EXISTS purchase_requests;

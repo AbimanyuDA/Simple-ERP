@@ -129,6 +129,141 @@ paths:
       tags: [Master Data]
       parameters: [{$ref: '#/components/parameters/CSRF'}]
       responses: {'201': {description: Record created}, '409': {description: Duplicate or invalid record}}
+  /purchase-requests:
+    get:
+      summary: List purchase requests
+      operationId: purchase-requests-list
+      tags: [Purchasing]
+      responses: {'200': {description: Purchase requests}, '401': {$ref: '#/components/responses/Unauthorized'}}
+    post:
+      summary: Create a draft purchase request
+      operationId: PUR-PR-001-create
+      tags: [Purchasing]
+      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
+  /purchase-requests/{id}/{action}:
+    post:
+      summary: Run a purchase request state command
+      operationId: purchase-request-command
+      tags: [Purchasing]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [submit, approve, reject, cancel, copy, purchase-order]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: State changed}, '409': {description: Invalid transition or maker-checker conflict}}
+  /purchase-orders/{id}/{action}:
+    post:
+      summary: Issue or cancel a purchase order
+      operationId: purchase-order-command
+      tags: [Purchasing]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [issue, cancel]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: State changed}, '409': {description: Invalid transition}}
+  /purchase-orders/{id}/goods-receipts:
+    post:
+      summary: Create a partial or final goods receipt
+      operationId: PUR-GR-001-create
+      tags: [Purchasing, Inventory]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}]
+      responses: {'201': {description: Draft receipt created}, '409': {description: Invalid remaining quantity}}
+  /goods-receipts/{id}/{action}:
+    post:
+      summary: Post, cancel, or reverse a goods receipt
+      operationId: goods-receipt-command
+      tags: [Purchasing, Inventory]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [post, cancel, reverse]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: Receipt changed atomically with stock}, '409': {description: "State, quantity, or reversal conflict"}}
+  /sales-orders:
+    get:
+      summary: List sales orders
+      operationId: sales-orders-list
+      tags: [Sales]
+      responses: {'200': {description: Sales orders}, '401': {$ref: '#/components/responses/Unauthorized'}}
+    post:
+      summary: Create a draft sales order
+      operationId: SAL-SO-001-create
+      tags: [Sales]
+      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
+  /sales-orders/{id}/{action}:
+    post:
+      summary: Run a sales order state command
+      operationId: sales-order-command
+      tags: [Sales]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [submit, approve, reject, cancel, copy, confirm]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: State changed}, '409': {description: "Invalid transition, stock, or maker-checker conflict"}}
+  /sales-orders/{id}/deliveries:
+    post:
+      summary: Create a partial or final sales delivery
+      operationId: SAL-DLV-001-create
+      tags: [Sales, Inventory]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}]
+      responses: {'201': {description: Draft delivery created}, '409': {description: Invalid remaining quantity}}
+  /deliveries/{id}/{action}:
+    post:
+      summary: Post, cancel, or reverse a delivery
+      operationId: delivery-command
+      tags: [Sales, Inventory]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [post, cancel, reverse]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: Delivery changed atomically with stock}, '409': {description: "State, quantity, stock, or reversal conflict"}}
+  /inventory/balances:
+    get:
+      summary: Read current stock projections
+      operationId: inventory-balances-list
+      tags: [Inventory]
+      responses: {'200': {description: Balances rebuilt from ledger}, '401': {$ref: '#/components/responses/Unauthorized'}}
+  /inventory/movements:
+    get:
+      summary: Read immutable stock movements
+      operationId: inventory-movements-list
+      tags: [Inventory]
+      responses: {'200': {description: Source-linked movement ledger}, '401': {$ref: '#/components/responses/Unauthorized'}}
+  /inventory-adjustments:
+    post:
+      summary: Create a stock-count adjustment draft
+      operationId: INV-ADJ-001-create
+      tags: [Inventory]
+      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      responses: {'201': {description: Draft with stock snapshot}, '409': {description: Invalid count}}
+  /inventory-adjustments/{id}/{action}:
+    post:
+      summary: Run an inventory adjustment state command
+      operationId: inventory-adjustment-command
+      tags: [Inventory]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [submit, approve, reject, cancel, post, reverse]}
+        - {$ref: '#/components/parameters/CSRF'}
+      responses: {'200': {description: State changed atomically}, '409': {description: "State, snapshot, stock, or maker-checker conflict"}}
 components:
   securitySchemes:
     accessCookie: {type: apiKey, in: cookie, name: __Host-erp_access}

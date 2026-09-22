@@ -1,1 +1,1 @@
-import { ModulePage } from "@/components/module-page"; export default function Page(){return <ModulePage eyebrow="STOCK LEDGER" title="Inventory" description="Saldo stok transparan dari movement ledger yang tidak dapat diubah."/>}
+import { ModulePage } from "@/components/module-page";import{InventoryWorkspace}from"@/features/inventory/inventory-workspace";export default function Page(){return <ModulePage eyebrow="STOCK LEDGER" title="Inventory" description="Saldo stok transparan dari movement ledger yang tidak dapat diubah."><InventoryWorkspace/></ModulePage>}

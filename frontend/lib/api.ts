@@ -8,7 +8,12 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`/api/v1${path}`, {
     ...init,
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(unsafe && csrf ? {"X-CSRF-Token": decodeURIComponent(csrf)} : {}), ...init.headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...(unsafe ? { "Idempotency-Key": crypto.randomUUID() } : {}),
+      ...(unsafe && csrf ? {"X-CSRF-Token": decodeURIComponent(csrf)} : {}),
+      ...init.headers,
+    },
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new APIError(response.status, body.message ?? "Permintaan gagal");

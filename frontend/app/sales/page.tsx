@@ -1,1 +1,1 @@
-import { ModulePage } from "@/components/module-page"; export default function Page(){return <ModulePage eyebrow="ORDER-TO-CASH" title="Sales" description="Pesanan, pengiriman, invoice, dan pembayaran customer."/>}
+import { ModulePage } from "@/components/module-page";import{SalesWorkspace}from"@/features/sales/sales-workspace";export default function Page(){return <ModulePage eyebrow="ORDER-TO-CASH" title="Sales" description="Pesanan, pengiriman, invoice, dan pembayaran customer."><SalesWorkspace/></ModulePage>}

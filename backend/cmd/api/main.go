@@ -12,11 +12,21 @@ import (
 	authpostgres "github.com/simple-erp/backend/internal/auth/adapter/postgres"
 	"github.com/simple-erp/backend/internal/auth/application"
 	"github.com/simple-erp/backend/internal/auth/domain"
+	inventoryhttp "github.com/simple-erp/backend/internal/inventory/adapter/http"
+	inventorypostgres "github.com/simple-erp/backend/internal/inventory/adapter/postgres"
+	inventoryapp "github.com/simple-erp/backend/internal/inventory/application"
 	masterhttp "github.com/simple-erp/backend/internal/masterdata/adapter/http"
 	masterpostgres "github.com/simple-erp/backend/internal/masterdata/adapter/postgres"
 	masterapp "github.com/simple-erp/backend/internal/masterdata/application"
 	"github.com/simple-erp/backend/internal/platform/config"
 	"github.com/simple-erp/backend/internal/platform/httpserver"
+	"github.com/simple-erp/backend/internal/platform/idempotency"
+	purchasehttp "github.com/simple-erp/backend/internal/purchasing/adapter/http"
+	purchasepostgres "github.com/simple-erp/backend/internal/purchasing/adapter/postgres"
+	purchaseapp "github.com/simple-erp/backend/internal/purchasing/application"
+	saleshttp "github.com/simple-erp/backend/internal/sales/adapter/http"
+	salespostgres "github.com/simple-erp/backend/internal/sales/adapter/postgres"
+	salesapp "github.com/simple-erp/backend/internal/sales/application"
 )
 
 func main() {
@@ -41,6 +51,9 @@ func main() {
 	masterHandler := masterhttp.Handler{Service: masterapp.NewService(masterpostgres.Store{Pool: pool})}
 	usersHandler := authhttp.UsersHandler{Service: application.NewUserAdminService(authpostgres.UserAdminStore{Pool: pool}), Lifecycle: lifecycleService}
 	settingsHandler := masterhttp.SettingsHandler{Service: masterapp.NewSettingsService(masterpostgres.SettingsStore{Pool: pool})}
+	purchaseHandler := purchasehttp.Handler{Service: purchaseapp.NewService(purchasepostgres.Store{Pool: pool})}
+	salesHandler := saleshttp.Handler{Service: salesapp.NewService(salespostgres.Store{Pool: pool})}
+	inventoryHandler := inventoryhttp.Handler{Service: inventoryapp.NewService(inventorypostgres.Store{Pool: pool})}
 	api := chi.NewRouter()
 	api.Handle("/auth/login", authHandler.Routes())
 	api.Handle("/auth/activate-invitation", lifecycle.PublicRoutes())
@@ -53,6 +66,13 @@ func main() {
 	api.Mount("/users", authMiddleware.RequireRole("ADMIN", usersHandler.Routes()))
 	api.Mount("/master-data", authMiddleware.RequireRole("ADMIN", masterHandler.Routes()))
 	api.Handle("/settings/organization", authMiddleware.RequireRole("ADMIN", settingsHandler))
+	api.Group(func(r chi.Router) {
+		r.Use(authMiddleware.RequireAuth)
+		r.Use(idempotency.Middleware(idempotency.PostgresStore{Pool: pool}))
+		purchaseHandler.Register(r)
+		salesHandler.Register(r)
+		inventoryHandler.Register(r)
+	})
 	s := &http.Server{
 		Addr: cfg.HTTPAddress, Handler: httpserver.NewRouter(api),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second,
