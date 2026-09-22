@@ -1,0 +1,1 @@
+import { ModulePage } from "@/components/module-page"; export default function Page(){return <ModulePage eyebrow="PROCURE-TO-PAY" title="Purchasing" description="Dari kebutuhan pembelian sampai pembayaran supplier."/>}

@@ -1,0 +1,1 @@
+import { ModulePage } from "@/components/module-page"; export default function Page(){return <ModulePage eyebrow="AP / AR" title="Finance" description="Pantau invoice dan pembayaran tanpa kompleksitas general ledger."/>}
