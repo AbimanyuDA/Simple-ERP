@@ -1,0 +1,53 @@
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Go
+backend/bin/
+backend/dist/
+backend/coverage/
+backend/coverage.out
+backend/*.test
+backend/vendor/
+
+# Next.js / Node.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+frontend/.turbo/
+frontend/.vercel/
+frontend/*.tsbuildinfo
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Local database and runtime data
+.data/
+tmp/
+*.pid
+*.log
+
+# IDE and operating system
+.DS_Store
+**/.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Tool caches
+.cache/
+.eslintcache
+.nyc_output/
