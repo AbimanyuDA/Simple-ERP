@@ -264,6 +264,104 @@ paths:
           schema: {type: string, enum: [submit, approve, reject, cancel, post, reverse]}
         - {$ref: '#/components/parameters/CSRF'}
       responses: {'200': {description: State changed atomically}, '409': {description: "State, snapshot, stock, or maker-checker conflict"}}
+  /supplier-invoices:
+    get:
+      summary: List supplier invoices and outstanding AP
+      operationId: supplier-invoices-list
+      tags: [Finance]
+      responses: {'200': {description: Supplier invoices}, '403': {$ref: '#/components/responses/Forbidden'}}
+    post:
+      summary: Record a consolidated supplier invoice for exact matching
+      operationId: PUR-INV-001-create
+      tags: [Finance]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      responses: {'201': {description: MATCH_PENDING invoice}, '409': {description: "Early, duplicate, or invalid invoice"}}
+  /supplier-invoices/{id}/{action}:
+    post:
+      summary: Match, resolve, or void a supplier invoice
+      operationId: supplier-invoice-command
+      tags: [Finance]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [match, resolve-match, void]}
+        - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
+      responses: {'200': {description: "PUR-INV-002, PUR-INV-003, or ACT-FIN-SINV-VOID applied"}, '409': {description: Match or state conflict}}
+  /supplier-payments:
+    get:
+      summary: List supplier payments
+      operationId: supplier-payments-list
+      tags: [Finance]
+      responses: {'200': {description: Supplier payments}, '403': {$ref: '#/components/responses/Forbidden'}}
+    post:
+      summary: Create a supplier payment draft with allocations
+      operationId: PUR-PAY-001-create
+      tags: [Finance]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      responses: {'201': {description: Payment draft}, '409': {description: Invalid allocation}}
+  /supplier-payments/{id}/{action}:
+    post:
+      summary: Post or void a supplier payment
+      operationId: supplier-payment-command
+      tags: [Finance]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [post, void]}
+        - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
+      responses: {'200': {description: PUR-PAY-002 or ACT-FIN-SPAY-VOID applied}, '409': {description: Payment or allocation conflict}}
+  /sales-orders/{id}/sales-invoice:
+    post:
+      summary: Create the consolidated sales invoice after full delivery
+      operationId: SAL-INV-001-create
+      tags: [Finance]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      responses: {'201': {description: Posted sales invoice}, '409': {description: Early or duplicate invoice}}
+  /sales-invoices:
+    get:
+      summary: List sales invoices and outstanding AR
+      operationId: sales-invoices-list
+      tags: [Finance]
+      responses: {'200': {description: Sales invoices}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /sales-invoices/{id}/void:
+    post:
+      summary: Void an unallocated sales invoice with a reason
+      operationId: ACT-FIN-CINV-VOID
+      tags: [Finance]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      responses: {'200': {description: Invoice voided}, '409': {description: Active allocation or state conflict}}
+  /customer-payments:
+    get:
+      summary: List customer payments
+      operationId: customer-payments-list
+      tags: [Finance]
+      responses: {'200': {description: Customer payments}, '403': {$ref: '#/components/responses/Forbidden'}}
+    post:
+      summary: Create a customer payment draft with allocations
+      operationId: SAL-PAY-001-create
+      tags: [Finance]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      responses: {'201': {description: Payment draft}, '409': {description: Invalid allocation}}
+  /customer-payments/{id}/{action}:
+    post:
+      summary: Post or void a customer payment
+      operationId: customer-payment-command
+      tags: [Finance]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - name: action
+          in: path
+          required: true
+          schema: {type: string, enum: [post, void]}
+        - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
+      responses: {'200': {description: SAL-PAY-002 or ACT-FIN-CPAY-VOID applied}, '409': {description: Payment or allocation conflict}}
 components:
   securitySchemes:
     accessCookie: {type: apiKey, in: cookie, name: __Host-erp_access}
@@ -271,6 +369,7 @@ components:
   parameters:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     CSRF: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
+    Idempotency: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 200}}
   schemas:
     LoginRequest:
       type: object

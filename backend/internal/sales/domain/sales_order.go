@@ -11,14 +11,14 @@ var (
 type SOStatus string
 
 const (
-	SODraft          SOStatus = "DRAFT"
-	SOSubmitted      SOStatus = "SUBMITTED"
-	SOApproved       SOStatus = "APPROVED"
-	SORejected       SOStatus = "REJECTED"
-	SODelivering     SOStatus = "PARTIALLY_DELIVERED"
-	SOFullyDelivered SOStatus = "FULLY_DELIVERED"
-	SOCompleted      SOStatus = "COMPLETED"
-	SOCancelled      SOStatus = "CANCELLED"
+	SODraft      SOStatus = "DRAFT"
+	SOSubmitted  SOStatus = "SUBMITTED"
+	SOApproved   SOStatus = "APPROVED"
+	SORejected   SOStatus = "REJECTED"
+	SODelivering SOStatus = "PARTIALLY_DELIVERED"
+	SODelivered  SOStatus = "DELIVERED"
+	SOCompleted  SOStatus = "COMPLETED"
+	SOCancelled  SOStatus = "CANCELLED"
 )
 
 type SalesOrder struct {

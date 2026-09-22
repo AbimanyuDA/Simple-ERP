@@ -278,7 +278,7 @@ func (s Store) PostReceipt(ctx context.Context, id string, version int, actor, r
 	}
 	poStatus := "PARTIALLY_RECEIVED"
 	if complete {
-		poStatus = "FULLY_RECEIVED"
+		poStatus = "RECEIVED"
 	}
 	_, e = tx.Exec(ctx, `UPDATE purchase_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2`, poStatus, po)
 	if e != nil {
@@ -311,6 +311,10 @@ func (s Store) ReverseReceipt(ctx context.Context, id, reason, actor, request st
 	var po, warehouse string
 	e = tx.QueryRow(ctx, `SELECT g.id,g.document_no,g.status,g.creator_id,g.version,g.purchase_order_id,p.warehouse_id FROM goods_receipts g JOIN purchase_orders p ON p.id=g.purchase_order_id WHERE g.id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &po, &warehouse)
 	if e != nil || d.Status != "POSTED" {
+		return d, ErrConflict
+	}
+	var invoiced bool
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM supplier_invoices WHERE purchase_order_id=$1 AND status<>'VOID')`, po).Scan(&invoiced); e != nil || invoiced {
 		return d, ErrConflict
 	}
 	rows, e := tx.Query(ctx, `SELECT sm.id,sm.product_id,sm.quantity,sm.source_line_id FROM stock_movements sm WHERE sm.source_id=$1 AND sm.movement_type='GOODS_RECEIPT'`, id)

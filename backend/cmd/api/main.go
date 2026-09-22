@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -12,6 +13,9 @@ import (
 	authpostgres "github.com/simple-erp/backend/internal/auth/adapter/postgres"
 	"github.com/simple-erp/backend/internal/auth/application"
 	"github.com/simple-erp/backend/internal/auth/domain"
+	financehttp "github.com/simple-erp/backend/internal/finance/adapter/http"
+	financepostgres "github.com/simple-erp/backend/internal/finance/adapter/postgres"
+	financeapp "github.com/simple-erp/backend/internal/finance/application"
 	inventoryhttp "github.com/simple-erp/backend/internal/inventory/adapter/http"
 	inventorypostgres "github.com/simple-erp/backend/internal/inventory/adapter/postgres"
 	inventoryapp "github.com/simple-erp/backend/internal/inventory/application"
@@ -54,6 +58,7 @@ func main() {
 	purchaseHandler := purchasehttp.Handler{Service: purchaseapp.NewService(purchasepostgres.Store{Pool: pool})}
 	salesHandler := saleshttp.Handler{Service: salesapp.NewService(salespostgres.Store{Pool: pool})}
 	inventoryHandler := inventoryhttp.Handler{Service: inventoryapp.NewService(inventorypostgres.Store{Pool: pool})}
+	financeHandler := financehttp.Handler{Service: financeapp.NewService(financepostgres.Store{Pool: pool})}
 	api := chi.NewRouter()
 	api.Handle("/auth/login", authHandler.Routes())
 	api.Handle("/auth/activate-invitation", lifecycle.PublicRoutes())
@@ -72,6 +77,21 @@ func main() {
 		purchaseHandler.Register(r)
 		salesHandler.Register(r)
 		inventoryHandler.Register(r)
+		r.Group(func(admin chi.Router) {
+			admin.Use(func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+					principal, _ := application.PrincipalFrom(request.Context())
+					if principal.Role != "ADMIN" {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusForbidden)
+						_ = json.NewEncoder(w).Encode(map[string]string{"message": "Akses ditolak."})
+						return
+					}
+					next.ServeHTTP(w, request)
+				})
+			})
+			financeHandler.Register(admin)
+		})
 	})
 	s := &http.Server{
 		Addr: cfg.HTTPAddress, Handler: httpserver.NewRouter(api),

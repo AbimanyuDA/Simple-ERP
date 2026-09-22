@@ -239,7 +239,7 @@ func (s Store) PostDelivery(ctx context.Context, id string, version int, actor, 
 	}
 	soStatus := "PARTIALLY_DELIVERED"
 	if complete {
-		soStatus = "FULLY_DELIVERED"
+		soStatus = "DELIVERED"
 	}
 	_, e = tx.Exec(ctx, `UPDATE sales_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2`, soStatus, so)
 	if e != nil {
@@ -272,6 +272,10 @@ func (s Store) ReverseDelivery(ctx context.Context, id, reason, actor, request s
 	var so, warehouse string
 	e = tx.QueryRow(ctx, `SELECT d.id,d.document_no,d.status,d.creator_id,d.version,d.sales_order_id,s.warehouse_id FROM deliveries d JOIN sales_orders s ON s.id=d.sales_order_id WHERE d.id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &so, &warehouse)
 	if e != nil || d.Status != "POSTED" {
+		return d, ErrConflict
+	}
+	var invoiced bool
+	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM sales_invoices WHERE sales_order_id=$1 AND status<>'VOID')`, so).Scan(&invoiced); e != nil || invoiced {
 		return d, ErrConflict
 	}
 	rows, e := tx.Query(ctx, `SELECT sm.id,sm.product_id,-sm.quantity,sm.source_line_id FROM stock_movements sm WHERE sm.source_id=$1 AND sm.movement_type='SALES_DELIVERY'`, id)

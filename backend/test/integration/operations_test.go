@@ -40,7 +40,7 @@ func operationsPool(t *testing.T) *pgxpool.Pool {
 	if e != nil {
 		t.Fatal(e)
 	}
-	_, e = p.Exec(context.Background(), `TRUNCATE stock_movements,stock_balances,delivery_lines,deliveries,sales_order_lines,sales_orders,goods_receipt_lines,goods_receipts,purchase_order_lines,purchase_orders,purchase_request_lines,purchase_requests,inventory_adjustment_lines,inventory_adjustments,organization_settings,products,suppliers,customers,warehouses,units,action_tokens,sessions,audit_entries,idempotency_keys,users CASCADE`)
+	_, e = p.Exec(context.Background(), `TRUNCATE customer_payment_allocations,customer_payments,sales_invoice_lines,sales_invoices,supplier_payment_allocations,supplier_payments,supplier_invoice_lines,supplier_invoices,stock_movements,stock_balances,delivery_lines,deliveries,sales_order_lines,sales_orders,goods_receipt_lines,goods_receipts,purchase_order_lines,purchase_orders,purchase_request_lines,purchase_requests,inventory_adjustment_lines,inventory_adjustments,organization_settings,products,suppliers,customers,warehouses,units,action_tokens,sessions,audit_entries,idempotency_keys,users CASCADE`)
 	if e != nil {
 		t.Fatal(e)
 	}
