@@ -32,4 +32,5 @@ if [ "$action_count" -ne 21 ]; then
   exit 1
 fi
 
-echo "traceability verified: 39 BPMN tasks and 21 supporting actions"
+echo "traceability structure verified: 39 BPMN tasks and 21 supporting actions have exactly one mapping row"
+echo "note: this structural check does not prove source, UI, API, audit, test, or runtime implementation"

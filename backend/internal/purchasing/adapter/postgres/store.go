@@ -46,6 +46,11 @@ func (s Store) CreateRequest(ctx context.Context, actor string, lines []applicat
 		if l.Quantity <= 0 || l.UnitPrice < 0 {
 			return application.Document{}, errors.New("invalid quantity or price")
 		}
+		var active bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM products WHERE id=$1 AND active)`, l.ProductID).Scan(&active)
+		if e != nil || !active {
+			return application.Document{}, ErrConflict
+		}
 		_, e = tx.Exec(ctx, `INSERT INTO purchase_request_lines(purchase_request_id,product_id,quantity,estimated_price)VALUES($1,$2,$3,$4)`, id, l.ProductID, l.Quantity, l.UnitPrice)
 		if e != nil {
 			return application.Document{}, e
@@ -61,6 +66,28 @@ func (s Store) CreateRequest(ctx context.Context, actor string, lines []applicat
 }
 func (s Store) ListRequests(ctx context.Context) ([]application.Document, error) {
 	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,version FROM purchase_requests ORDER BY created_at DESC`)
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	out := []application.Document{}
+	for rows.Next() {
+		var d application.Document
+		if e = rows.Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version); e != nil {
+			return nil, e
+		}
+		out = append(out, d)
+	}
+	return out, rows.Err()
+}
+func (s Store) ListOrders(ctx context.Context) ([]application.Document, error) {
+	return s.listDocuments(ctx, `SELECT id,document_no,status,creator_id,version FROM purchase_orders ORDER BY created_at DESC`)
+}
+func (s Store) ListReceipts(ctx context.Context) ([]application.Document, error) {
+	return s.listDocuments(ctx, `SELECT id,document_no,status,creator_id,version FROM goods_receipts ORDER BY created_at DESC`)
+}
+func (s Store) listDocuments(ctx context.Context, query string) ([]application.Document, error) {
+	rows, e := s.Pool.Query(ctx, query)
 	if e != nil {
 		return nil, e
 	}
@@ -111,7 +138,9 @@ func (s Store) TransitionRequest(ctx context.Context, id, action, actor, reason 
 		d.Status = "REJECTED"
 	case "cancel":
 		trace = "ACT-PUR-PR-CANCEL"
-		if from != "DRAFT" || reason == "" {
+		var admin bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
+		if e != nil || from != "DRAFT" || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}
 		d.Status = "CANCELLED"
@@ -140,6 +169,12 @@ func (s Store) ConvertToOrder(ctx context.Context, id, supplier, warehouse, acto
 	var creator, status string
 	e = tx.QueryRow(ctx, `SELECT creator_id,status FROM purchase_requests WHERE id=$1 FOR UPDATE`, id).Scan(&creator, &status)
 	if e != nil || status != "APPROVED" {
+		return application.Document{}, ErrConflict
+	}
+	var active bool
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM suppliers WHERE id=$1 AND active)
+		AND EXISTS(SELECT 1 FROM warehouses WHERE id=$2 AND active)`, supplier, warehouse).Scan(&active)
+	if e != nil || !active {
 		return application.Document{}, ErrConflict
 	}
 	po := uuid.NewString()
@@ -209,6 +244,14 @@ func (s Store) CreateReceipt(ctx context.Context, po string, lines []application
 	}
 	for _, l := range lines {
 		if l.Quantity <= 0 {
+			return application.Document{}, ErrConflict
+		}
+		var valid bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(
+			SELECT 1 FROM purchase_order_lines
+			WHERE id=$1 AND purchase_order_id=$2 AND product_id=$3
+		)`, l.PurchaseOrderLineID, po, l.ProductID).Scan(&valid)
+		if e != nil || !valid {
 			return application.Document{}, ErrConflict
 		}
 		_, e = tx.Exec(ctx, `INSERT INTO goods_receipt_lines(goods_receipt_id,purchase_order_line_id,product_id,quantity)VALUES($1,$2,$3,$4)`, id, l.PurchaseOrderLineID, l.ProductID, l.Quantity)
@@ -388,7 +431,7 @@ func (s Store) CopyRequest(ctx context.Context, id, actor, request string) (appl
 	if e != nil {
 		return application.Document{}, e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,status)VALUES($1,$2,$3,'DRAFT')`, newID, no, actor)
+	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,status,copied_from_id)VALUES($1,$2,$3,'DRAFT',$4)`, newID, no, actor, id)
 	if e != nil {
 		return application.Document{}, e
 	}

@@ -1,7 +1,7 @@
 # Mini ERP MVP Release Candidate Report
 
 Date: 2026-09-23  
-Status: **READY FOR USER REVIEW AS A LOCAL RELEASE CANDIDATE**  
+Status: **BASELINE REMEDIATION IN PROGRESS; CURRENT RUNTIME VERIFICATION PENDING**
 Production readiness: **NOT APPROVED**; deployment requires a separate plan and approval.
 
 ## Implemented capability
@@ -15,6 +15,8 @@ Production readiness: **NOT APPROVED**; deployment requires a separate plan and 
 - AP/AR tracking only, dashboard, operational/finance reports, and immutable searchable audit trail.
 
 ## Final verification
+
+The table below records an earlier release-candidate run and is not current evidence for this remediation branch. Re-run every applicable gate after migration 8 before restoring release-candidate status.
 
 | Verification | Result |
 |---|---|

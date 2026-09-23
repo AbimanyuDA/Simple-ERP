@@ -30,6 +30,7 @@ type Movement struct {
 type Store interface {
 	Balances(context.Context) ([]Balance, error)
 	Movements(context.Context) ([]Movement, error)
+	ListAdjustments(context.Context) ([]Document, error)
 	CreateAdjustment(context.Context, string, string, []AdjustmentLine, string) (Document, error)
 	TransitionAdjustment(context.Context, string, string, string, string, int, string) (Document, error)
 	PostAdjustment(context.Context, string, int, string, string) (Document, error)
@@ -40,6 +41,9 @@ type Service struct{ store Store }
 func NewService(s Store) Service                                  { return Service{s} }
 func (s Service) Balances(c context.Context) ([]Balance, error)   { return s.store.Balances(c) }
 func (s Service) Movements(c context.Context) ([]Movement, error) { return s.store.Movements(c) }
+func (s Service) ListAdjustments(c context.Context) ([]Document, error) {
+	return s.store.ListAdjustments(c)
+}
 func (s Service) CreateAdjustment(c context.Context, w, a string, l []AdjustmentLine, r string) (Document, error) {
 	return s.store.CreateAdjustment(c, w, a, l, r)
 }

@@ -16,9 +16,18 @@ func (h Handler) Register(r chi.Router) {
 	r.Post("/sales-orders", h.create)
 	r.Post("/sales-orders/{id}/{action}", h.action)
 	r.Post("/sales-orders/{id}/deliveries", h.delivery)
+	r.Get("/deliveries", h.listDeliveries)
 	r.Post("/deliveries/{id}/post", h.post)
 	r.Post("/deliveries/{id}/reverse", h.reverse)
 	r.Post("/deliveries/{id}/cancel", h.cancelDelivery)
+}
+func (h Handler) listDeliveries(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.ListDeliveries(r.Context())
+	if e != nil {
+		respond(w, 500, map[string]string{"message": "Gagal membaca delivery."})
+		return
+	}
+	respond(w, 200, map[string]any{"data": v})
 }
 func p(r *http.Request) authapp.Principal { v, _ := authapp.PrincipalFrom(r.Context()); return v }
 func decode(w http.ResponseWriter, r *http.Request, v any) bool {
@@ -74,6 +83,15 @@ func (h Handler) action(w http.ResponseWriter, r *http.Request) {
 	}
 	var v application.Document
 	var e error
+	if a == `validate-stock` {
+		v, e = h.Service.ValidateStock(r.Context(), chi.URLParam(r, `id`), in.Version, actor.UserID, middleware.GetReqID(r.Context()))
+		if e != nil {
+			respond(w, 409, map[string]string{`message`: e.Error()})
+			return
+		}
+		respond(w, 200, v)
+		return
+	}
 	if a == "copy" {
 		v, e = h.Service.CopyOrder(r.Context(), chi.URLParam(r, "id"), actor.UserID, middleware.GetReqID(r.Context()))
 	} else {

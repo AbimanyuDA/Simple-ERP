@@ -1,10 +1,12 @@
 # Final Phase 2 Traceability Coverage Report
 
-Review date: 2026-09-23. Status: **PASS**.
+> This report proves structural mapping coverage, not full implementation coverage. Source, API, UI, audit, automated-test, and runtime evidence must be verified independently before the repository is frozen as a TA baseline.
+
+Review date: 2026-09-23. Status: **STRUCTURAL MAPPING PASS; IMPLEMENTATION AND RUNTIME VERIFICATION PENDING**.
 
 ## Coverage summary
 
-| Traceability unit | Total | Mapped / implemented | Coverage |
+| Traceability unit | Total | Structurally mapped | Coverage |
 |---|---:|---:|---:|
 | Level 0 capabilities | 8 | 8 | 100% |
 | Level 1 processes | 4 | 4 | 100% |

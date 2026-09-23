@@ -212,7 +212,7 @@ paths:
         - name: action
           in: path
           required: true
-          schema: {type: string, enum: [submit, approve, reject, cancel, copy, confirm]}
+          schema: {type: string, enum: [validate-stock, submit, approve, reject, cancel, copy, confirm]}
         - {$ref: '#/components/parameters/CSRF'}
         - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed}, '409': {description: "Invalid transition, stock, or maker-checker conflict"}}

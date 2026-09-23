@@ -20,12 +20,30 @@ func (h Handler) Register(r chi.Router) {
 	r.Get("/purchase-requests", h.list)
 	r.Post("/purchase-requests", h.create)
 	r.Post("/purchase-requests/{id}/{action}", h.prAction)
+	r.Get("/purchase-orders", h.listOrders)
 	r.Post("/purchase-orders/{id}/issue", h.issue)
 	r.Post("/purchase-orders/{id}/cancel", h.cancelOrder)
 	r.Post("/purchase-orders/{id}/goods-receipts", h.receipt)
+	r.Get("/goods-receipts", h.listReceipts)
 	r.Post("/goods-receipts/{id}/post", h.postReceipt)
 	r.Post("/goods-receipts/{id}/reverse", h.reverseReceipt)
 	r.Post("/goods-receipts/{id}/cancel", h.cancelReceipt)
+}
+func (h Handler) listOrders(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.ListOrders(r.Context())
+	if e != nil {
+		respond(w, 500, map[string]string{"message": "Gagal membaca purchase order."})
+		return
+	}
+	respond(w, 200, map[string]any{"data": v})
+}
+func (h Handler) listReceipts(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.ListReceipts(r.Context())
+	if e != nil {
+		respond(w, 500, map[string]string{"message": "Gagal membaca goods receipt."})
+		return
+	}
+	respond(w, 200, map[string]any{"data": v})
 }
 func principal(r *http.Request) authapp.Principal {
 	p, _ := authapp.PrincipalFrom(r.Context())

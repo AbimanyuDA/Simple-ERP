@@ -1,1 +1,2 @@
-import { ModulePage } from "@/components/module-page";import{PurchasingWorkspace}from"@/features/purchasing/purchasing-workspace";export default function Page(){return <ModulePage eyebrow="PROCURE-TO-PAY" title="Purchasing" description="Dari kebutuhan pembelian sampai pembayaran supplier."><PurchasingWorkspace/></ModulePage>}
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/purchasing/purchase-requests"); }

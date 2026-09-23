@@ -15,7 +15,16 @@ func (h Handler) Register(r chi.Router) {
 	r.Get("/inventory/balances", h.balances)
 	r.Get("/inventory/movements", h.movements)
 	r.Post("/inventory-adjustments", h.create)
+	r.Get("/inventory-adjustments", h.listAdjustments)
 	r.Post("/inventory-adjustments/{id}/{action}", h.action)
+}
+func (h Handler) listAdjustments(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.ListAdjustments(r.Context())
+	if e != nil {
+		respond(w, 500, map[string]string{"message": "Gagal membaca stock adjustment."})
+		return
+	}
+	respond(w, 200, map[string]any{"data": v})
 }
 func p(r *http.Request) authapp.Principal { v, _ := authapp.PrincipalFrom(r.Context()); return v }
 func decode(w http.ResponseWriter, r *http.Request, v any) bool {

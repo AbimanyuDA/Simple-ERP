@@ -33,6 +33,12 @@ func (s Store) CreateOrder(ctx context.Context, customer, warehouse, actor strin
 		return application.Document{}, e
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	var active bool
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM customers WHERE id=$1 AND active)
+		AND EXISTS(SELECT 1 FROM warehouses WHERE id=$2 AND active)`, customer, warehouse).Scan(&active)
+	if e != nil || !active {
+		return application.Document{}, ErrConflict
+	}
 	id := uuid.NewString()
 	no, e := number(ctx, tx, "SO")
 	if e != nil {
@@ -44,6 +50,10 @@ func (s Store) CreateOrder(ctx context.Context, customer, warehouse, actor strin
 	}
 	for _, l := range lines {
 		if l.Quantity <= 0 || l.UnitPrice < 0 {
+			return application.Document{}, ErrConflict
+		}
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM products WHERE id=$1 AND active)`, l.ProductID).Scan(&active)
+		if e != nil || !active {
 			return application.Document{}, ErrConflict
 		}
 		_, e = tx.Exec(ctx, `INSERT INTO sales_order_lines(sales_order_id,product_id,quantity,unit_price)VALUES($1,$2,$3,$4)`, id, l.ProductID, l.Quantity, l.UnitPrice)
@@ -75,6 +85,51 @@ func (s Store) ListOrders(ctx context.Context) ([]application.Document, error) {
 	}
 	return out, rows.Err()
 }
+func (s Store) ListDeliveries(ctx context.Context) ([]application.Document, error) {
+	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,version FROM deliveries ORDER BY created_at DESC`)
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	out := []application.Document{}
+	for rows.Next() {
+		var d application.Document
+		if e = rows.Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version); e != nil {
+			return nil, e
+		}
+		out = append(out, d)
+	}
+	return out, rows.Err()
+}
+func (s Store) ValidateStock(ctx context.Context, id string, version int, actor, request string) (application.Document, error) {
+	tx, e := s.Pool.Begin(ctx)
+	if e != nil {
+		return application.Document{}, e
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	var d application.Document
+	var warehouse string
+	e = tx.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version,warehouse_id FROM sales_orders WHERE id=$1 FOR UPDATE`, id).
+		Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &warehouse)
+	if e != nil || d.Status != `DRAFT` || d.Version != version {
+		return d, ErrConflict
+	}
+	var available bool
+	e = tx.QueryRow(ctx, `SELECT COALESCE(bool_and(COALESCE(b.quantity,0)>=l.quantity-l.delivered_quantity),false)
+		FROM sales_order_lines l
+		LEFT JOIN stock_balances b ON b.product_id=l.product_id AND b.warehouse_id=$2
+		WHERE l.sales_order_id=$1`, id, warehouse).Scan(&available)
+	if e != nil || !available {
+		return d, ErrConflict
+	}
+	if e = audit(ctx, tx, actor, `VALIDATE_SALES_ORDER_STOCK`, `SAL-SO-003`, `SALES_ORDER`, id, d.Status, d.Status, ``, request); e != nil {
+		return d, e
+	}
+	if e = tx.Commit(ctx); e != nil {
+		return d, e
+	}
+	return d, nil
+}
 func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason string, version int, request string) (application.Document, error) {
 	tx, e := s.Pool.Begin(ctx)
 	if e != nil {
@@ -83,7 +138,8 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
 	var warehouse string
-	e = tx.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version,warehouse_id FROM sales_orders WHERE id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &warehouse)
+	var confirmedAt *time.Time
+	e = tx.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version,warehouse_id,confirmed_at FROM sales_orders WHERE id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &warehouse, &confirmedAt)
 	if e != nil || d.Version != version {
 		return d, ErrConflict
 	}
@@ -114,20 +170,22 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 		d.Status = "REJECTED"
 	case "confirm":
 		trace = "SAL-SO-005"
-		if from != "APPROVED" {
+		if from != "APPROVED" || confirmedAt != nil {
 			return d, ErrConflict
 		}
 		d.Status = "APPROVED"
 	case "cancel":
 		trace = "ACT-SAL-SO-CANCEL"
-		if (from != "DRAFT" && from != "APPROVED") || reason == "" {
+		var admin bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
+		if e != nil || (from != "DRAFT" && from != "APPROVED") || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}
 		d.Status = "CANCELLED"
 	default:
 		return d, ErrConflict
 	}
-	tag, e := tx.Exec(ctx, `UPDATE sales_orders SET status=$1,reviewer_id=CASE WHEN $2 IN('approve','reject')THEN $3::uuid ELSE reviewer_id END,reason=NULLIF($4,''),version=version+1,updated_at=now() WHERE id=$5 AND version=$6`, d.Status, action, actor, reason, id, version)
+	tag, e := tx.Exec(ctx, `UPDATE sales_orders SET status=$1,reviewer_id=CASE WHEN $2 IN('approve','reject')THEN $3::uuid ELSE reviewer_id END,reason=NULLIF($4,''),confirmed_at=CASE WHEN $2='confirm' THEN now() ELSE confirmed_at END,version=version+1,updated_at=now() WHERE id=$5 AND version=$6`, d.Status, action, actor, reason, id, version)
 	if e != nil || tag.RowsAffected() != 1 {
 		return d, ErrConflict
 	}
@@ -165,6 +223,14 @@ func (s Store) CreateDelivery(ctx context.Context, so string, lines []applicatio
 	}
 	for _, l := range lines {
 		if l.Quantity <= 0 {
+			return application.Document{}, ErrConflict
+		}
+		var valid bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(
+			SELECT 1 FROM sales_order_lines
+			WHERE id=$1 AND sales_order_id=$2 AND product_id=$3
+		)`, l.SalesOrderLineID, so, l.ProductID).Scan(&valid)
+		if e != nil || !valid {
 			return application.Document{}, ErrConflict
 		}
 		_, e = tx.Exec(ctx, `INSERT INTO delivery_lines(delivery_id,sales_order_line_id,product_id,quantity)VALUES($1,$2,$3,$4)`, id, l.SalesOrderLineID, l.ProductID, l.Quantity)
@@ -339,7 +405,7 @@ func (s Store) CopyOrder(ctx context.Context, id, actor, request string) (applic
 	if e != nil {
 		return application.Document{}, e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO sales_orders(id,document_no,customer_id,warehouse_id,creator_id,status)VALUES($1,$2,$3,$4,$5,'DRAFT')`, newID, no, customer, warehouse, actor)
+	_, e = tx.Exec(ctx, `INSERT INTO sales_orders(id,document_no,customer_id,warehouse_id,creator_id,status,copied_from_id)VALUES($1,$2,$3,$4,$5,'DRAFT',$6)`, newID, no, customer, warehouse, actor, id)
 	if e != nil {
 		return application.Document{}, e
 	}

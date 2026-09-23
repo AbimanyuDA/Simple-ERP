@@ -262,6 +262,11 @@ func (s Store) CreateSupplierPayment(ctx context.Context, input application.Paym
 		return application.Document{}, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	var active bool
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM suppliers WHERE id=$1 AND active)`, input.PartyID).Scan(&active)
+	if err != nil || !active {
+		return application.Document{}, ErrConflict
+	}
 	id := uuid.NewString()
 	no, err := documentNo(ctx, tx, "SPAY")
 	if err != nil {
@@ -272,7 +277,9 @@ func (s Store) CreateSupplierPayment(ctx context.Context, input application.Paym
 		return application.Document{}, ErrConflict
 	}
 	for _, allocation := range input.Allocations {
-		if _, err = tx.Exec(ctx, `INSERT INTO supplier_payment_allocations(payment_id,invoice_id,amount) VALUES($1,$2,$3)`, id, allocation.InvoiceID, allocation.Amount); err != nil {
+		tag, execErr := tx.Exec(ctx, `INSERT INTO supplier_payment_allocations(payment_id,invoice_id,amount)
+			SELECT $1,id,$3 FROM supplier_invoices WHERE id=$2 AND supplier_id=$4`, id, allocation.InvoiceID, allocation.Amount, input.PartyID)
+		if execErr != nil || tag.RowsAffected() != 1 {
 			return application.Document{}, ErrConflict
 		}
 	}
@@ -297,23 +304,27 @@ func (s Store) PostSupplierPayment(ctx context.Context, id string, version int, 
 		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate); err != nil || document.Status != "DRAFT" || document.Version != version {
 		return document, ErrConflict
 	}
-	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.purchase_order_id
+	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.purchase_order_id,i.supplier_id
 		FROM supplier_payment_allocations a JOIN supplier_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 ORDER BY a.invoice_id FOR UPDATE OF i`, id)
 	if err != nil {
 		return document, err
 	}
 	type allocation struct {
-		invoice, status, currency, invoiceDate, source string
-		amount, total, outstanding                     float64
+		invoice, status, currency, invoiceDate, source, party string
+		amount, total, outstanding                            float64
 	}
 	allocations := []allocation{}
 	for rows.Next() {
 		var item allocation
-		if err = rows.Scan(&item.invoice, &item.amount, &item.status, &item.total, &item.outstanding, &item.currency, &item.invoiceDate, &item.source); err != nil {
+		if err = rows.Scan(&item.invoice, &item.amount, &item.status, &item.total, &item.outstanding, &item.currency, &item.invoiceDate, &item.source, &item.party); err != nil {
 			rows.Close()
 			return document, err
 		}
 		if item.status != "POSTED" && item.status != "PARTIALLY_PAID" {
+			rows.Close()
+			return document, ErrConflict
+		}
+		if item.party != document.PartyID {
 			rows.Close()
 			return document, ErrConflict
 		}
@@ -528,6 +539,11 @@ func (s Store) CreateCustomerPayment(ctx context.Context, input application.Paym
 		return application.Document{}, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	var active bool
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM customers WHERE id=$1 AND active)`, input.PartyID).Scan(&active)
+	if err != nil || !active {
+		return application.Document{}, ErrConflict
+	}
 	id := uuid.NewString()
 	no, err := documentNo(ctx, tx, "CPAY")
 	if err != nil {
@@ -537,7 +553,9 @@ func (s Store) CreateCustomerPayment(ctx context.Context, input application.Paym
 		return application.Document{}, ErrConflict
 	}
 	for _, allocation := range input.Allocations {
-		if _, err = tx.Exec(ctx, `INSERT INTO customer_payment_allocations(payment_id,invoice_id,amount)VALUES($1,$2,$3)`, id, allocation.InvoiceID, allocation.Amount); err != nil {
+		tag, execErr := tx.Exec(ctx, `INSERT INTO customer_payment_allocations(payment_id,invoice_id,amount)
+			SELECT $1,id,$3 FROM sales_invoices WHERE id=$2 AND customer_id=$4`, id, allocation.InvoiceID, allocation.Amount, input.PartyID)
+		if execErr != nil || tag.RowsAffected() != 1 {
 			return application.Document{}, ErrConflict
 		}
 	}
@@ -562,22 +580,26 @@ func (s Store) PostCustomerPayment(ctx context.Context, id string, version int, 
 		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate); err != nil || document.Status != "DRAFT" || document.Version != version {
 		return document, ErrConflict
 	}
-	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.sales_order_id FROM customer_payment_allocations a JOIN sales_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 ORDER BY a.invoice_id FOR UPDATE OF i`, id)
+	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.sales_order_id,i.customer_id FROM customer_payment_allocations a JOIN sales_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 ORDER BY a.invoice_id FOR UPDATE OF i`, id)
 	if err != nil {
 		return document, err
 	}
 	type allocation struct {
-		invoice, status, currency, invoiceDate, source string
-		amount, total, outstanding                     float64
+		invoice, status, currency, invoiceDate, source, party string
+		amount, total, outstanding                            float64
 	}
 	items := []allocation{}
 	for rows.Next() {
 		var item allocation
-		if err = rows.Scan(&item.invoice, &item.amount, &item.status, &item.total, &item.outstanding, &item.currency, &item.invoiceDate, &item.source); err != nil {
+		if err = rows.Scan(&item.invoice, &item.amount, &item.status, &item.total, &item.outstanding, &item.currency, &item.invoiceDate, &item.source, &item.party); err != nil {
 			rows.Close()
 			return document, err
 		}
 		if item.status != "POSTED" && item.status != "PARTIALLY_PAID" {
+			rows.Close()
+			return document, ErrConflict
+		}
+		if item.party != document.PartyID {
 			rows.Close()
 			return document, ErrConflict
 		}

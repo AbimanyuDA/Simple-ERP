@@ -1,3 +1,10 @@
-import{render,screen}from"@testing-library/react";import{describe,expect,it,vi}from"vitest";import{PurchasingWorkspace}from"@/features/purchasing/purchasing-workspace";import{InventoryWorkspace}from"@/features/inventory/inventory-workspace";
-vi.mock("@/lib/api",()=>({api:vi.fn((path:string)=>Promise.resolve(path.includes("purchase-requests")?{data:[{id:"1",documentNo:"PR-001",status:"SUBMITTED",creatorId:"u1",version:2}]}:{data:[{warehouseId:"w1",productId:"p1",quantity:8}]}))}));
-describe("operational workspaces",()=>{it("shows purchase workflow state",async()=>{render(<PurchasingWorkspace/>);expect(await screen.findByText("PR-001")).toBeInTheDocument();expect(screen.getByText("SUBMITTED")).toBeInTheDocument()});it("shows ledger-backed stock",async()=>{render(<InventoryWorkspace/>);expect(await screen.findByText("8")).toBeInTheDocument();expect(screen.getByText("p1")).toBeInTheDocument()})});
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { PurchasingWorkspace } from "@/features/purchasing/purchasing-workspace";
+import { InventoryWorkspace } from "@/features/inventory/inventory-workspace";
+
+vi.mock("@/lib/api", () => ({ api: vi.fn((path: string) => Promise.resolve(path.includes("purchase-requests") ? { data: [{ id: "1", documentNo: "PR-001", status: "SUBMITTED", creatorId: "u1", version: 2 }] } : { data: [{ warehouseId: "w1", productId: "p1", quantity: 8 }] })) }));
+describe("operational workspaces", () => {
+  it("shows purchase workflow state", async () => { render(<PurchasingWorkspace section="purchase-requests" />); expect(await screen.findByText("PR-001")).toBeInTheDocument(); expect(screen.getByText("SUBMITTED")).toBeInTheDocument(); });
+  it("shows ledger-backed stock", async () => { render(<InventoryWorkspace section="stock-balances" />); expect(await screen.findByText("8")).toBeInTheDocument(); expect(screen.getByText("p1")).toBeInTheDocument(); });
+});

@@ -4,7 +4,9 @@ const publicRoutes = ["/login", "/activate", "/reset-password"];
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const signedIn = request.cookies.has("__Host-erp_access");
+  // Access token berumur pendek. Refresh token tetap mengizinkan halaman dibuka,
+  // lalu API client akan merotasi access token ketika request pertama menerima 401.
+  const signedIn = request.cookies.has("__Host-erp_access") || request.cookies.has("__Host-erp_refresh");
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
   const isPublicAsset = ["/simple-erp-logo.png", "/simple-erp-mark.png"].includes(pathname);
 

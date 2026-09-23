@@ -22,6 +22,8 @@ type Document struct {
 type Store interface {
 	CreateRequest(context.Context, string, []LineInput, string) (Document, error)
 	ListRequests(context.Context) ([]Document, error)
+	ListOrders(context.Context) ([]Document, error)
+	ListReceipts(context.Context) ([]Document, error)
 	TransitionRequest(context.Context, string, string, string, string, int, string) (Document, error)
 	ConvertToOrder(context.Context, string, string, string, string, string) (Document, error)
 	IssueOrder(context.Context, string, int, string, string) (Document, error)
@@ -40,6 +42,10 @@ func (s Service) CreateRequest(ctx context.Context, actor string, l []LineInput,
 }
 func (s Service) ListRequests(ctx context.Context) ([]Document, error) {
 	return s.store.ListRequests(ctx)
+}
+func (s Service) ListOrders(ctx context.Context) ([]Document, error) { return s.store.ListOrders(ctx) }
+func (s Service) ListReceipts(ctx context.Context) ([]Document, error) {
+	return s.store.ListReceipts(ctx)
 }
 func (s Service) TransitionRequest(ctx context.Context, id, action, actor, reason string, version int, request string) (Document, error) {
 	return s.store.TransitionRequest(ctx, id, action, actor, reason, version, request)

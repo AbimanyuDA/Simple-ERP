@@ -1,1 +1,2 @@
-import { ModulePage } from "@/components/module-page";import{InventoryWorkspace}from"@/features/inventory/inventory-workspace";export default function Page(){return <ModulePage eyebrow="STOCK LEDGER" title="Inventory" description="Saldo stok transparan dari movement ledger yang tidak dapat diubah."><InventoryWorkspace/></ModulePage>}
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/inventory/stock-balances"); }

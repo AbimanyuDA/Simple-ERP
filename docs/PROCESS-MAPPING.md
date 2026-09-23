@@ -2,6 +2,8 @@
 
 This document is Level 3 traceability. It is deliberately not a BPMN diagram.
 
+Current operational UI routes are `/purchasing/purchase-requests`, `/purchasing/purchase-orders`, `/purchasing/goods-receipts`, `/sales/sales-orders`, `/sales/deliveries`, `/inventory/stock-balances`, `/inventory/stock-movements`, and `/inventory/stock-adjustments`. Read-only list endpoints and navigation routes support presentation only and do not create new BPMN tasks or trace IDs. Older UI labels such as `.../new`, detail pages, or draft `PATCH` operations in the target matrix are not implementation evidence unless they also exist in the registered routes and source code.
+
 Phase 2 concrete implementation paths and verification evidence are recorded per gate in `docs/checkpoints/`. Checkpoints 1–4 are documented in `CHECKPOINT-1.md` through `CHECKPOINT-4.md`; stable IDs remain unchanged and appear in application metadata, audit writes, automated-test names, and OpenAPI operation IDs.
 
 ## Stable ID convention
@@ -17,7 +19,7 @@ Format for executable business tasks:
 - Sequence: three digits, allocated monotonically within domain/document.
 - IDs never change after release, even when the label changes. Removed IDs are retired and never reused.
 - Gateways use `GW-<PROCESS>-<MEANING>`; flows use `FLOW-<PROCESS>-<SEQUENCE>`; message flows use `MSG-<PROCESS>-<SEQUENCE>`.
-- UI/API/use case/test metadata must carry the BPMN task ID. Audit entries persist it as `trace_id` with `trace_kind=BPMN_TASK`.
+- UI/API/use case/test evidence should carry the BPMN task ID. Audit entries persist it in `trace_id`; the current schema does not have a separate `trace_kind` column.
 - Supporting lifecycle/recovery commands that are sourced from a Level 0 capability use `ACT-<DOMAIN>-<RESOURCE>-<ACTION>`. They are not BPMN task IDs and must not be inserted into Level 2 merely to document software recovery behavior. Use-case metadata, audit `trace_id`, API contract, and tests carry the action ID.
 
 Requirement IDs use `BR-*` from `BUSINESS-RULES.md`. Automated tests use `T-<TRACE-ID>-<NN>`, where the trace ID is a stable BPMN task ID or supporting `ACT-*` ID.
@@ -78,8 +80,8 @@ Requirement IDs use `BR-*` from `BUSINESS-RULES.md`. Automated tests use `T-<TRA
 | INV-ADJ-001 | BR-INV-003/004 | Operator | `/inventory/adjustments/new`, edit page | POST/PATCH `/inventory-adjustments` | `CreateInventoryAdjustment`, `UpdateInventoryAdjustment` | read balance snapshot; insert/update adjustment + lines + audit | `[*] → DRAFT` | T-INV-ADJ-001-01 |
 | INV-ADJ-002 | BR-INV-003 | Operator | adjustment detail, Submit | POST `/{id}/submit` | `SubmitInventoryAdjustment` | guarded update + audit | `DRAFT → SUBMITTED` | T-INV-ADJ-002-01 |
 | INV-ADJ-003 | BR-INV-004/006, BR-GEN-011 | Admin | adjustment approval | POST `/{id}/approve` or `/reject` | `ReviewInventoryAdjustment` | verify stock version and maker-checker; guarded update + audit | `SUBMITTED → APPROVED|REJECTED` | T-INV-ADJ-003-01/02/03 |
-| INV-ADJ-004 | BR-INV-001/002/006/007, BR-GEN-012 | System | posting result | POST `/{id}/post` | `PostInventoryAdjustment` | revalidate stock/source/version; movement/balance; update adjustment; audit | `APPROVED → POSTED` | T-INV-ADJ-004-01/02/03 |
-| INV-ADJ-005 | BR-INV-005 | System | completion status | same transaction as post/approve | `CompleteInventoryAdjustment` | guarded adjustment update + audit | `APPROVED|POSTED → COMPLETED` | T-INV-ADJ-005-01 |
+| INV-ADJ-004 | BR-INV-001/002/006/007, BR-GEN-012 | System | posting result | POST `/{id}/post` | `PostInventoryAdjustment` | revalidate stock/source/version; movement/balance; audit | `APPROVED → APPROVED` within the posting transaction | T-INV-ADJ-004-01/02/03 |
+| INV-ADJ-005 | BR-INV-005 | System | completion status | same transaction as post | `CompleteInventoryAdjustment` | guarded adjustment update + separate audit | `APPROVED → COMPLETED` | T-INV-ADJ-005-01 |
 
 ## Supporting software capabilities and BPMN source
 

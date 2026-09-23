@@ -56,6 +56,22 @@ func (s Store) Movements(ctx context.Context) ([]application.Movement, error) {
 	}
 	return out, rows.Err()
 }
+func (s Store) ListAdjustments(ctx context.Context) ([]application.Document, error) {
+	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,version FROM inventory_adjustments ORDER BY created_at DESC`)
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	out := []application.Document{}
+	for rows.Next() {
+		var d application.Document
+		if e = rows.Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version); e != nil {
+			return nil, e
+		}
+		out = append(out, d)
+	}
+	return out, rows.Err()
+}
 func (s Store) CreateAdjustment(ctx context.Context, warehouse, actor string, lines []application.AdjustmentLine, request string) (application.Document, error) {
 	if len(lines) == 0 {
 		return application.Document{}, ErrConflict
@@ -65,6 +81,11 @@ func (s Store) CreateAdjustment(ctx context.Context, warehouse, actor string, li
 		return application.Document{}, e
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
+	var active bool
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM warehouses WHERE id=$1 AND active)`, warehouse).Scan(&active)
+	if e != nil || !active {
+		return application.Document{}, ErrConflict
+	}
 	id := uuid.NewString()
 	no, e := number(ctx, tx)
 	if e != nil {
@@ -76,6 +97,10 @@ func (s Store) CreateAdjustment(ctx context.Context, warehouse, actor string, li
 	}
 	for _, l := range lines {
 		if l.CountedQuantity < 0 {
+			return application.Document{}, ErrConflict
+		}
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM products WHERE id=$1 AND active)`, l.ProductID).Scan(&active)
+		if e != nil || !active {
 			return application.Document{}, ErrConflict
 		}
 		_, e = tx.Exec(ctx, `INSERT INTO inventory_adjustment_lines(inventory_adjustment_id,product_id,snapshot_quantity,counted_quantity)VALUES($1,$2,COALESCE((SELECT quantity FROM stock_balances WHERE warehouse_id=$3 AND product_id=$2),0),$4)`, id, l.ProductID, warehouse, l.CountedQuantity)
@@ -124,7 +149,9 @@ func (s Store) TransitionAdjustment(ctx context.Context, id, action, actor, reas
 		d.Status = "REJECTED"
 	case "cancel":
 		trace = "ACT-INV-ADJ-CANCEL"
-		if from != "DRAFT" || reason == "" {
+		var admin bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
+		if e != nil || from != "DRAFT" || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}
 		d.Status = "CANCELLED"
@@ -200,7 +227,10 @@ func (s Store) PostAdjustment(ctx context.Context, id string, version int, actor
 	if e != nil {
 		return d, e
 	}
-	if e = audit(ctx, tx, actor, "POST_ADJUSTMENT", "INV-ADJ-004", id, "APPROVED", "COMPLETED", "", request); e != nil {
+	if e = audit(ctx, tx, actor, `POST_ADJUSTMENT_MOVEMENT`, `INV-ADJ-004`, id, `APPROVED`, `APPROVED`, ``, request); e != nil {
+		return d, e
+	}
+	if e = audit(ctx, tx, actor, `COMPLETE_ADJUSTMENT`, `INV-ADJ-005`, id, `APPROVED`, `COMPLETED`, ``, request); e != nil {
 		return d, e
 	}
 	if e = tx.Commit(ctx); e != nil {

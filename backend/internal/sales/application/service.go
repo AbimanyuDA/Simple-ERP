@@ -22,6 +22,8 @@ type Document struct {
 type Store interface {
 	CreateOrder(context.Context, string, string, string, []LineInput, string) (Document, error)
 	ListOrders(context.Context) ([]Document, error)
+	ListDeliveries(context.Context) ([]Document, error)
+	ValidateStock(context.Context, string, int, string, string) (Document, error)
 	TransitionOrder(context.Context, string, string, string, string, int, string) (Document, error)
 	CreateDelivery(context.Context, string, []DeliveryLineInput, string, string) (Document, error)
 	PostDelivery(context.Context, string, int, string, string) (Document, error)
@@ -36,6 +38,12 @@ func (s Service) CreateOrder(c context.Context, customer, warehouse, actor strin
 	return s.store.CreateOrder(c, customer, warehouse, actor, l, r)
 }
 func (s Service) ListOrders(c context.Context) ([]Document, error) { return s.store.ListOrders(c) }
+func (s Service) ListDeliveries(c context.Context) ([]Document, error) {
+	return s.store.ListDeliveries(c)
+}
+func (s Service) ValidateStock(c context.Context, id string, v int, actor, r string) (Document, error) {
+	return s.store.ValidateStock(c, id, v, actor, r)
+}
 func (s Service) TransitionOrder(c context.Context, id, action, actor, reason string, v int, r string) (Document, error) {
 	return s.store.TransitionOrder(c, id, action, actor, reason, v, r)
 }

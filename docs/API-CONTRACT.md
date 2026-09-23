@@ -1,6 +1,8 @@
 # REST API Contract Proposal
 
-Base path: `/api/v1`. JSON uses `snake_case`. Login, refresh, invitation activation, and password-reset consumption are public token endpoints; all other endpoints require the approved opaque cookie session. Authentication credentials are never stored in browser `localStorage` or `sessionStorage`. This document defines the contract shape; the future canonical machine-readable contract will be `api/openapi.yaml` during Phase 2.
+> Historical design proposal. It is not the current executable API contract. For baseline and impact-mapping work, use `api/openapi.yaml`, registered HTTP routes, and automated tests as the authoritative evidence. Any route or convention present only in this document is not implemented evidence.
+
+Base path: `/api/v1`. The original proposal below uses `snake_case`, while the implemented API currently uses the field names defined by `api/openapi.yaml` and the Go handlers. Login, refresh, invitation activation, and password-reset consumption are public token endpoints; all other endpoints require the approved opaque cookie session. Authentication credentials are never stored in browser `localStorage` or `sessionStorage`.
 
 ## Conventions
 
