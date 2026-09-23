@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, Boxes, Building2, CircleDollarSign, LayoutDashboard, PackageCheck, Settings, ShoppingBag, Truck, Users } from "lucide-react";
+import { BarChart3, Boxes, CircleDollarSign, LayoutDashboard, PackageCheck, Settings, ShoppingBag, Truck, Users } from "lucide-react";
 
 const navigation = [
   ["Dashboard", "/", LayoutDashboard], ["Purchasing", "/purchasing", ShoppingBag],
@@ -11,7 +12,9 @@ const navigation = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   return <div className="shell">
     <aside className="sidebar">
-      <div className="brand"><span className="brand-mark"><Building2 size={20}/></span><span>Arus ERP<small>Operasional UMKM</small></span></div>
+      <Link className="brand" href="/" aria-label="Simple ERP — Dashboard">
+        <Image className="brand-logo" src="/simple-erp-logo.png" alt="Simple ERP" width={181} height={60} priority />
+      </Link>
       <nav>{navigation.map(([label, href, Icon]) => <Link href={href} key={label}><Icon size={18}/><span>{label}</span></Link>)}</nav>
       <div className="sidebar-foot"><BarChart3 size={17}/><span>Semua proses terlacak</span></div>
     </aside>
