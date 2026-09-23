@@ -12,6 +12,15 @@ describe("authentication proxy", () => {
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
 
+  it("allows the compact brand mark before authentication", () => {
+    const response = proxy(
+      new NextRequest("http://localhost:3000/simple-erp-mark.png"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
   it("still protects arbitrary routes containing a file extension", () => {
     const response = proxy(
       new NextRequest("http://localhost:3000/reports/confidential.csv"),

@@ -6,7 +6,7 @@ export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const signedIn = request.cookies.has("__Host-erp_access");
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-  const isPublicAsset = pathname === "/simple-erp-logo.png";
+  const isPublicAsset = ["/simple-erp-logo.png", "/simple-erp-mark.png"].includes(pathname);
 
   if (isPublicAsset) return NextResponse.next();
   if (!signedIn && !isPublicRoute) {
@@ -19,5 +19,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|simple-erp-logo.png).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|simple-erp-logo.png|simple-erp-mark.png).*)"],
 };

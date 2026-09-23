@@ -44,6 +44,10 @@ describe("application shell", () => {
 
     await user.click(screen.getByRole("button", { name: "Ciutkan sidebar" }));
     expect(screen.getByRole("button", { name: "Buka sidebar" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Simple ERP" })).toHaveAttribute(
+      "src",
+      expect.stringContaining("simple-erp-mark.png"),
+    );
     expect(window.localStorage.getItem("simple-erp-sidebar-collapsed")).toBe("true");
 
     await user.click(screen.getByRole("button", { name: "Buka sidebar" }));

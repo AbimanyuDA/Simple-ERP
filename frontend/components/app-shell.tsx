@@ -59,7 +59,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="app-header">
         <div className="header-brand">
           <Link className="brand" href="/" aria-label="Simple ERP — Dashboard">
-            <Image className="brand-logo" src="/simple-erp-logo.png" alt="Simple ERP" width={181} height={60} priority />
+            <Image
+              className={`brand-logo${collapsed ? " brand-logo--mark" : ""}`}
+              src={collapsed ? "/simple-erp-mark.png" : "/simple-erp-logo.png"}
+              alt="Simple ERP"
+              width={collapsed ? 48 : 200}
+              height={collapsed ? 48 : 67}
+              priority
+            />
           </Link>
           <button
             type="button"
