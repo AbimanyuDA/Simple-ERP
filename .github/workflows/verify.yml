@@ -19,6 +19,7 @@ jobs:
           --health-cmd "pg_isready -U simple_erp -d simple_erp_test"
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
+      DATABASE_URL: postgres://simple_erp:test-only@localhost:5432/simple_erp_test?sslmode=disable
       TEST_DATABASE_URL: postgres://simple_erp:test-only@localhost:5432/simple_erp_test?sslmode=disable
     steps:
       - uses: actions/checkout@v4
@@ -28,5 +29,6 @@ jobs:
         with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
       - run: make install
       - run: make lint typecheck test test-race
+      - run: make migrate-up
       - run: make test-integration migrate-verify
       - run: make openapi-verify traceability-verify
