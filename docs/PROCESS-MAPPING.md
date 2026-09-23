@@ -2,7 +2,7 @@
 
 This document is Level 3 traceability. It is deliberately not a BPMN diagram.
 
-Phase 2 concrete implementation paths and verification evidence are recorded per gate in `docs/checkpoints/`. Checkpoints 1–3 are documented in `CHECKPOINT-1.md`, `CHECKPOINT-2.md`, and `CHECKPOINT-3.md`; stable IDs remain unchanged and appear in application metadata, audit writes, automated-test names, and OpenAPI operation IDs.
+Phase 2 concrete implementation paths and verification evidence are recorded per gate in `docs/checkpoints/`. Checkpoints 1–4 are documented in `CHECKPOINT-1.md` through `CHECKPOINT-4.md`; stable IDs remain unchanged and appear in application metadata, audit writes, automated-test names, and OpenAPI operation IDs.
 
 ## Stable ID convention
 

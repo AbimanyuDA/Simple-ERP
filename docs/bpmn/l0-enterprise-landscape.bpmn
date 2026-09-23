@@ -19,10 +19,10 @@
       <bpmn:incoming>FLOW-L0-002</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-010</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:subProcess id="CAP-MDM-001" name="Manage master data">
+    <bpmn:task id="CAP-MDM-001" name="Manage master data">
       <bpmn:incoming>FLOW-L0-003</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-011</bpmn:outgoing>
-    </bpmn:subProcess>
+    </bpmn:task>
     <bpmn:callActivity id="CAP-P2P-001" name="Run Procure-to-Pay" calledElement="P2P-L1-001">
       <bpmn:incoming>FLOW-L0-004</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-012</bpmn:outgoing>
@@ -35,18 +35,18 @@
       <bpmn:incoming>FLOW-L0-006</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-014</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:subProcess id="CAP-FIN-001" name="Manage simple finance">
+    <bpmn:task id="CAP-FIN-001" name="Manage simple finance">
       <bpmn:incoming>FLOW-L0-007</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-015</bpmn:outgoing>
-    </bpmn:subProcess>
-    <bpmn:subProcess id="CAP-RPT-001" name="Review dashboard and reports">
+    </bpmn:task>
+    <bpmn:task id="CAP-RPT-001" name="Review dashboard and reports">
       <bpmn:incoming>FLOW-L0-008</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-016</bpmn:outgoing>
-    </bpmn:subProcess>
-    <bpmn:subProcess id="CAP-AUD-001" name="Review audit trail">
+    </bpmn:task>
+    <bpmn:task id="CAP-AUD-001" name="Review audit trail">
       <bpmn:incoming>FLOW-L0-009</bpmn:incoming>
       <bpmn:outgoing>FLOW-L0-017</bpmn:outgoing>
-    </bpmn:subProcess>
+    </bpmn:task>
     <bpmn:exclusiveGateway id="ERP-L0-GW-002" name="Capability completed">
       <bpmn:incoming>FLOW-L0-010</bpmn:incoming>
       <bpmn:incoming>FLOW-L0-011</bpmn:incoming>

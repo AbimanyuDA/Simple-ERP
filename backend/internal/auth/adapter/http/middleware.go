@@ -3,6 +3,8 @@ package http
 import (
 	"context"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/simple-erp/backend/internal/auth/application"
 )
@@ -15,10 +17,34 @@ type Authenticator interface {
 type Middleware struct {
 	auth          Authenticator
 	trustedOrigin string
+	rateLimit     *authenticatedLimiter
 }
 
 func NewMiddleware(auth Authenticator, trustedOrigin string) Middleware {
-	return Middleware{auth, trustedOrigin}
+	return Middleware{auth: auth, trustedOrigin: trustedOrigin, rateLimit: &authenticatedLimiter{items: map[string][]time.Time{}}}
+}
+
+type authenticatedLimiter struct {
+	mu    sync.Mutex
+	items map[string][]time.Time
+}
+
+func (l *authenticatedLimiter) allow(userID string, now time.Time) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	cutoff := now.Add(-time.Minute)
+	recent := l.items[userID][:0]
+	for _, observed := range l.items[userID] {
+		if observed.After(cutoff) {
+			recent = append(recent, observed)
+		}
+	}
+	if len(recent) >= 120 {
+		l.items[userID] = recent
+		return false
+	}
+	l.items[userID] = append(recent, now)
+	return true
 }
 func (m Middleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +56,11 @@ func (m Middleware) RequireAuth(next http.Handler) http.Handler {
 		p, err := m.auth.Authenticate(r.Context(), c.Value)
 		if err != nil {
 			write(w, http.StatusUnauthorized, map[string]string{"message": "Sesi tidak valid."})
+			return
+		}
+		if !m.rateLimit.allow(p.UserID, time.Now()) {
+			w.Header().Set("Retry-After", "60")
+			write(w, http.StatusTooManyRequests, map[string]string{"message": "Terlalu banyak permintaan. Coba lagi nanti."})
 			return
 		}
 		if r.Method != http.MethodGet && r.Method != http.MethodHead && r.Method != http.MethodOptions {

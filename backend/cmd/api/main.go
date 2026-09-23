@@ -28,6 +28,9 @@ import (
 	purchasehttp "github.com/simple-erp/backend/internal/purchasing/adapter/http"
 	purchasepostgres "github.com/simple-erp/backend/internal/purchasing/adapter/postgres"
 	purchaseapp "github.com/simple-erp/backend/internal/purchasing/application"
+	reportinghttp "github.com/simple-erp/backend/internal/reporting/adapter/http"
+	reportingpostgres "github.com/simple-erp/backend/internal/reporting/adapter/postgres"
+	reportingapp "github.com/simple-erp/backend/internal/reporting/application"
 	saleshttp "github.com/simple-erp/backend/internal/sales/adapter/http"
 	salespostgres "github.com/simple-erp/backend/internal/sales/adapter/postgres"
 	salesapp "github.com/simple-erp/backend/internal/sales/application"
@@ -59,6 +62,7 @@ func main() {
 	salesHandler := saleshttp.Handler{Service: salesapp.NewService(salespostgres.Store{Pool: pool})}
 	inventoryHandler := inventoryhttp.Handler{Service: inventoryapp.NewService(inventorypostgres.Store{Pool: pool})}
 	financeHandler := financehttp.Handler{Service: financeapp.NewService(financepostgres.Store{Pool: pool})}
+	reportingHandler := reportinghttp.Handler{Service: reportingapp.NewService(reportingpostgres.Store{Pool: pool})}
 	api := chi.NewRouter()
 	api.Handle("/auth/login", authHandler.Routes())
 	api.Handle("/auth/activate-invitation", lifecycle.PublicRoutes())
@@ -77,6 +81,7 @@ func main() {
 		purchaseHandler.Register(r)
 		salesHandler.Register(r)
 		inventoryHandler.Register(r)
+		reportingHandler.RegisterDashboard(r)
 		r.Group(func(admin chi.Router) {
 			admin.Use(func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
@@ -91,6 +96,7 @@ func main() {
 				})
 			})
 			financeHandler.Register(admin)
+			reportingHandler.RegisterAdmin(admin)
 		})
 	})
 	s := &http.Server{

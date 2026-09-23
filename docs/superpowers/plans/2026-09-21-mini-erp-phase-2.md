@@ -1,5 +1,7 @@
 # Mini ERP Phase 2 MVP Implementation Plan
 
+**Execution status:** completed through Checkpoint 4 on 2026-09-23. Evidence is recorded in `docs/checkpoints/` and `docs/RELEASE-CANDIDATE.md`. Production deployment remains excluded.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Deliver one complete, secure, maintainable Mini ERP MVP through a single implementation phase with four internal checkpoints.
@@ -256,7 +258,7 @@ The exact commands are exposed through stable Make targets such as `make lint`, 
 
 ## Phase 2 Approval and Stop Conditions
 
-This file is a proposal. All checkboxes remain intentionally unchecked until the user approves Phase 2 implementation.
+This file preserves the approved implementation plan. Completion evidence, rather than retroactive checkbox edits, is recorded in the four checkpoint reports.
 
 After approval, work proceeds across the four checkpoints without requesting approval for each small task. Stop and request direction only when:
 

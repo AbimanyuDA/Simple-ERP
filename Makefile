@@ -1,4 +1,4 @@
-.PHONY: install dev up down lint typecheck test test-race test-integration test-e2e migrate-up migrate-down migrate-verify openapi-verify traceability-verify verify
+.PHONY: install dev up down lint typecheck test test-race test-integration test-e2e migrate-up migrate-down migrate-verify bpmn-verify openapi-verify traceability-verify verify
 
 install:
 	cd backend && go mod download
@@ -46,7 +46,10 @@ migrate-verify:
 openapi-verify:
 	npx --yes @redocly/cli lint api/openapi.yaml
 
+bpmn-verify:
+	npx --yes bpmnlint docs/bpmn/*.bpmn
+
 traceability-verify:
 	./scripts/verify-traceability.sh
 
-verify: lint typecheck test test-race openapi-verify traceability-verify
+verify: lint typecheck test test-race bpmn-verify openapi-verify traceability-verify

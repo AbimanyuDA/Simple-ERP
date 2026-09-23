@@ -139,7 +139,7 @@ paths:
       summary: Create a draft purchase request
       operationId: PUR-PR-001-create
       tags: [Purchasing]
-      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
   /purchase-requests/{id}/{action}:
     post:
@@ -153,6 +153,7 @@ paths:
           required: true
           schema: {type: string, enum: [submit, approve, reject, cancel, copy, purchase-order]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed}, '409': {description: Invalid transition or maker-checker conflict}}
   /purchase-orders/{id}/{action}:
     post:
@@ -166,13 +167,14 @@ paths:
           required: true
           schema: {type: string, enum: [issue, cancel]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed}, '409': {description: Invalid transition}}
   /purchase-orders/{id}/goods-receipts:
     post:
       summary: Create a partial or final goods receipt
       operationId: PUR-GR-001-create
       tags: [Purchasing, Inventory]
-      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft receipt created}, '409': {description: Invalid remaining quantity}}
   /goods-receipts/{id}/{action}:
     post:
@@ -186,6 +188,7 @@ paths:
           required: true
           schema: {type: string, enum: [post, cancel, reverse]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: Receipt changed atomically with stock}, '409': {description: "State, quantity, or reversal conflict"}}
   /sales-orders:
     get:
@@ -197,7 +200,7 @@ paths:
       summary: Create a draft sales order
       operationId: SAL-SO-001-create
       tags: [Sales]
-      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
   /sales-orders/{id}/{action}:
     post:
@@ -211,13 +214,14 @@ paths:
           required: true
           schema: {type: string, enum: [submit, approve, reject, cancel, copy, confirm]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed}, '409': {description: "Invalid transition, stock, or maker-checker conflict"}}
   /sales-orders/{id}/deliveries:
     post:
       summary: Create a partial or final sales delivery
       operationId: SAL-DLV-001-create
       tags: [Sales, Inventory]
-      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft delivery created}, '409': {description: Invalid remaining quantity}}
   /deliveries/{id}/{action}:
     post:
@@ -231,6 +235,7 @@ paths:
           required: true
           schema: {type: string, enum: [post, cancel, reverse]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: Delivery changed atomically with stock}, '409': {description: "State, quantity, stock, or reversal conflict"}}
   /inventory/balances:
     get:
@@ -249,7 +254,7 @@ paths:
       summary: Create a stock-count adjustment draft
       operationId: INV-ADJ-001-create
       tags: [Inventory]
-      parameters: [{$ref: '#/components/parameters/CSRF'}]
+      parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft with stock snapshot}, '409': {description: Invalid count}}
   /inventory-adjustments/{id}/{action}:
     post:
@@ -263,6 +268,7 @@ paths:
           required: true
           schema: {type: string, enum: [submit, approve, reject, cancel, post, reverse]}
         - {$ref: '#/components/parameters/CSRF'}
+        - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed atomically}, '409': {description: "State, snapshot, stock, or maker-checker conflict"}}
   /supplier-invoices:
     get:
@@ -362,6 +368,33 @@ paths:
         - {$ref: '#/components/parameters/CSRF'}
         - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: SAL-PAY-002 or ACT-FIN-CPAY-VOID applied}, '409': {description: Payment or allocation conflict}}
+  /dashboard/summary:
+    get:
+      summary: Read reconciled operational and finance attention metrics
+      operationId: CAP-RPT-001-dashboard
+      tags: [Reporting]
+      responses: {'200': {description: Dashboard summary}, '401': {$ref: '#/components/responses/Unauthorized'}}
+  /reports/{report}:
+    get:
+      summary: Read an Admin-only operational or finance report
+      operationId: CAP-RPT-001-report
+      tags: [Reporting]
+      parameters:
+        - name: report
+          in: path
+          required: true
+          schema: {type: string, enum: [purchases, sales, inventory, payables, receivables]}
+      responses: {'200': {description: Reconciled report rows}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /audit-logs:
+    get:
+      summary: Search immutable redacted audit records
+      operationId: CAP-AUD-001-list
+      tags: [Audit]
+      parameters:
+        - {name: entity, in: query, schema: {type: string}}
+        - {name: actor, in: query, schema: {type: string, format: uuid}}
+        - {name: action, in: query, schema: {type: string}}
+      responses: {'200': {description: Source-linked audit records}, '403': {$ref: '#/components/responses/Forbidden'}}
 components:
   securitySchemes:
     accessCookie: {type: apiKey, in: cookie, name: __Host-erp_access}

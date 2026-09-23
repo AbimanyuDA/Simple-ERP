@@ -7,12 +7,12 @@
     <bpmn:participant id="PART-L1-AUTH" name="Access Lifecycle" processRef="AUTH-L1-001" />
   </bpmn:collaboration>
   <bpmn:process id="P2P-L1-001" name="Procure-to-Pay Level 1" isExecutable="false">
-    <bpmn:startEvent id="P2P-L1-START"><bpmn:outgoing>FLOW-P2P-L1-001</bpmn:outgoing></bpmn:startEvent>
-    <bpmn:subProcess id="P2P-L1-REQ" name="Request and approve purchase"><bpmn:incoming>FLOW-P2P-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-002</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="P2P-L1-ORDER" name="Order goods"><bpmn:incoming>FLOW-P2P-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-003</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="P2P-L1-RECEIVE" name="Receive and post stock"><bpmn:incoming>FLOW-P2P-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-004</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="P2P-L1-PAY" name="Match invoice and pay"><bpmn:incoming>FLOW-P2P-L1-004</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-005</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:endEvent id="P2P-L1-END"><bpmn:incoming>FLOW-P2P-L1-005</bpmn:incoming></bpmn:endEvent>
+    <bpmn:startEvent id="P2P-L1-START" name="Purchase need identified"><bpmn:outgoing>FLOW-P2P-L1-001</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="P2P-L1-REQ" name="Request and approve purchase"><bpmn:incoming>FLOW-P2P-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-002</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="P2P-L1-ORDER" name="Order goods"><bpmn:incoming>FLOW-P2P-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-003</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="P2P-L1-RECEIVE" name="Receive and post stock"><bpmn:incoming>FLOW-P2P-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-004</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="P2P-L1-PAY" name="Match invoice and pay"><bpmn:incoming>FLOW-P2P-L1-004</bpmn:incoming><bpmn:outgoing>FLOW-P2P-L1-005</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="P2P-L1-END" name="Procure-to-Pay completed"><bpmn:incoming>FLOW-P2P-L1-005</bpmn:incoming></bpmn:endEvent>
     <bpmn:sequenceFlow id="FLOW-P2P-L1-001" sourceRef="P2P-L1-START" targetRef="P2P-L1-REQ" />
     <bpmn:sequenceFlow id="FLOW-P2P-L1-002" sourceRef="P2P-L1-REQ" targetRef="P2P-L1-ORDER" />
     <bpmn:sequenceFlow id="FLOW-P2P-L1-003" sourceRef="P2P-L1-ORDER" targetRef="P2P-L1-RECEIVE" />
@@ -20,12 +20,12 @@
     <bpmn:sequenceFlow id="FLOW-P2P-L1-005" sourceRef="P2P-L1-PAY" targetRef="P2P-L1-END" />
   </bpmn:process>
   <bpmn:process id="O2C-L1-001" name="Order-to-Cash Level 1" isExecutable="false">
-    <bpmn:startEvent id="O2C-L1-START"><bpmn:outgoing>FLOW-O2C-L1-001</bpmn:outgoing></bpmn:startEvent>
-    <bpmn:subProcess id="O2C-L1-ORDER" name="Capture and approve order"><bpmn:incoming>FLOW-O2C-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-002</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="O2C-L1-DELIVER" name="Deliver and post stock"><bpmn:incoming>FLOW-O2C-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-003</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="O2C-L1-INVOICE" name="Invoice customer"><bpmn:incoming>FLOW-O2C-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-004</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="O2C-L1-CASH" name="Receive payment"><bpmn:incoming>FLOW-O2C-L1-004</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-005</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:endEvent id="O2C-L1-END"><bpmn:incoming>FLOW-O2C-L1-005</bpmn:incoming></bpmn:endEvent>
+    <bpmn:startEvent id="O2C-L1-START" name="Customer order received"><bpmn:outgoing>FLOW-O2C-L1-001</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="O2C-L1-ORDER" name="Capture and approve order"><bpmn:incoming>FLOW-O2C-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-002</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="O2C-L1-DELIVER" name="Deliver and post stock"><bpmn:incoming>FLOW-O2C-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-003</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="O2C-L1-INVOICE" name="Invoice customer"><bpmn:incoming>FLOW-O2C-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-004</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="O2C-L1-CASH" name="Receive payment"><bpmn:incoming>FLOW-O2C-L1-004</bpmn:incoming><bpmn:outgoing>FLOW-O2C-L1-005</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="O2C-L1-END" name="Order-to-Cash completed"><bpmn:incoming>FLOW-O2C-L1-005</bpmn:incoming></bpmn:endEvent>
     <bpmn:sequenceFlow id="FLOW-O2C-L1-001" sourceRef="O2C-L1-START" targetRef="O2C-L1-ORDER" />
     <bpmn:sequenceFlow id="FLOW-O2C-L1-002" sourceRef="O2C-L1-ORDER" targetRef="O2C-L1-DELIVER" />
     <bpmn:sequenceFlow id="FLOW-O2C-L1-003" sourceRef="O2C-L1-DELIVER" targetRef="O2C-L1-INVOICE" />
@@ -33,23 +33,23 @@
     <bpmn:sequenceFlow id="FLOW-O2C-L1-005" sourceRef="O2C-L1-CASH" targetRef="O2C-L1-END" />
   </bpmn:process>
   <bpmn:process id="INV-L1-001" name="Inventory Adjustment Level 1" isExecutable="false">
-    <bpmn:startEvent id="INV-L1-START"><bpmn:outgoing>FLOW-INV-L1-001</bpmn:outgoing></bpmn:startEvent>
-    <bpmn:subProcess id="INV-L1-COUNT" name="Count and propose adjustment"><bpmn:incoming>FLOW-INV-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-002</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="INV-L1-APPROVE" name="Review adjustment"><bpmn:incoming>FLOW-INV-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-003</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="INV-L1-POST" name="Post stock movement"><bpmn:incoming>FLOW-INV-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-004</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:endEvent id="INV-L1-END"><bpmn:incoming>FLOW-INV-L1-004</bpmn:incoming></bpmn:endEvent>
+    <bpmn:startEvent id="INV-L1-START" name="Stock count requested"><bpmn:outgoing>FLOW-INV-L1-001</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="INV-L1-COUNT" name="Count and propose adjustment"><bpmn:incoming>FLOW-INV-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-002</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="INV-L1-APPROVE" name="Review adjustment"><bpmn:incoming>FLOW-INV-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-003</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="INV-L1-POST" name="Post stock movement"><bpmn:incoming>FLOW-INV-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-INV-L1-004</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="INV-L1-END" name="Inventory adjustment completed"><bpmn:incoming>FLOW-INV-L1-004</bpmn:incoming></bpmn:endEvent>
     <bpmn:sequenceFlow id="FLOW-INV-L1-001" sourceRef="INV-L1-START" targetRef="INV-L1-COUNT" />
     <bpmn:sequenceFlow id="FLOW-INV-L1-002" sourceRef="INV-L1-COUNT" targetRef="INV-L1-APPROVE" />
     <bpmn:sequenceFlow id="FLOW-INV-L1-003" sourceRef="INV-L1-APPROVE" targetRef="INV-L1-POST" />
     <bpmn:sequenceFlow id="FLOW-INV-L1-004" sourceRef="INV-L1-POST" targetRef="INV-L1-END" />
   </bpmn:process>
   <bpmn:process id="AUTH-L1-001" name="Access Lifecycle Level 1" isExecutable="false">
-    <bpmn:startEvent id="AUTH-L1-START"><bpmn:outgoing>FLOW-AUTH-L1-001</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:startEvent id="AUTH-L1-START" name="Access lifecycle requested"><bpmn:outgoing>FLOW-AUTH-L1-001</bpmn:outgoing></bpmn:startEvent>
     <bpmn:exclusiveGateway id="GW-AUTH-L1-TYPE" name="Access request type" default="FLOW-AUTH-L1-003"><bpmn:incoming>FLOW-AUTH-L1-001</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-002</bpmn:outgoing><bpmn:outgoing>FLOW-AUTH-L1-003</bpmn:outgoing></bpmn:exclusiveGateway>
-    <bpmn:subProcess id="AUTH-L1-INVITE" name="Invite and activate user"><bpmn:incoming>FLOW-AUTH-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-004</bpmn:outgoing></bpmn:subProcess>
-    <bpmn:subProcess id="AUTH-L1-RESET" name="Reset password"><bpmn:incoming>FLOW-AUTH-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-005</bpmn:outgoing></bpmn:subProcess>
+    <bpmn:task id="AUTH-L1-INVITE" name="Invite and activate user"><bpmn:incoming>FLOW-AUTH-L1-002</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-004</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="AUTH-L1-RESET" name="Reset password"><bpmn:incoming>FLOW-AUTH-L1-003</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-005</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="GW-AUTH-L1-MERGE" name="Access ready"><bpmn:incoming>FLOW-AUTH-L1-004</bpmn:incoming><bpmn:incoming>FLOW-AUTH-L1-005</bpmn:incoming><bpmn:outgoing>FLOW-AUTH-L1-006</bpmn:outgoing></bpmn:exclusiveGateway>
-    <bpmn:endEvent id="AUTH-L1-END"><bpmn:incoming>FLOW-AUTH-L1-006</bpmn:incoming></bpmn:endEvent>
+    <bpmn:endEvent id="AUTH-L1-END" name="Access lifecycle completed"><bpmn:incoming>FLOW-AUTH-L1-006</bpmn:incoming></bpmn:endEvent>
     <bpmn:sequenceFlow id="FLOW-AUTH-L1-001" sourceRef="AUTH-L1-START" targetRef="GW-AUTH-L1-TYPE" />
     <bpmn:sequenceFlow id="FLOW-AUTH-L1-002" name="Invitation" sourceRef="GW-AUTH-L1-TYPE" targetRef="AUTH-L1-INVITE"><bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">requestType = 'INVITATION'</bpmn:conditionExpression></bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="FLOW-AUTH-L1-003" name="Password reset" sourceRef="GW-AUTH-L1-TYPE" targetRef="AUTH-L1-RESET" />
