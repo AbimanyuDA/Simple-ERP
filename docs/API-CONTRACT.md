@@ -49,7 +49,7 @@ Collections use `page` and `per_page` (default 20, maximum 100) with `meta.total
 | 429 | authentication or API rate limit exceeded; includes `Retry-After` |
 | 500 | unexpected error with no internal detail exposed |
 
-Mutating requests carry `Idempotency-Key`; updates/transitions carry `If-Match: "<version>"`. Cookie-authenticated unsafe methods also carry `X-CSRF-Token` and `Content-Type: application/json`. The response exposes `ETag: "<new-version>"`.
+Mutating requests carry `Idempotency-Key`. Commands that implement optimistic locking send `version` in the JSON body; the current API does not implement `If-Match` or response `ETag`. Some correction commands instead serialize the target row and enforce its legal source state. Cookie-authenticated unsafe methods also carry `X-CSRF-Token` and `Content-Type: application/json`.
 
 ## Authentication security contract
 
@@ -113,8 +113,6 @@ The same REST pattern applies to `/products`, `/suppliers`, `/customers`, `/ware
 |---|---|---|---|
 | GET | `/purchase-requests` | — | `purchase.read` |
 | POST | `/purchase-requests` | PUR-PR-001 | `purchase.create`; `[*] → DRAFT` |
-| GET | `/purchase-requests/{id}` | — | `purchase.read` |
-| PATCH | `/purchase-requests/{id}` | PUR-PR-001 | `purchase.edit`; DRAFT only |
 | POST | `/purchase-requests/{id}/submit` | PUR-PR-002 | `purchase.submit`; DRAFT → SUBMITTED |
 | POST | `/purchase-requests/{id}/approve` | PUR-PR-003 | `purchase.approve`; SUBMITTED → APPROVED |
 | POST | `/purchase-requests/{id}/reject` | PUR-PR-003 | `purchase.approve`; SUBMITTED → REJECTED; body requires reason |
@@ -149,7 +147,7 @@ The same REST pattern applies to `/products`, `/suppliers`, `/customers`, `/ware
 | POST | `/supplier-payments/{id}/post` | PUR-PAY-002 | `finance.manage`; DRAFT → POSTED; allocations applied |
 | POST | `/supplier-payments/{id}/void` | ACT-FIN-SPAY-VOID | `finance.manage`; POSTED → VOID via reversal |
 
-Invoice and payment void bodies require `{ "reason": "..." }`. The actor must be Admin; a second approver is not required. Payment void restores invoice outstanding/status and atomically reopens automatically closed PR/PO/SO when full-payment conditions no longer hold. An invoice with active allocations returns `409 dependent_payment_exists`; linked payments must be voided first. A replacement consolidated invoice can then be created with an internal `replaces_invoice_id` link. The same rule applies to supplier and customer documents.
+Invoice and payment void bodies require `{ "reason": "..." }`. The actor must be Admin; a second approver is not required. Payment void restores invoice outstanding/status and atomically reopens automatically closed PR/PO/SO when full-payment conditions no longer hold. An invoice with active allocations returns `409 dependent_payment_exists`; linked payments must be voided first. A replacement consolidated invoice must send `replacesInvoiceId` referencing the most recent VOID invoice for the same PO/SO; the database persists it as `replaces_invoice_id`. The same rule applies to supplier and customer documents.
 
 Every mapped `/cancel` or `/reverse` body also requires `{ "reason": "..." }`. Basic cancel is accepted only from the states listed in `STATE-MACHINES.md`; reversal is a correction command that preserves the original posted document and creates linked inverse effects atomically.
 Goods-receipt and delivery reversal returns `409 downstream_document_exists` while a related non-VOID invoice exists. Every inverse stock posting revalidates non-negative projected stock.

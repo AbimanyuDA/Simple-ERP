@@ -1,7 +1,7 @@
 # Mini ERP MVP Release Candidate Report
 
-Date: 2026-09-23  
-Status: **BASELINE REMEDIATION IN PROGRESS; CURRENT RUNTIME VERIFICATION PENDING**
+Date: 2026-09-27
+Status: **TA BASELINE CANDIDATE VERIFIED LOCALLY; PRODUCTION READINESS NOT ASSESSED**
 Production readiness: **NOT APPROVED**; deployment requires a separate plan and approval.
 
 ## Implemented capability
@@ -16,7 +16,7 @@ Production readiness: **NOT APPROVED**; deployment requires a separate plan and 
 
 ## Final verification
 
-The table below records an earlier release-candidate run and is not current evidence for this remediation branch. Re-run every applicable gate after migration 8 before restoring release-candidate status.
+The table below records an earlier release-candidate run and is not current evidence for this remediation branch. Re-run every applicable gate after migration 9 before restoring release-candidate status.
 
 | Verification | Result |
 |---|---|
@@ -33,9 +33,28 @@ The table below records an earlier release-candidate run and is not current evid
 | Security/dependency review | PASS; no unresolved critical/high finding |
 | BPMN semantic validation | PASS |
 | OpenAPI validation | PASS |
-| Traceability validation | PASS: 39/39 tasks and 21/21 supporting actions |
+| Traceability validation | HISTORICAL PASS: 39/39 tasks and 21/21 supporting actions; current mapping has 22 supporting actions and requires a fresh run |
 
 Detailed evidence is in `docs/checkpoints/CHECKPOINT-1.md` through `CHECKPOINT-4.md`, `docs/SECURITY-REVIEW.md`, and `docs/TRACEABILITY-COVERAGE.md`.
+
+### Remediation verification (2026-09-27)
+
+These checks used an isolated local Docker Compose project and support the TA
+study baseline only:
+
+| Verification | Result |
+|---|---|
+| Backend unit and vet | PASS |
+| Backend race detector | SKIPPED: Windows Go environment has no CGO support |
+| PostgreSQL integration | PASS against a disposable PostgreSQL database |
+| Frontend unit/component | PASS: 16/16 |
+| Frontend typecheck, lint, and production build | PASS |
+| Browser E2E desktop | PASS: 6/6 using local Chrome |
+| Browser E2E mobile | NOT RUN |
+| Fresh migration | PASS through migration 9 |
+| Migration rollback | NOT RUN |
+| BPMN XML and traceability validation | PASS: 39/39 tasks and 22/22 supporting actions |
+| Backup, restore, and production operations | NOT ASSESSED |
 
 ## Known limitations
 

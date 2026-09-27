@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/simple-erp/backend/internal/purchasing/application"
+	"strings"
 	"time"
 )
 
@@ -24,8 +25,9 @@ func audit(ctx context.Context, tx pgx.Tx, actor, action, trace, entity, id, fro
 	_, e := tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,reason,request_id)VALUES($1,$2,$3,$4,$5,$6,$7,NULLIF($8,''),$9)`, actor, action, trace, entity, id, from, to, reason, request)
 	return e
 }
-func (s Store) CreateRequest(ctx context.Context, actor string, lines []application.LineInput, request string) (application.Document, error) {
-	if len(lines) == 0 {
+func (s Store) CreateRequest(ctx context.Context, actor, purpose string, lines []application.LineInput, request string) (application.Document, error) {
+	purpose = strings.TrimSpace(purpose)
+	if len(lines) == 0 || purpose == "" {
 		return application.Document{}, errors.New("at least one line required")
 	}
 	tx, e := s.Pool.Begin(ctx)
@@ -38,7 +40,7 @@ func (s Store) CreateRequest(ctx context.Context, actor string, lines []applicat
 	if e != nil {
 		return application.Document{}, e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,status)VALUES($1,$2,$3,'DRAFT')`, id, no, actor)
+	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,purpose,status)VALUES($1,$2,$3,$4,'DRAFT')`, id, no, actor, purpose)
 	if e != nil {
 		return application.Document{}, e
 	}
@@ -62,10 +64,10 @@ func (s Store) CreateRequest(ctx context.Context, actor string, lines []applicat
 	if e = tx.Commit(ctx); e != nil {
 		return application.Document{}, e
 	}
-	return application.Document{ID: id, DocumentNo: no, Status: "DRAFT", CreatorID: actor, Version: 1}, nil
+	return application.Document{ID: id, DocumentNo: no, Status: "DRAFT", CreatorID: actor, Purpose: purpose, Version: 1}, nil
 }
 func (s Store) ListRequests(ctx context.Context) ([]application.Document, error) {
-	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,version FROM purchase_requests ORDER BY created_at DESC`)
+	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,purpose,version FROM purchase_requests ORDER BY created_at DESC`)
 	if e != nil {
 		return nil, e
 	}
@@ -73,7 +75,7 @@ func (s Store) ListRequests(ctx context.Context) ([]application.Document, error)
 	out := []application.Document{}
 	for rows.Next() {
 		var d application.Document
-		if e = rows.Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version); e != nil {
+		if e = rows.Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Purpose, &d.Version); e != nil {
 			return nil, e
 		}
 		out = append(out, d)
@@ -82,6 +84,28 @@ func (s Store) ListRequests(ctx context.Context) ([]application.Document, error)
 }
 func (s Store) ListOrders(ctx context.Context) ([]application.Document, error) {
 	return s.listDocuments(ctx, `SELECT id,document_no,status,creator_id,version FROM purchase_orders ORDER BY created_at DESC`)
+}
+func (s Store) GetOrder(ctx context.Context, id string) (application.OrderDetail, error) {
+	var out application.OrderDetail
+	e := s.Pool.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version FROM purchase_orders WHERE id=$1`, id).
+		Scan(&out.ID, &out.DocumentNo, &out.Status, &out.CreatorID, &out.Version)
+	if e != nil {
+		return out, e
+	}
+	rows, e := s.Pool.Query(ctx, `SELECT id,product_id,quantity,unit_price,received_quantity,quantity-received_quantity FROM purchase_order_lines WHERE purchase_order_id=$1 ORDER BY id`, id)
+	if e != nil {
+		return out, e
+	}
+	defer rows.Close()
+	out.Lines = []application.FulfillmentLine{}
+	for rows.Next() {
+		var line application.FulfillmentLine
+		if e = rows.Scan(&line.ID, &line.ProductID, &line.Quantity, &line.UnitPrice, &line.ProcessedQuantity, &line.RemainingQuantity); e != nil {
+			return out, e
+		}
+		out.Lines = append(out.Lines, line)
+	}
+	return out, rows.Err()
 }
 func (s Store) ListReceipts(ctx context.Context) ([]application.Document, error) {
 	return s.listDocuments(ctx, `SELECT id,document_no,status,creator_id,version FROM goods_receipts ORDER BY created_at DESC`)
@@ -274,9 +298,12 @@ func (s Store) PostReceipt(ctx context.Context, id string, version int, actor, r
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
-	var po, warehouse string
-	e = tx.QueryRow(ctx, `SELECT g.id,g.document_no,g.status,g.creator_id,g.version,g.purchase_order_id,p.warehouse_id FROM goods_receipts g JOIN purchase_orders p ON p.id=g.purchase_order_id WHERE g.id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &po, &warehouse)
+	var po, warehouse, parentPOStatus string
+	e = tx.QueryRow(ctx, `SELECT g.id,g.document_no,g.status,g.creator_id,g.version,g.purchase_order_id,p.warehouse_id,p.status FROM goods_receipts g JOIN purchase_orders p ON p.id=g.purchase_order_id WHERE g.id=$1 FOR UPDATE OF g,p`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &po, &warehouse, &parentPOStatus)
 	if e != nil || d.Status != "DRAFT" || d.Version != version {
+		return d, ErrConflict
+	}
+	if parentPOStatus != "ISSUED" && parentPOStatus != "PARTIALLY_RECEIVED" {
 		return d, ErrConflict
 	}
 	rows, e := tx.Query(ctx, `SELECT gl.id,gl.purchase_order_line_id,gl.product_id,gl.quantity,pol.quantity-pol.received_quantity FROM goods_receipt_lines gl JOIN purchase_order_lines pol ON pol.id=gl.purchase_order_line_id WHERE gl.goods_receipt_id=$1 FOR UPDATE OF pol`, id)
@@ -295,9 +322,14 @@ func (s Store) PostReceipt(ctx context.Context, id string, version int, actor, r
 			return d, e
 		}
 		if l.qty > l.remaining {
+			rows.Close()
 			return d, ErrConflict
 		}
 		ls = append(ls, l)
+	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
 	}
 	rows.Close()
 	for _, l := range ls {
@@ -319,13 +351,16 @@ func (s Store) PostReceipt(ctx context.Context, id string, version int, actor, r
 	if e != nil {
 		return d, e
 	}
-	poStatus := "PARTIALLY_RECEIVED"
+	nextPOStatus := "PARTIALLY_RECEIVED"
 	if complete {
-		poStatus = "RECEIVED"
+		nextPOStatus = "RECEIVED"
 	}
-	_, e = tx.Exec(ctx, `UPDATE purchase_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2`, poStatus, po)
+	tag, e := tx.Exec(ctx, `UPDATE purchase_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2 AND status IN('ISSUED','PARTIALLY_RECEIVED')`, nextPOStatus, po)
 	if e != nil {
 		return d, e
+	}
+	if tag.RowsAffected() != 1 {
+		return d, ErrConflict
 	}
 	_, e = tx.Exec(ctx, `UPDATE goods_receipts SET status='POSTED',version=version+1,posted_at=now() WHERE id=$1`, id)
 	if e != nil {
@@ -377,6 +412,10 @@ func (s Store) ReverseReceipt(ctx context.Context, id, reason, actor, request st
 		}
 		ls = append(ls, l)
 	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
+	}
 	rows.Close()
 	for _, l := range ls {
 		var balance float64
@@ -421,9 +460,13 @@ func (s Store) CopyRequest(ctx context.Context, id, actor, request string) (appl
 		return application.Document{}, e
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	var status string
-	e = tx.QueryRow(ctx, `SELECT status FROM purchase_requests WHERE id=$1`, id).Scan(&status)
-	if e != nil || status != "REJECTED" {
+	var status, purpose string
+	var mastersActive bool
+	e = tx.QueryRow(ctx, `SELECT pr.status,pr.purpose,NOT EXISTS(
+		SELECT 1 FROM purchase_request_lines l JOIN products p ON p.id=l.product_id
+		WHERE l.purchase_request_id=pr.id AND NOT p.active)
+		FROM purchase_requests pr WHERE pr.id=$1 FOR UPDATE OF pr`, id).Scan(&status, &purpose, &mastersActive)
+	if e != nil || status != "REJECTED" || !mastersActive {
 		return application.Document{}, ErrConflict
 	}
 	newID := uuid.NewString()
@@ -431,7 +474,7 @@ func (s Store) CopyRequest(ctx context.Context, id, actor, request string) (appl
 	if e != nil {
 		return application.Document{}, e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,status,copied_from_id)VALUES($1,$2,$3,'DRAFT',$4)`, newID, no, actor, id)
+	_, e = tx.Exec(ctx, `INSERT INTO purchase_requests(id,document_no,creator_id,purpose,status,copied_from_id)VALUES($1,$2,$3,$4,'DRAFT',$5)`, newID, no, actor, purpose, id)
 	if e != nil {
 		return application.Document{}, e
 	}
@@ -445,7 +488,7 @@ func (s Store) CopyRequest(ctx context.Context, id, actor, request string) (appl
 	if e = tx.Commit(ctx); e != nil {
 		return application.Document{}, e
 	}
-	return application.Document{ID: newID, DocumentNo: no, Status: "DRAFT", CreatorID: actor, Version: 1}, nil
+	return application.Document{ID: newID, DocumentNo: no, Status: "DRAFT", CreatorID: actor, Purpose: purpose, Version: 1}, nil
 }
 func (s Store) CancelOrder(ctx context.Context, id, reason, actor, request string) (application.Document, error) {
 	if reason == "" {
@@ -457,11 +500,16 @@ func (s Store) CancelOrder(ctx context.Context, id, reason, actor, request strin
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
-	e = tx.QueryRow(ctx, `UPDATE purchase_orders p SET status='CANCELLED',reason=$2,version=version+1,updated_at=now() WHERE p.id=$1 AND p.status IN('DRAFT','ISSUED') AND NOT EXISTS(SELECT 1 FROM goods_receipts g WHERE g.purchase_order_id=p.id AND g.status='POSTED') RETURNING id,document_no,status,creator_id,version`, id, reason).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
+	var previous string
+	e = tx.QueryRow(ctx, `SELECT status FROM purchase_orders WHERE id=$1 FOR UPDATE`, id).Scan(&previous)
+	if e != nil || (previous != "DRAFT" && previous != "ISSUED") {
+		return d, ErrConflict
+	}
+	e = tx.QueryRow(ctx, `UPDATE purchase_orders p SET status='CANCELLED',reason=$2,version=version+1,updated_at=now() WHERE p.id=$1 AND p.status=$3 AND NOT EXISTS(SELECT 1 FROM goods_receipts g WHERE g.purchase_order_id=p.id AND g.status='POSTED') RETURNING id,document_no,status,creator_id,version`, id, reason, previous).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
 	if e != nil {
 		return d, ErrConflict
 	}
-	if e = audit(ctx, tx, actor, "CANCEL_PO", "ACT-PUR-PO-CANCEL", "PURCHASE_ORDER", id, "", "CANCELLED", reason, request); e != nil {
+	if e = audit(ctx, tx, actor, "CANCEL_PO", "ACT-PUR-PO-CANCEL", "PURCHASE_ORDER", id, previous, "CANCELLED", reason, request); e != nil {
 		return d, e
 	}
 	e = tx.Commit(ctx)

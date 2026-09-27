@@ -21,6 +21,7 @@ func (h Handler) Register(r chi.Router) {
 	r.Post("/purchase-requests", h.create)
 	r.Post("/purchase-requests/{id}/{action}", h.prAction)
 	r.Get("/purchase-orders", h.listOrders)
+	r.Get("/purchase-orders/{id}", h.getOrder)
 	r.Post("/purchase-orders/{id}/issue", h.issue)
 	r.Post("/purchase-orders/{id}/cancel", h.cancelOrder)
 	r.Post("/purchase-orders/{id}/goods-receipts", h.receipt)
@@ -36,6 +37,14 @@ func (h Handler) listOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respond(w, 200, map[string]any{"data": v})
+}
+func (h Handler) getOrder(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.GetOrder(r.Context(), chi.URLParam(r, "id"))
+	if e != nil {
+		respond(w, 404, map[string]string{"message": "Purchase order tidak ditemukan."})
+		return
+	}
+	respond(w, 200, v)
 }
 func (h Handler) listReceipts(w http.ResponseWriter, r *http.Request) {
 	v, e := h.Service.ListReceipts(r.Context())
@@ -73,12 +82,13 @@ func (h Handler) list(w http.ResponseWriter, r *http.Request) {
 }
 func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		Lines []application.LineInput `json:"lines"`
+		Purpose string                  `json:"purpose"`
+		Lines   []application.LineInput `json:"lines"`
 	}
 	if !decode(w, r, &in) {
 		return
 	}
-	v, e := h.Service.CreateRequest(r.Context(), principal(r).UserID, in.Lines, middleware.GetReqID(r.Context()))
+	v, e := h.Service.CreateRequest(r.Context(), principal(r).UserID, in.Purpose, in.Lines, middleware.GetReqID(r.Context()))
 	if e != nil {
 		respond(w, 409, map[string]string{"message": e.Error()})
 		return

@@ -1,5 +1,7 @@
 # ERD Proposal
 
+> Historical target model, not a literal inventory of the current database. For baseline and impact-mapping evidence, the ordered files in `backend/migrations` are authoritative. Names and entities shown only here—such as capability tables, split movement headers/lines, `audit_logs`, or per-document sequence tables—must not be treated as implemented.
+
 ## Modeling principles
 
 - PostgreSQL UUID primary keys; separate human-readable document numbers.

@@ -8,6 +8,7 @@ import { MasterDataSelect } from "@/features/master-data/master-data-select";
 export function PurchaseRequestPanel({ onNotice }: { onNotice: (message: string) => void }) {
   const [items, setItems] = useState<WorkflowDocument[]>([]);
   const [productId, setProductId] = useState("");
+	const [purpose, setPurpose] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [price, setPrice] = useState("0");
   const [revision, setRevision] = useState(0);
@@ -15,7 +16,7 @@ export function PurchaseRequestPanel({ onNotice }: { onNotice: (message: string)
   async function create(event: FormEvent) {
     event.preventDefault();
     try {
-      await api("/purchase-requests", { method: "POST", body: JSON.stringify({ lines: [{ productId, quantity: Number(quantity), unitPrice: Number(price) }] }) });
+		await api("/purchase-requests", { method: "POST", body: JSON.stringify({ purpose, lines: [{ productId, quantity: Number(quantity), unitPrice: Number(price) }] }) });
       onNotice("Purchase request draft berhasil dibuat."); setRevision((value) => value + 1);
     } catch (error) { onNotice(error instanceof Error ? error.message : "Purchase request gagal dibuat."); }
   }
@@ -28,6 +29,7 @@ export function PurchaseRequestPanel({ onNotice }: { onNotice: (message: string)
   }
   return <section>
     <form className="operation-form" onSubmit={create}>
+		<label>Tujuan pembelian<input value={purpose} onChange={(event) => setPurpose(event.target.value)} required /></label>
       <MasterDataSelect resource="products" label="Product" value={productId} onChange={setProductId} />
       <label>Jumlah<input type="number" min="0.0001" step="0.0001" value={quantity} onChange={(event) => setQuantity(event.target.value)} required /></label>
       <label>Estimasi harga<input type="number" min="0" value={price} onChange={(event) => setPrice(event.target.value)} required /></label>
@@ -35,10 +37,11 @@ export function PurchaseRequestPanel({ onNotice }: { onNotice: (message: string)
     </form>
     <div className="data-table"><div className="data-head operation"><span>Dokumen / ID</span><span>Status</span><span>Aksi sesuai state</span></div>
       {items.length === 0 ? <p>Belum ada purchase request.</p> : items.map((document) => <div className="data-row operation" key={document.id}>
-        <span><b>{document.documentNo}</b><small className="record-id">{document.id}</small></span><span className="status-chip">{document.status}</span>
+		<span><b>{document.documentNo}</b>{document.purpose && <small>{document.purpose}</small>}<small className="record-id">{document.id}</small></span><span className="status-chip">{document.status}</span>
         <span className="row-actions">
-          {document.status === "DRAFT" && <><button onClick={() => action(document, "submit")}>Submit</button><button onClick={() => action(document, "copy")}>Copy</button><button onClick={() => action(document, "cancel")}>Cancel</button></>}
+          {document.status === "DRAFT" && <><button onClick={() => action(document, "submit")}>Submit</button><button onClick={() => action(document, "cancel")}>Cancel</button></>}
           {document.status === "SUBMITTED" && <><button onClick={() => action(document, "approve")}>Approve</button><button onClick={() => action(document, "reject")}>Reject</button></>}
+          {document.status === "REJECTED" && <button onClick={() => action(document, "copy")}>Copy to Draft</button>}
           {document.status === "APPROVED" && <small>Konversi di tab Purchase Orders</small>}
         </span>
       </div>)}

@@ -14,6 +14,8 @@ type Handler struct{ Service application.Service }
 func (h Handler) Register(r chi.Router) {
 	r.Get("/sales-orders", h.list)
 	r.Post("/sales-orders", h.create)
+	r.Get("/sales-orders/{id}", h.get)
+	r.Patch("/sales-orders/{id}", h.update)
 	r.Post("/sales-orders/{id}/{action}", h.action)
 	r.Post("/sales-orders/{id}/deliveries", h.delivery)
 	r.Get("/deliveries", h.listDeliveries)
@@ -52,6 +54,14 @@ func (h Handler) list(w http.ResponseWriter, r *http.Request) {
 	}
 	respond(w, 200, map[string]any{"data": v})
 }
+func (h Handler) get(w http.ResponseWriter, r *http.Request) {
+	v, e := h.Service.GetOrder(r.Context(), chi.URLParam(r, "id"))
+	if e != nil {
+		respond(w, 404, map[string]string{"message": "Sales order tidak ditemukan."})
+		return
+	}
+	respond(w, 200, v)
+}
 func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		CustomerID, WarehouseID string
@@ -66,6 +76,21 @@ func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respond(w, 201, v)
+}
+func (h Handler) update(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Version int
+		Lines   []application.LineInput `json:"lines"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	v, e := h.Service.UpdateOrder(r.Context(), chi.URLParam(r, "id"), in.Version, p(r).UserID, in.Lines, middleware.GetReqID(r.Context()))
+	if e != nil {
+		respond(w, 409, map[string]string{"message": e.Error()})
+		return
+	}
+	respond(w, 200, v)
 }
 func (h Handler) action(w http.ResponseWriter, r *http.Request) {
 	a := chi.URLParam(r, "action")

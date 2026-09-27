@@ -11,7 +11,7 @@ Review date: 2026-09-23. Status: **STRUCTURAL MAPPING PASS; IMPLEMENTATION AND R
 | Level 0 capabilities | 8 | 8 | 100% |
 | Level 1 processes | 4 | 4 | 100% |
 | Level 2 User/Service Tasks | 39 | 39 | 100% |
-| Supporting lifecycle/action IDs | 21 | 21 | 100% |
+| Supporting lifecycle/action IDs | 22 | 22 | 100% |
 | Level 2 task → requirement/UI/API/use case/DB/state/test row | 39 | 39 | 100% |
 | BPMN XML semantic validation | 6 files | 6 | 100% |
 | OpenAPI structural validation | 1 contract | 1 | 100% |
@@ -21,10 +21,10 @@ Review date: 2026-09-23. Status: **STRUCTURAL MAPPING PASS; IMPLEMENTATION AND R
 | Process | User Tasks | Service Tasks | Total | Primary mapping rows |
 |---|---:|---:|---:|---:|
 | Access Lifecycle | 6 | 4 | 10 | 10 |
-| Procure-to-Pay | 7 | 6 | 13 | 13 |
+| Procure-to-Pay | 8 | 5 | 13 | 13 |
 | Order-to-Cash | 5 | 6 | 11 | 11 |
 | Inventory Adjustment | 3 | 2 | 5 | 5 |
-| **Total** | **21** | **18** | **39** | **39** |
+| **Total** | **22** | **17** | **39** | **39** |
 
 All task IDs remain unique, follow `<DOMAIN>-<DOCUMENT>-<SEQUENCE>`, occur exactly once as a primary row in `PROCESS-MAPPING.md`, and are preserved in process metadata/audit and test evidence. Supporting actions remain Level 0-sourced `ACT-*` capabilities and are not misrepresented as Level 2 workflow tasks.
 
@@ -53,14 +53,14 @@ The final gate passed all of the following:
 - 39 BPMN tasks and 21 supporting actions recognized by the repository verifier;
 - OpenAPI 3.1 reference and structural lint, including CSRF/idempotency parameters and report/audit routes.
 
-## Runtime traceability evidence
+## Documented runtime traceability design
 
-- Critical mutations persist `trace_id`, actor, action, entity, request ID, previous state, new state, and reason where required.
+- Static inspection shows critical mutations are designed to persist `trace_id`, actor, action, entity, request ID, previous state, new state, and reason where required. Completeness still needs database-backed verification.
 - Audit reads intentionally exclude credentials, session/action token hashes, and unrestricted metadata.
 - State transitions are executed by named domain/application commands and rejected outside the approved state machines.
 - Stock movements carry source type, source ID, source line ID, movement type, creator, and reversal link.
-- AP/AR allocations link payments to invoices; automatic close/reopen is tested in the same transaction.
+- AP/AR allocations link payments to invoices; automatic close/reopen has integration-test coverage but remains unexecuted until the isolated test database is available.
 
 ## Final result
 
-No orphan BPMN task, unmapped supporting action, duplicate stable ID, software requirement without process/capability source, or process task without implementation mapping was found. Implementation and verification evidence are complete for the approved MVP scope. Production deployment remains outside this traceability gate.
+No orphan BPMN task, duplicate stable ID, or missing primary structural mapping row was found. This report does not claim complete implementation or runtime evidence. Baseline freeze still requires the safe static/unit gates plus a separate isolated database and browser acceptance run.

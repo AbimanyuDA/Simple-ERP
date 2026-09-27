@@ -69,6 +69,58 @@ func (s Store) CreateOrder(ctx context.Context, customer, warehouse, actor strin
 	}
 	return application.Document{ID: id, DocumentNo: no, Status: "DRAFT", CreatorID: actor, Version: 1}, nil
 }
+func (s Store) UpdateOrder(ctx context.Context, id string, version int, actor string, lines []application.LineInput, request string) (application.Document, error) {
+	if len(lines) == 0 {
+		return application.Document{}, ErrConflict
+	}
+	tx, e := s.Pool.Begin(ctx)
+	if e != nil {
+		return application.Document{}, e
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	var d application.Document
+	e = tx.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version FROM sales_orders WHERE id=$1 FOR UPDATE`, id).
+		Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
+	if e != nil || d.Status != "DRAFT" || d.Version != version {
+		return d, ErrConflict
+	}
+	if _, e = tx.Exec(ctx, `DELETE FROM sales_order_lines WHERE sales_order_id=$1`, id); e != nil {
+		return d, e
+	}
+	seen := make(map[string]struct{}, len(lines))
+	for _, l := range lines {
+		if l.Quantity <= 0 || l.UnitPrice < 0 {
+			return d, ErrConflict
+		}
+		if _, duplicate := seen[l.ProductID]; duplicate {
+			return d, ErrConflict
+		}
+		seen[l.ProductID] = struct{}{}
+		var active bool
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM products WHERE id=$1 AND active)`, l.ProductID).Scan(&active)
+		if e != nil || !active {
+			return d, ErrConflict
+		}
+		if _, e = tx.Exec(ctx, `INSERT INTO sales_order_lines(sales_order_id,product_id,quantity,unit_price)VALUES($1,$2,$3,$4)`, id, l.ProductID, l.Quantity, l.UnitPrice); e != nil {
+			return d, e
+		}
+	}
+	tag, e := tx.Exec(ctx, `UPDATE sales_orders SET version=version+1,updated_at=now() WHERE id=$1 AND status='DRAFT' AND version=$2`, id, version)
+	if e != nil {
+		return d, e
+	}
+	if tag.RowsAffected() != 1 {
+		return d, ErrConflict
+	}
+	if e = audit(ctx, tx, actor, "UPDATE_SALES_ORDER", "SAL-SO-001", "SALES_ORDER", id, "DRAFT", "DRAFT", "", request); e != nil {
+		return d, e
+	}
+	if e = tx.Commit(ctx); e != nil {
+		return d, e
+	}
+	d.Version++
+	return d, nil
+}
 func (s Store) ListOrders(ctx context.Context) ([]application.Document, error) {
 	rows, e := s.Pool.Query(ctx, `SELECT id,document_no,status,creator_id,version FROM sales_orders ORDER BY created_at DESC`)
 	if e != nil {
@@ -82,6 +134,28 @@ func (s Store) ListOrders(ctx context.Context) ([]application.Document, error) {
 			return nil, e
 		}
 		out = append(out, d)
+	}
+	return out, rows.Err()
+}
+func (s Store) GetOrder(ctx context.Context, id string) (application.OrderDetail, error) {
+	var out application.OrderDetail
+	e := s.Pool.QueryRow(ctx, `SELECT id,document_no,status,creator_id,version,confirmed_at IS NOT NULL FROM sales_orders WHERE id=$1`, id).
+		Scan(&out.ID, &out.DocumentNo, &out.Status, &out.CreatorID, &out.Version, &out.Confirmed)
+	if e != nil {
+		return out, e
+	}
+	rows, e := s.Pool.Query(ctx, `SELECT id,product_id,quantity,unit_price,delivered_quantity,quantity-delivered_quantity FROM sales_order_lines WHERE sales_order_id=$1 ORDER BY id`, id)
+	if e != nil {
+		return out, e
+	}
+	defer rows.Close()
+	out.Lines = []application.FulfillmentLine{}
+	for rows.Next() {
+		var line application.FulfillmentLine
+		if e = rows.Scan(&line.ID, &line.ProductID, &line.Quantity, &line.UnitPrice, &line.ProcessedQuantity, &line.RemainingQuantity); e != nil {
+			return out, e
+		}
+		out.Lines = append(out.Lines, line)
 	}
 	return out, rows.Err()
 }
@@ -101,6 +175,16 @@ func (s Store) ListDeliveries(ctx context.Context) ([]application.Document, erro
 	}
 	return out, rows.Err()
 }
+
+func salesOrderStockAvailable(ctx context.Context, tx pgx.Tx, id, warehouse string) (bool, error) {
+	var available bool
+	e := tx.QueryRow(ctx, `SELECT COALESCE(bool_and(COALESCE(b.quantity,0)>=l.quantity-l.delivered_quantity),false)
+		FROM sales_order_lines l
+		LEFT JOIN stock_balances b ON b.product_id=l.product_id AND b.warehouse_id=$2
+		WHERE l.sales_order_id=$1`, id, warehouse).Scan(&available)
+	return available, e
+}
+
 func (s Store) ValidateStock(ctx context.Context, id string, version int, actor, request string) (application.Document, error) {
 	tx, e := s.Pool.Begin(ctx)
 	if e != nil {
@@ -114,11 +198,7 @@ func (s Store) ValidateStock(ctx context.Context, id string, version int, actor,
 	if e != nil || d.Status != `DRAFT` || d.Version != version {
 		return d, ErrConflict
 	}
-	var available bool
-	e = tx.QueryRow(ctx, `SELECT COALESCE(bool_and(COALESCE(b.quantity,0)>=l.quantity-l.delivered_quantity),false)
-		FROM sales_order_lines l
-		LEFT JOIN stock_balances b ON b.product_id=l.product_id AND b.warehouse_id=$2
-		WHERE l.sales_order_id=$1`, id, warehouse).Scan(&available)
+	available, e := salesOrderStockAvailable(ctx, tx, id, warehouse)
 	if e != nil || !available {
 		return d, ErrConflict
 	}
@@ -150,15 +230,21 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 		if from != "DRAFT" {
 			return d, ErrConflict
 		}
+		available, stockErr := salesOrderStockAvailable(ctx, tx, id, warehouse)
+		if stockErr != nil || !available {
+			return d, ErrConflict
+		}
+		if e = audit(ctx, tx, actor, "VALIDATE_SALES_ORDER_STOCK", "SAL-SO-003", "SALES_ORDER", id, from, from, "", request); e != nil {
+			return d, e
+		}
 		d.Status = "SUBMITTED"
 	case "approve":
 		trace = "SAL-SO-004"
 		if from != "SUBMITTED" || actor == d.CreatorID {
 			return d, ErrConflict
 		}
-		var available bool
-		e = tx.QueryRow(ctx, `SELECT COALESCE(bool_and(COALESCE(b.quantity,0)>=l.quantity-l.delivered_quantity),false) FROM sales_order_lines l LEFT JOIN stock_balances b ON b.product_id=l.product_id AND b.warehouse_id=$2 WHERE l.sales_order_id=$1`, id, warehouse).Scan(&available)
-		if e != nil || !available {
+		available, stockErr := salesOrderStockAvailable(ctx, tx, id, warehouse)
+		if stockErr != nil || !available {
 			return d, ErrConflict
 		}
 		d.Status = "APPROVED"
@@ -208,8 +294,9 @@ func (s Store) CreateDelivery(ctx context.Context, so string, lines []applicatio
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var status string
-	e = tx.QueryRow(ctx, `SELECT status FROM sales_orders WHERE id=$1`, so).Scan(&status)
-	if e != nil || (status != "APPROVED" && status != "PARTIALLY_DELIVERED") {
+	var confirmedAt *time.Time
+	e = tx.QueryRow(ctx, `SELECT status,confirmed_at FROM sales_orders WHERE id=$1 FOR UPDATE`, so).Scan(&status, &confirmedAt)
+	if e != nil || confirmedAt == nil || (status != "APPROVED" && status != "PARTIALLY_DELIVERED") {
 		return application.Document{}, ErrConflict
 	}
 	id := uuid.NewString()
@@ -253,9 +340,12 @@ func (s Store) PostDelivery(ctx context.Context, id string, version int, actor, 
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
-	var so, warehouse string
-	e = tx.QueryRow(ctx, `SELECT d.id,d.document_no,d.status,d.creator_id,d.version,d.sales_order_id,s.warehouse_id FROM deliveries d JOIN sales_orders s ON s.id=d.sales_order_id WHERE d.id=$1 FOR UPDATE`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &so, &warehouse)
+	var so, warehouse, parentSOStatus string
+	e = tx.QueryRow(ctx, `SELECT d.id,d.document_no,d.status,d.creator_id,d.version,d.sales_order_id,s.warehouse_id,s.status FROM deliveries d JOIN sales_orders s ON s.id=d.sales_order_id WHERE d.id=$1 FOR UPDATE OF d,s`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &so, &warehouse, &parentSOStatus)
 	if e != nil || d.Status != "DRAFT" || d.Version != version {
+		return d, ErrConflict
+	}
+	if parentSOStatus != "APPROVED" && parentSOStatus != "PARTIALLY_DELIVERED" {
 		return d, ErrConflict
 	}
 	rows, e := tx.Query(ctx, `SELECT dl.id,dl.sales_order_line_id,dl.product_id,dl.quantity,sol.quantity-sol.delivered_quantity FROM delivery_lines dl JOIN sales_order_lines sol ON sol.id=dl.sales_order_line_id WHERE dl.delivery_id=$1 FOR UPDATE OF sol`, id)
@@ -274,9 +364,14 @@ func (s Store) PostDelivery(ctx context.Context, id string, version int, actor, 
 			return d, e
 		}
 		if l.qty > l.remaining {
+			rows.Close()
 			return d, ErrConflict
 		}
 		ls = append(ls, l)
+	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
 	}
 	rows.Close()
 	for _, l := range ls {
@@ -303,13 +398,16 @@ func (s Store) PostDelivery(ctx context.Context, id string, version int, actor, 
 	if e != nil {
 		return d, e
 	}
-	soStatus := "PARTIALLY_DELIVERED"
+	nextSOStatus := "PARTIALLY_DELIVERED"
 	if complete {
-		soStatus = "DELIVERED"
+		nextSOStatus = "DELIVERED"
 	}
-	_, e = tx.Exec(ctx, `UPDATE sales_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2`, soStatus, so)
+	tag, e := tx.Exec(ctx, `UPDATE sales_orders SET status=$1,version=version+1,updated_at=now() WHERE id=$2 AND status IN('APPROVED','PARTIALLY_DELIVERED')`, nextSOStatus, so)
 	if e != nil {
 		return d, e
+	}
+	if tag.RowsAffected() != 1 {
+		return d, ErrConflict
 	}
 	_, e = tx.Exec(ctx, `UPDATE deliveries SET status='POSTED',version=version+1,posted_at=now() WHERE id=$1`, id)
 	if e != nil {
@@ -361,6 +459,10 @@ func (s Store) ReverseDelivery(ctx context.Context, id, reason, actor, request s
 		}
 		lines = append(lines, item)
 	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
+	}
 	rows.Close()
 	for _, item := range lines {
 		if _, e = tx.Exec(ctx, `UPDATE stock_balances SET quantity=quantity+$1,updated_at=now() WHERE warehouse_id=$2 AND product_id=$3`, item.qty, warehouse, item.product); e != nil {
@@ -396,8 +498,13 @@ func (s Store) CopyOrder(ctx context.Context, id, actor, request string) (applic
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var customer, warehouse, status string
-	e = tx.QueryRow(ctx, `SELECT customer_id,warehouse_id,status FROM sales_orders WHERE id=$1`, id).Scan(&customer, &warehouse, &status)
-	if e != nil || status != "REJECTED" {
+	var mastersActive bool
+	e = tx.QueryRow(ctx, `SELECT o.customer_id,o.warehouse_id,o.status,c.active AND w.active AND NOT EXISTS(
+		SELECT 1 FROM sales_order_lines l JOIN products p ON p.id=l.product_id
+		WHERE l.sales_order_id=o.id AND NOT p.active)
+		FROM sales_orders o JOIN customers c ON c.id=o.customer_id JOIN warehouses w ON w.id=o.warehouse_id
+		WHERE o.id=$1 FOR UPDATE OF o`, id).Scan(&customer, &warehouse, &status, &mastersActive)
+	if e != nil || status != "REJECTED" || !mastersActive {
 		return application.Document{}, ErrConflict
 	}
 	newID := uuid.NewString()
