@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import type { WorkflowDocument, WorkflowDocumentDetail } from "@/features/operations/types";
 
 type Document = {
   id: string;
@@ -15,6 +16,13 @@ type Document = {
   version: number;
 };
 
+type InvoiceLineDraft = {
+  referenceId: string;
+  productId: string;
+  quantity: string;
+  unitPrice: string;
+};
+
 const today = new Date().toISOString().slice(0, 10);
 const money = (value: number) => `Rp${Number(value).toLocaleString("id-ID")}`;
 
@@ -24,6 +32,8 @@ export function FinanceWorkspace() {
   const [supplierPayments, setSupplierPayments] = useState<Document[]>([]);
   const [salesInvoices, setSalesInvoices] = useState<Document[]>([]);
   const [customerPayments, setCustomerPayments] = useState<Document[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<WorkflowDocument[]>([]);
+  const [salesOrders, setSalesOrders] = useState<WorkflowDocument[]>([]);
   const [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0);
 
@@ -33,11 +43,15 @@ export function FinanceWorkspace() {
       api<{ data: Document[] }>("/supplier-payments"),
       api<{ data: Document[] }>("/sales-invoices"),
       api<{ data: Document[] }>("/customer-payments"),
-    ]).then(([si, sp, ci, cp]) => {
+      api<{ data: WorkflowDocument[] }>("/purchase-orders"),
+      api<{ data: WorkflowDocument[] }>("/sales-orders"),
+    ]).then(([si, sp, ci, cp, po, so]) => {
       setSupplierInvoices(si.data);
       setSupplierPayments(sp.data);
       setSalesInvoices(ci.data);
       setCustomerPayments(cp.data);
+      setPurchaseOrders(po.data.filter((item) => item.status === "RECEIVED"));
+      setSalesOrders(so.data.filter((item) => item.status === "DELIVERED"));
     }).catch((error: Error) => setNotice(error.message));
   }, [revision]);
 
@@ -46,8 +60,10 @@ export function FinanceWorkspace() {
       await api(path, { method: "POST", body: JSON.stringify(body) });
       setNotice("Transaksi finance berhasil diproses.");
       setRevision((value) => value + 1);
+      return true;
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Transaksi gagal.");
+      return false;
     }
   }
 
@@ -59,62 +75,124 @@ export function FinanceWorkspace() {
     <p className="finance-guidance">Posted records tidak diedit. Koreksi dilakukan dengan void beralasan agar jejak transaksi tetap utuh.</p>
     {notice && <p className="notice">{notice}</p>}
     {tab === "ap"
-      ? <FinancePanel kind="supplier" invoices={supplierInvoices} payments={supplierPayments} command={command} />
-      : <FinancePanel kind="customer" invoices={salesInvoices} payments={customerPayments} command={command} />}
+      ? <FinancePanel key="supplier" kind="supplier" invoices={supplierInvoices} payments={supplierPayments} sources={purchaseOrders} command={command} />
+      : <FinancePanel key="customer" kind="customer" invoices={salesInvoices} payments={customerPayments} sources={salesOrders} command={command} />}
   </div>;
 }
 
-function FinancePanel({ kind, invoices, payments, command }: {
+function FinancePanel({ kind, invoices, payments, sources, command }: {
   kind: "supplier" | "customer";
   invoices: Document[];
   payments: Document[];
-  command: (path: string, body?: object) => Promise<void>;
+  sources: WorkflowDocument[];
+  command: (path: string, body?: object) => Promise<boolean>;
 }) {
   const [source, setSource] = useState("");
   const [party, setParty] = useState("");
   const [externalNumber, setExternalNumber] = useState("");
-  const [line, setLine] = useState("");
-  const [quantity, setQuantity] = useState("1");
-  const [price, setPrice] = useState("0");
+  const [invoiceLines, setInvoiceLines] = useState<InvoiceLineDraft[]>([]);
   const [invoice, setInvoice] = useState("");
   const [amount, setAmount] = useState("");
   const [voidReason, setVoidReason] = useState("");
+  const [sourceError, setSourceError] = useState("");
+  const [resolvingInvoice, setResolvingInvoice] = useState<Document | null>(null);
+
+  async function selectSource(id: string) {
+    setSource(id);
+    setInvoiceLines([]);
+    setSourceError("");
+    if (!id || kind !== "supplier") return;
+    try {
+      const detail = await api<WorkflowDocumentDetail>(`/purchase-orders/${id}`);
+      setInvoiceLines(detail.lines.map((item) => ({
+        referenceId: item.id,
+        productId: item.productId,
+        quantity: String(item.processedQuantity || item.quantity),
+        unitPrice: String(item.unitPrice),
+      })));
+    } catch (error) {
+      setSourceError(error instanceof Error ? error.message : "Detail purchase order gagal dibaca.");
+    }
+  }
+
+  function updateInvoiceLine(id: string, field: "quantity" | "unitPrice", value: string) {
+    setInvoiceLines((items) => items.map((item) => item.referenceId === id ? { ...item, [field]: value } : item));
+  }
+
+  async function beginResolve(item: Document) {
+    setResolvingInvoice(item);
+    await selectSource(item.sourceId);
+  }
 
   async function createInvoice(event: FormEvent) {
     event.preventDefault();
     if (kind === "supplier") {
-      await command("/supplier-invoices", { purchaseOrderId: source, supplierInvoiceNumber: externalNumber, invoiceDate: today, dueDate: today, currency: "IDR", lines: [{ referenceId: line, quantity: Number(quantity), unitPrice: Number(price) }] });
+      const lines = invoiceLines.map((item) => ({ referenceId: item.referenceId, quantity: Number(item.quantity), unitPrice: Number(item.unitPrice) }));
+      if (resolvingInvoice) {
+        const resolved = await command(`/supplier-invoices/${resolvingInvoice.id}/resolve-match`, { lines });
+        if (resolved) {
+          setResolvingInvoice(null);
+          setSource("");
+          setInvoiceLines([]);
+        }
+        return;
+      }
+      const replacement = invoices.find((item) => item.sourceId === source && item.status === "VOID");
+      await command("/supplier-invoices", { purchaseOrderId: source, supplierInvoiceNumber: externalNumber, invoiceDate: today, dueDate: today, currency: "IDR", replacesInvoiceId: replacement?.id || "", lines });
     } else {
-      await command(`/sales-orders/${source}/sales-invoice`, { invoiceDate: today, dueDate: today, currency: "IDR" });
+      const replacement = invoices.find((item) => item.sourceId === source && item.status === "VOID");
+      await command(`/sales-orders/${source}/sales-invoice`, { invoiceDate: today, dueDate: today, currency: "IDR", replacesInvoiceId: replacement?.id || "" });
     }
   }
 
   async function createPayment(event: FormEvent) {
     event.preventDefault();
     const prefix = kind === "supplier" ? "/supplier-payments" : "/customer-payments";
-    await command(prefix, { partyId: party, paymentDate: today, method: "BANK_TRANSFER", currency: "IDR", amount: Number(amount), allocations: [{ invoiceId: invoice, amount: Number(amount) }] });
+    const created = await command(prefix, { partyId: party, paymentDate: today, method: "BANK_TRANSFER", currency: "IDR", amount: Number(amount), allocations: [{ invoiceId: invoice, amount: Number(amount) }] });
+    if (created) {
+      setParty("");
+      setInvoice("");
+      setAmount("");
+    }
   }
 
   const invoicePrefix = kind === "supplier" ? "/supplier-invoices" : "/sales-invoices";
   const paymentPrefix = kind === "supplier" ? "/supplier-payments" : "/customer-payments";
+  const availableSources = resolvingInvoice
+    ? sources.filter((item) => item.id === resolvingInvoice.sourceId)
+    : sources.filter((item) => !invoices.some((candidate) => candidate.sourceId === item.id && candidate.status !== "VOID"));
+  const replacementInvoice = resolvingInvoice ? undefined : invoices.find((item) => item.sourceId === source && item.status === "VOID");
+  const payableInvoices = invoices.filter((item) => (item.status === "POSTED" || item.status === "PARTIALLY_PAID") && item.outstanding > 0);
 
   return <div className="finance-panel">
     <div className="finance-forms">
       <form onSubmit={createInvoice}>
-        <strong>{kind === "supplier" ? "Catat invoice supplier" : "Buat invoice penjualan"}</strong>
-        <label>{kind === "supplier" ? "Purchase Order ID" : "Sales Order ID"}<input value={source} onChange={(event) => setSource(event.target.value)} required /></label>
+        <strong>{resolvingInvoice ? `Koreksi ${resolvingInvoice.documentNo}` : kind === "supplier" ? "Catat invoice supplier" : "Buat invoice penjualan"}</strong>
+        <label>{kind === "supplier" ? "Purchase Order" : "Sales Order"}<select value={source} onChange={(event) => { void selectSource(event.target.value); }} required disabled={Boolean(resolvingInvoice)}><option value="">Pilih dokumen</option>{availableSources.map((item) => <option key={item.id} value={item.id}>{item.documentNo} · {item.status}</option>)}</select></label>
+        {sourceError && <small>{sourceError}</small>}
+        {replacementInvoice && <small>Replacement untuk invoice VOID {replacementInvoice.documentNo}.</small>}
         {kind === "supplier" && <>
-          <label>Nomor invoice supplier<input value={externalNumber} onChange={(event) => setExternalNumber(event.target.value)} required /></label>
-          <label>PO Line ID<input value={line} onChange={(event) => setLine(event.target.value)} required /></label>
-          <div className="form-pair"><label>Qty<input type="number" min="0.0001" step="0.0001" value={quantity} onChange={(event) => setQuantity(event.target.value)} /></label><label>Harga<input type="number" min="0" value={price} onChange={(event) => setPrice(event.target.value)} /></label></div>
+          {!resolvingInvoice && <label>Nomor invoice supplier<input value={externalNumber} onChange={(event) => setExternalNumber(event.target.value)} required /></label>}
+          {invoiceLines.map((item) => <div className="invoice-line-editor" key={item.referenceId}>
+            <small>{item.productId}</small>
+            <div className="form-pair"><label>Qty<input type="number" min="0.0001" step="0.0001" value={item.quantity} onChange={(event) => updateInvoiceLine(item.referenceId, "quantity", event.target.value)} required /></label><label>Harga<input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(event) => updateInvoiceLine(item.referenceId, "unitPrice", event.target.value)} required /></label></div>
+          </div>)}
         </>}
-        <button className="button">Simpan invoice</button>
+        <span className="row-actions">
+          <button className="button" disabled={kind === "supplier" && invoiceLines.length === 0}>{resolvingInvoice ? "Simpan koreksi" : "Simpan invoice"}</button>
+          {resolvingInvoice && <button type="button" onClick={() => { setResolvingInvoice(null); setSource(""); setInvoiceLines([]); }}>Batal</button>}
+        </span>
       </form>
       <form onSubmit={createPayment}>
         <strong>Catat pembayaran parsial</strong>
-        <label>{kind === "supplier" ? "Supplier ID" : "Customer ID"}<input value={party} onChange={(event) => setParty(event.target.value)} required /></label>
-        <label>Invoice ID<input value={invoice} onChange={(event) => setInvoice(event.target.value)} required /></label>
-        <label>Jumlah IDR<input type="number" min="1" value={amount} onChange={(event) => setAmount(event.target.value)} required /></label>
+        <label>Invoice<select value={invoice} onChange={(event) => {
+          const selected = payableInvoices.find((item) => item.id === event.target.value);
+          setInvoice(event.target.value);
+          setParty(selected?.partyId || "");
+          setAmount(selected ? String(selected.outstanding) : "");
+        }} required><option value="">Pilih invoice</option>{payableInvoices.map((item) => <option key={item.id} value={item.id}>{item.documentNo} · outstanding {money(item.outstanding)}</option>)}</select></label>
+        <label>{kind === "supplier" ? "Supplier ID" : "Customer ID"}<input value={party} readOnly required /></label>
+        <label>Jumlah IDR<input type="number" min="0.01" step="0.01" max={payableInvoices.find((item) => item.id === invoice)?.outstanding} value={amount} onChange={(event) => setAmount(event.target.value)} required /></label>
         <button className="button">Buat payment draft</button>
       </form>
     </div>
@@ -126,6 +204,7 @@ function FinancePanel({ kind, invoices, payments, command }: {
         <b>{item.documentNo}</b><span className="status-chip">{item.status}</span><span>{money(item.total)}</span><strong>{money(item.outstanding)}</strong>
         <span className="row-actions">
           {kind === "supplier" && item.status === "MATCH_PENDING" && <button onClick={() => command(`${invoicePrefix}/${item.id}/match`)}>Match</button>}
+          {kind === "supplier" && item.status === "MATCH_EXCEPTION" && <button onClick={() => { void beginResolve(item); }}>Resolve</button>}
           {item.status === "POSTED" && <button disabled={!voidReason} onClick={() => command(`${invoicePrefix}/${item.id}/void`, { reason: voidReason })}>Void</button>}
         </span>
       </div>)}

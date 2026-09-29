@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,6 +43,37 @@ func scanDocuments(rows pgx.Rows) ([]application.Document, error) {
 	return documents, rows.Err()
 }
 
+func validateReplacement(latestID, latestStatus, requestedID string, hasPriorInvoice bool) bool {
+	if !hasPriorInvoice {
+		return requestedID == ""
+	}
+	return latestStatus == "VOID" && requestedID == latestID
+}
+
+func supplierReplacementValid(ctx context.Context, tx pgx.Tx, purchaseOrderID, requestedID string) (bool, error) {
+	var latestID, latestStatus string
+	err := tx.QueryRow(ctx, `SELECT id,status FROM supplier_invoices WHERE purchase_order_id=$1 ORDER BY created_at DESC,id DESC LIMIT 1`, purchaseOrderID).Scan(&latestID, &latestStatus)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return validateReplacement("", "", requestedID, false), nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return validateReplacement(latestID, latestStatus, requestedID, true), nil
+}
+
+func salesReplacementValid(ctx context.Context, tx pgx.Tx, salesOrderID, requestedID string) (bool, error) {
+	var latestID, latestStatus string
+	err := tx.QueryRow(ctx, `SELECT id,status FROM sales_invoices WHERE sales_order_id=$1 ORDER BY created_at DESC,id DESC LIMIT 1`, salesOrderID).Scan(&latestID, &latestStatus)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return validateReplacement("", "", requestedID, false), nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return validateReplacement(latestID, latestStatus, requestedID, true), nil
+}
+
 func (s Store) ListSupplierInvoices(ctx context.Context) ([]application.Document, error) {
 	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,supplier_id,purchase_order_id,currency,total,outstanding,version FROM supplier_invoices ORDER BY created_at DESC`)
 	if err != nil {
@@ -63,11 +95,12 @@ func (s Store) CreateSupplierInvoice(ctx context.Context, input application.Supp
 	if err = tx.QueryRow(ctx, `SELECT supplier_id,status FROM purchase_orders WHERE id=$1 FOR UPDATE`, input.PurchaseOrderID).Scan(&supplierID, &status); err != nil || status != "RECEIVED" {
 		return application.Document{}, ErrConflict
 	}
-	if input.ReplacesInvoiceID != "" {
-		var source, oldStatus string
-		if err = tx.QueryRow(ctx, `SELECT purchase_order_id,status FROM supplier_invoices WHERE id=$1`, input.ReplacesInvoiceID).Scan(&source, &oldStatus); err != nil || source != input.PurchaseOrderID || oldStatus != "VOID" {
-			return application.Document{}, ErrConflict
-		}
+	replacementValid, replacementErr := supplierReplacementValid(ctx, tx, input.PurchaseOrderID, input.ReplacesInvoiceID)
+	if replacementErr != nil {
+		return application.Document{}, replacementErr
+	}
+	if !replacementValid {
+		return application.Document{}, ErrConflict
 	}
 	id := uuid.NewString()
 	no, err := documentNo(ctx, tx, "SINV")
@@ -125,6 +158,10 @@ func (s Store) MatchSupplierInvoice(ctx context.Context, id, actor, request stri
 		}
 		expected = append(expected, line)
 	}
+	if err = expectedRows.Err(); err != nil {
+		expectedRows.Close()
+		return document, err
+	}
 	expectedRows.Close()
 	actualRows, err := tx.Query(ctx, `SELECT purchase_order_line_id,quantity,unit_price FROM supplier_invoice_lines WHERE supplier_invoice_id=$1 ORDER BY purchase_order_line_id`, id)
 	if err != nil {
@@ -138,6 +175,10 @@ func (s Store) MatchSupplierInvoice(ctx context.Context, id, actor, request stri
 			return document, err
 		}
 		actual = append(actual, line)
+	}
+	if err = actualRows.Err(); err != nil {
+		actualRows.Close()
+		return document, err
 	}
 	actualRows.Close()
 	to := "POSTED"
@@ -228,18 +269,19 @@ func (s Store) VoidSupplierInvoice(ctx context.Context, id, reason, actor, reque
 	return document, nil
 }
 
-func allocationTotal(allocations []application.AllocationInput) (float64, error) {
+func allocationTotal(allocations []application.AllocationInput) (int64, error) {
 	if len(allocations) == 0 {
 		return 0, ErrConflict
 	}
-	total := float64(0)
+	var total int64
 	seen := map[string]bool{}
 	for _, allocation := range allocations {
-		if allocation.InvoiceID == "" || allocation.Amount <= 0 || seen[allocation.InvoiceID] {
+		minor, err := domain.MoneyMinorUnits(allocation.Amount)
+		if err != nil || allocation.InvoiceID == "" || minor <= 0 || seen[allocation.InvoiceID] || minor > math.MaxInt64-total {
 			return 0, ErrConflict
 		}
 		seen[allocation.InvoiceID] = true
-		total += allocation.Amount
+		total += minor
 	}
 	return total, nil
 }
@@ -254,7 +296,8 @@ func (s Store) ListSupplierPayments(ctx context.Context) ([]application.Document
 
 func (s Store) CreateSupplierPayment(ctx context.Context, input application.PaymentInput, actor, request string) (application.Document, error) {
 	total, err := allocationTotal(input.Allocations)
-	if err != nil || input.Amount != total || input.Method == "" || input.Currency == "" || input.PaymentDate == "" {
+	amount, amountErr := domain.MoneyMinorUnits(input.Amount)
+	if err != nil || amountErr != nil || amount != total || input.Method == "" || input.Currency == "" || input.PaymentDate == "" {
 		return application.Document{}, ErrConflict
 	}
 	tx, err := s.Pool.Begin(ctx)
@@ -334,6 +377,10 @@ func (s Store) PostSupplierPayment(ctx context.Context, id string, version int, 
 		}
 		allocations = append(allocations, item)
 	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return document, err
+	}
 	rows.Close()
 	if len(allocations) == 0 {
 		return document, ErrConflict
@@ -347,6 +394,9 @@ func (s Store) PostSupplierPayment(ctx context.Context, id string, version int, 
 		if _, err = tx.Exec(ctx, `UPDATE supplier_invoices SET outstanding=$2,status=$3,version=version+1,updated_at=now() WHERE id=$1`, item.invoice, remaining, status); err != nil {
 			return document, err
 		}
+		if err = audit(ctx, tx, actor, "APPLY_SUPPLIER_PAYMENT", "PUR-PAY-002", "SUPPLIER_INVOICE", item.invoice, item.status, status, "", request); err != nil {
+			return document, err
+		}
 		if remaining == 0 {
 			var allPaid bool
 			if err = tx.QueryRow(ctx, `SELECT bool_and(status='PAID') FROM supplier_invoices WHERE purchase_order_id=$1 AND status<>'VOID'`, item.source).Scan(&allPaid); err != nil {
@@ -356,10 +406,15 @@ func (s Store) PostSupplierPayment(ctx context.Context, id string, version int, 
 				if _, err = tx.Exec(ctx, `UPDATE purchase_orders SET status='CLOSED',version=version+1,updated_at=now() WHERE id=$1 AND status='RECEIVED'`, item.source); err != nil {
 					return document, err
 				}
-				if _, err = tx.Exec(ctx, `UPDATE purchase_requests r SET status='COMPLETED',version=r.version+1,updated_at=now() FROM purchase_orders p WHERE p.id=$1 AND r.id=p.purchase_request_id AND r.status='CONVERTED_TO_PO'`, item.source); err != nil {
+				if err = audit(ctx, tx, actor, "CLOSE_PURCHASE", "PUR-CLOSE-001", "PURCHASE_ORDER", item.source, "RECEIVED", "CLOSED", "", request); err != nil {
 					return document, err
 				}
-				if err = audit(ctx, tx, actor, "CLOSE_PURCHASE", "PUR-CLOSE-001", "PURCHASE_ORDER", item.source, "RECEIVED", "CLOSED", "", request); err != nil {
+				var requestID string
+				err = tx.QueryRow(ctx, `UPDATE purchase_requests r SET status='COMPLETED',version=r.version+1,updated_at=now() FROM purchase_orders p WHERE p.id=$1 AND r.id=p.purchase_request_id AND r.status='CONVERTED_TO_PO' RETURNING r.id`, item.source).Scan(&requestID)
+				if err != nil {
+					return document, err
+				}
+				if err = audit(ctx, tx, actor, "COMPLETE_PURCHASE_REQUEST", "PUR-CLOSE-001", "PURCHASE_REQUEST", requestID, "CONVERTED_TO_PO", "COMPLETED", "", request); err != nil {
 					return document, err
 				}
 			}
@@ -393,22 +448,26 @@ func (s Store) VoidSupplierPayment(ctx context.Context, id, reason, actor, reque
 		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version); err != nil || document.Status != "POSTED" {
 		return document, ErrConflict
 	}
-	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.total,i.outstanding,i.purchase_order_id FROM supplier_payment_allocations a JOIN supplier_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 FOR UPDATE OF i`, id)
+	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.total,i.outstanding,i.purchase_order_id,i.status FROM supplier_payment_allocations a JOIN supplier_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 FOR UPDATE OF i`, id)
 	if err != nil {
 		return document, err
 	}
 	type allocation struct {
-		invoice, source            string
+		invoice, source, status    string
 		amount, total, outstanding float64
 	}
 	items := []allocation{}
 	for rows.Next() {
 		var item allocation
-		if err = rows.Scan(&item.invoice, &item.amount, &item.total, &item.outstanding, &item.source); err != nil {
+		if err = rows.Scan(&item.invoice, &item.amount, &item.total, &item.outstanding, &item.source, &item.status); err != nil {
 			rows.Close()
 			return document, err
 		}
 		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return document, err
 	}
 	rows.Close()
 	for _, item := range items {
@@ -420,11 +479,25 @@ func (s Store) VoidSupplierPayment(ctx context.Context, id, reason, actor, reque
 		if _, err = tx.Exec(ctx, `UPDATE supplier_invoices SET outstanding=$2,status=$3,version=version+1,updated_at=now() WHERE id=$1`, item.invoice, outstanding, status); err != nil {
 			return document, err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE purchase_orders SET status='RECEIVED',version=version+1,updated_at=now() WHERE id=$1 AND status='CLOSED'`, item.source); err != nil {
+		if err = audit(ctx, tx, actor, "REVERSE_SUPPLIER_PAYMENT_ALLOCATION", "ACT-FIN-SPAY-VOID", "SUPPLIER_INVOICE", item.invoice, item.status, status, reason, request); err != nil {
 			return document, err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE purchase_requests r SET status='CONVERTED_TO_PO',version=r.version+1,updated_at=now() FROM purchase_orders p WHERE p.id=$1 AND r.id=p.purchase_request_id AND r.status='COMPLETED'`, item.source); err != nil {
-			return document, err
+		poTag, updateErr := tx.Exec(ctx, `UPDATE purchase_orders SET status='RECEIVED',version=version+1,updated_at=now() WHERE id=$1 AND status='CLOSED'`, item.source)
+		if updateErr != nil {
+			return document, updateErr
+		}
+		if poTag.RowsAffected() == 1 {
+			if err = audit(ctx, tx, actor, "REOPEN_PURCHASE_ORDER", "ACT-FIN-SPAY-VOID", "PURCHASE_ORDER", item.source, "CLOSED", "RECEIVED", reason, request); err != nil {
+				return document, err
+			}
+			var requestID string
+			err = tx.QueryRow(ctx, `UPDATE purchase_requests r SET status='CONVERTED_TO_PO',version=r.version+1,updated_at=now() FROM purchase_orders p WHERE p.id=$1 AND r.id=p.purchase_request_id AND r.status='COMPLETED' RETURNING r.id`, item.source).Scan(&requestID)
+			if err != nil {
+				return document, err
+			}
+			if err = audit(ctx, tx, actor, "REOPEN_PURCHASE_REQUEST", "ACT-FIN-SPAY-VOID", "PURCHASE_REQUEST", requestID, "COMPLETED", "CONVERTED_TO_PO", reason, request); err != nil {
+				return document, err
+			}
 		}
 	}
 	if _, err = tx.Exec(ctx, `UPDATE supplier_payments SET status='VOID',void_reason=$2,voided_by=$3,voided_at=now(),version=version+1 WHERE id=$1`, id, reason, actor); err != nil {
@@ -462,11 +535,12 @@ func (s Store) CreateSalesInvoice(ctx context.Context, input application.SalesIn
 	if err = tx.QueryRow(ctx, `SELECT customer_id,status FROM sales_orders WHERE id=$1 FOR UPDATE`, input.SalesOrderID).Scan(&customerID, &status); err != nil || status != "DELIVERED" {
 		return application.Document{}, ErrConflict
 	}
-	if input.ReplacesInvoiceID != "" {
-		var source, oldStatus string
-		if err = tx.QueryRow(ctx, `SELECT sales_order_id,status FROM sales_invoices WHERE id=$1`, input.ReplacesInvoiceID).Scan(&source, &oldStatus); err != nil || source != input.SalesOrderID || oldStatus != "VOID" {
-			return application.Document{}, ErrConflict
-		}
+	replacementValid, replacementErr := salesReplacementValid(ctx, tx, input.SalesOrderID, input.ReplacesInvoiceID)
+	if replacementErr != nil {
+		return application.Document{}, replacementErr
+	}
+	if !replacementValid {
+		return application.Document{}, ErrConflict
 	}
 	var total float64
 	if err = tx.QueryRow(ctx, `SELECT COALESCE(sum(delivered_quantity*unit_price),0) FROM sales_order_lines WHERE sales_order_id=$1`, input.SalesOrderID).Scan(&total); err != nil || total <= 0 {
@@ -531,7 +605,8 @@ func (s Store) ListCustomerPayments(ctx context.Context) ([]application.Document
 
 func (s Store) CreateCustomerPayment(ctx context.Context, input application.PaymentInput, actor, request string) (application.Document, error) {
 	total, err := allocationTotal(input.Allocations)
-	if err != nil || input.Amount != total || input.Method == "" || input.Currency == "" || input.PaymentDate == "" {
+	amount, amountErr := domain.MoneyMinorUnits(input.Amount)
+	if err != nil || amountErr != nil || amount != total || input.Method == "" || input.Currency == "" || input.PaymentDate == "" {
 		return application.Document{}, ErrConflict
 	}
 	tx, err := s.Pool.Begin(ctx)
@@ -609,6 +684,10 @@ func (s Store) PostCustomerPayment(ctx context.Context, id string, version int, 
 		}
 		items = append(items, item)
 	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return document, err
+	}
 	rows.Close()
 	if len(items) == 0 {
 		return document, ErrConflict
@@ -620,6 +699,9 @@ func (s Store) PostCustomerPayment(ctx context.Context, id string, version int, 
 			status = "PAID"
 		}
 		if _, err = tx.Exec(ctx, `UPDATE sales_invoices SET outstanding=$2,status=$3,version=version+1,updated_at=now() WHERE id=$1`, item.invoice, remaining, status); err != nil {
+			return document, err
+		}
+		if err = audit(ctx, tx, actor, "APPLY_CUSTOMER_PAYMENT", "SAL-PAY-002", "SALES_INVOICE", item.invoice, item.status, status, "", request); err != nil {
 			return document, err
 		}
 		if remaining == 0 {
@@ -664,22 +746,26 @@ func (s Store) VoidCustomerPayment(ctx context.Context, id, reason, actor, reque
 	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,customer_id,''::text,currency,amount,0::numeric,version FROM customer_payments WHERE id=$1 FOR UPDATE`, id).Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version); err != nil || document.Status != "POSTED" {
 		return document, ErrConflict
 	}
-	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.total,i.outstanding,i.sales_order_id FROM customer_payment_allocations a JOIN sales_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 FOR UPDATE OF i`, id)
+	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.total,i.outstanding,i.sales_order_id,i.status FROM customer_payment_allocations a JOIN sales_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 FOR UPDATE OF i`, id)
 	if err != nil {
 		return document, err
 	}
 	type allocation struct {
-		invoice, source            string
+		invoice, source, status    string
 		amount, total, outstanding float64
 	}
 	items := []allocation{}
 	for rows.Next() {
 		var item allocation
-		if err = rows.Scan(&item.invoice, &item.amount, &item.total, &item.outstanding, &item.source); err != nil {
+		if err = rows.Scan(&item.invoice, &item.amount, &item.total, &item.outstanding, &item.source, &item.status); err != nil {
 			rows.Close()
 			return document, err
 		}
 		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return document, err
 	}
 	rows.Close()
 	for _, item := range items {
@@ -691,8 +777,17 @@ func (s Store) VoidCustomerPayment(ctx context.Context, id, reason, actor, reque
 		if _, err = tx.Exec(ctx, `UPDATE sales_invoices SET outstanding=$2,status=$3,version=version+1,updated_at=now() WHERE id=$1`, item.invoice, outstanding, status); err != nil {
 			return document, err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE sales_orders SET status='DELIVERED',version=version+1,updated_at=now() WHERE id=$1 AND status='COMPLETED'`, item.source); err != nil {
+		if err = audit(ctx, tx, actor, "REVERSE_CUSTOMER_PAYMENT_ALLOCATION", "ACT-FIN-CPAY-VOID", "SALES_INVOICE", item.invoice, item.status, status, reason, request); err != nil {
 			return document, err
+		}
+		soTag, updateErr := tx.Exec(ctx, `UPDATE sales_orders SET status='DELIVERED',version=version+1,updated_at=now() WHERE id=$1 AND status='COMPLETED'`, item.source)
+		if updateErr != nil {
+			return document, updateErr
+		}
+		if soTag.RowsAffected() == 1 {
+			if err = audit(ctx, tx, actor, "REOPEN_SALES_ORDER", "ACT-FIN-CPAY-VOID", "SALES_ORDER", item.source, "COMPLETED", "DELIVERED", reason, request); err != nil {
+				return document, err
+			}
 		}
 	}
 	if _, err = tx.Exec(ctx, `UPDATE customer_payments SET status='VOID',void_reason=$2,voided_by=$3,voided_at=now(),version=version+1 WHERE id=$1`, id, reason, actor); err != nil {

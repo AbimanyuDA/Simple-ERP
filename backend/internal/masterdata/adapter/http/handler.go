@@ -54,6 +54,10 @@ func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 		respond(w, 401, map[string]string{"message": "Sesi diperlukan."})
 		return
 	}
+	if p.Role != "ADMIN" {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	item, e := h.Service.Create(r.Context(), kind(chi.URLParam(r, "kind")), in.Code, in.Name, p.UserID, middleware.GetReqID(r.Context()))
 	if e != nil {
 		respond(w, 409, map[string]string{"message": e.Error()})
@@ -70,8 +74,16 @@ func (h Handler) status(w http.ResponseWriter, r *http.Request) {
 		respond(w, 400, map[string]string{"message": "Data tidak valid."})
 		return
 	}
-	p, _ := authapp.PrincipalFrom(r.Context())
-	e := h.Service.SetActive(r.Context(), kind(chi.URLParam(r, "kind")), chi.URLParam(r, "id"), in.Active, in.Version, p.UserID, middleware.GetReqID(r.Context()))
+	p, e := authapp.PrincipalFrom(r.Context())
+	if e != nil {
+		respond(w, 401, map[string]string{"message": "Sesi diperlukan."})
+		return
+	}
+	if p.Role != "ADMIN" {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
+	e = h.Service.SetActive(r.Context(), kind(chi.URLParam(r, "kind")), chi.URLParam(r, "id"), in.Active, in.Version, p.UserID, middleware.GetReqID(r.Context()))
 	if e != nil {
 		respond(w, 409, map[string]string{"message": e.Error()})
 		return

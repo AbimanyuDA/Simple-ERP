@@ -73,7 +73,9 @@ func main() {
 	api.Handle("/user-invitations/*", authMiddleware.RequireRole("ADMIN", lifecycle.AdminRoutes()))
 	api.Handle("/password-resets/*", authMiddleware.RequireRole("ADMIN", lifecycle.AdminRoutes()))
 	api.Mount("/users", authMiddleware.RequireRole("ADMIN", usersHandler.Routes()))
-	api.Mount("/master-data", authMiddleware.RequireRole("ADMIN", masterHandler.Routes()))
+	// Authenticated users may read master data for operational selection.
+	// Mutations remain ADMIN-only in the Master Data handler.
+	api.Mount("/master-data", authMiddleware.RequireAuth(masterHandler.Routes()))
 	api.Handle("/settings/organization", authMiddleware.RequireRole("ADMIN", settingsHandler))
 	api.Group(func(r chi.Router) {
 		r.Use(authMiddleware.RequireAuth)

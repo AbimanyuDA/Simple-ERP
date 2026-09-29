@@ -140,6 +140,15 @@ func (s Store) TransitionAdjustment(ctx context.Context, id, action, actor, reas
 		if from != "SUBMITTED" || actor == d.CreatorID {
 			return d, ErrConflict
 		}
+		var snapshotCurrent bool
+		e = tx.QueryRow(ctx, `SELECT COALESCE(bool_and(l.snapshot_quantity=COALESCE(b.quantity,0)),false)
+			FROM inventory_adjustment_lines l
+			JOIN inventory_adjustments a ON a.id=l.inventory_adjustment_id
+			LEFT JOIN stock_balances b ON b.warehouse_id=a.warehouse_id AND b.product_id=l.product_id
+			WHERE l.inventory_adjustment_id=$1`, id).Scan(&snapshotCurrent)
+		if e != nil || !snapshotCurrent {
+			return d, ErrConflict
+		}
 		d.Status = "APPROVED"
 	case "reject":
 		trace = "INV-ADJ-003"
@@ -199,6 +208,10 @@ func (s Store) PostAdjustment(ctx context.Context, id string, version int, actor
 			return d, e
 		}
 		ls = append(ls, l)
+	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
 	}
 	rows.Close()
 	for _, l := range ls {
@@ -271,6 +284,10 @@ func (s Store) ReverseAdjustment(ctx context.Context, id, reason, actor, request
 			return d, e
 		}
 		ls = append(ls, l)
+	}
+	if e = rows.Err(); e != nil {
+		rows.Close()
+		return d, e
 	}
 	rows.Close()
 	for _, l := range ls {

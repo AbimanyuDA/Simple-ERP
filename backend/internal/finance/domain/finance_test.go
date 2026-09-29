@@ -55,3 +55,12 @@ func TestFINPaymentValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestFINPaymentValidationUsesExactMinorUnits(t *testing.T) {
+	if err := ValidatePayment(0.3, 0.1+0.2, "IDR", "IDR", "2026-09-22", "2026-09-22"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := MoneyMinorUnits(10.001); err == nil {
+		t.Fatal("amount with unsupported scale accepted")
+	}
+}

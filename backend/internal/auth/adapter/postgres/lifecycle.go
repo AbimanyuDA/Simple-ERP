@@ -9,6 +9,13 @@ import (
 
 type LifecycleStore struct{ Pool *pgxpool.Pool }
 
+func consumeStatusAllowed(kind domain.ActionTokenKind, status string) bool {
+	if kind == domain.Invitation {
+		return status == "INVITED"
+	}
+	return kind == domain.PasswordReset && status == "ACTIVE"
+}
+
 func (s LifecycleStore) Invite(ctx context.Context, u domain.User, t domain.ActionToken, request string) error {
 	tx, e := s.Pool.Begin(ctx)
 	if e != nil {
@@ -35,18 +42,18 @@ func (s LifecycleStore) Consume(ctx context.Context, digest string, kind domain.
 		return e
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	var tokenID, userID string
-	e = tx.QueryRow(ctx, `SELECT id,user_id FROM action_tokens WHERE token_hash=$1 AND kind=$2 AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at>now() FOR UPDATE`, digest, kind).Scan(&tokenID, &userID)
-	if e != nil {
+	var tokenID, userID, previousStatus string
+	e = tx.QueryRow(ctx, `SELECT t.id,t.user_id,u.status FROM action_tokens t JOIN users u ON u.id=t.user_id WHERE t.token_hash=$1 AND t.kind=$2 AND t.consumed_at IS NULL AND t.revoked_at IS NULL AND t.expires_at>now() FOR UPDATE OF t,u`, digest, kind).Scan(&tokenID, &userID, &previousStatus)
+	if e != nil || !consumeStatusAllowed(kind, previousStatus) {
 		return domain.ErrTokenUnavailable
 	}
 	tag, e := tx.Exec(ctx, `UPDATE action_tokens SET consumed_at=now() WHERE id=$1 AND consumed_at IS NULL`, tokenID)
 	if e != nil || tag.RowsAffected() != 1 {
 		return domain.ErrTokenUnavailable
 	}
-	_, e = tx.Exec(ctx, `UPDATE users SET password_hash=$1,status='ACTIVE',version=version+1,updated_at=now() WHERE id=$2`, passwordHash, userID)
-	if e != nil {
-		return e
+	tag, e = tx.Exec(ctx, `UPDATE users SET password_hash=$1,status='ACTIVE',version=version+1,updated_at=now() WHERE id=$2 AND status=$3`, passwordHash, userID, previousStatus)
+	if e != nil || tag.RowsAffected() != 1 {
+		return domain.ErrTokenUnavailable
 	}
 	if kind == domain.PasswordReset {
 		_, e = tx.Exec(ctx, `UPDATE sessions SET revoked_at=now() WHERE user_id=$1 AND revoked_at IS NULL`, userID)
@@ -54,13 +61,13 @@ func (s LifecycleStore) Consume(ctx context.Context, digest string, kind domain.
 			return e
 		}
 	}
-	trace := "AUTH-PWD-003"
+	trace := "AUTH-PWD-005"
 	action := "RESET_PASSWORD"
 	if kind == domain.Invitation {
-		trace = "AUTH-USR-003"
+		trace = "AUTH-USR-005"
 		action = "ACTIVATE_INVITATION"
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,$2,$3,'USER',$1,$4,'ACTIVE',$5)`, userID, action, trace, map[bool]string{true: "INVITED", false: "ACTIVE"}[kind == domain.Invitation], request)
+	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,$2,$3,'USER',$1,$4,'ACTIVE',$5)`, userID, action, trace, previousStatus, request)
 	if e != nil {
 		return e
 	}

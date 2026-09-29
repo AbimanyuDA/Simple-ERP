@@ -43,7 +43,7 @@ Requirement IDs use `BR-*` from `BUSINESS-RULES.md`. Automated tests use `T-<TRA
 
 | BPMN ID | Requirement | Actor | UI | API | Application use case | Database operation | From → To | Automated test |
 |---|---|---|---|---|---|---|---|---|
-| PUR-PR-001 | BR-P2P-001/002 | Operator | `/purchasing/requests/new`, edit page | POST/PATCH `/purchase-requests` | `CreatePurchaseRequest`, `UpdatePurchaseRequest` | insert/update PR + lines + audit | `[*] → DRAFT` / `DRAFT → DRAFT` | T-PUR-PR-001-01 |
+| PUR-PR-001 | BR-P2P-001/002 | Operator | purchase request form with mandatory purpose | POST `/purchase-requests` | `CreatePurchaseRequest` | insert PR purpose + lines + audit | `[*] → DRAFT` | T-PUR-PR-001-01 |
 | PUR-PR-002 | BR-P2P-002 | Operator | request detail, Submit | POST `/{id}/submit` | `SubmitPurchaseRequest` | guarded PR update + audit | `DRAFT → SUBMITTED` | T-PUR-PR-002-01 |
 | PUR-PR-003 | BR-P2P-003, BR-GEN-011 | Admin | approval inbox/detail | POST `/{id}/approve` or `/reject` | `ReviewPurchaseRequest` | guarded PR update, maker-checker, reviewer/reason + audit | `SUBMITTED → APPROVED|REJECTED` | T-PUR-PR-003-01/02/03 |
 | PUR-PO-001 | BR-P2P-004/005 | Operator | approved request, Convert | POST `/{id}/purchase-order`; PATCH PO | `ConvertPurchaseRequestToOrder` | insert PO + lines; update PR; audit | `PR APPROVED → CONVERTED_TO_PO`, `PO [*] → DRAFT` | T-PUR-PO-001-01 |
@@ -61,7 +61,7 @@ Requirement IDs use `BR-*` from `BUSINESS-RULES.md`. Automated tests use `T-<TRA
 
 | BPMN ID | Requirement | Actor | UI | API | Application use case | Database operation | From → To | Automated test |
 |---|---|---|---|---|---|---|---|---|
-| SAL-SO-001 | BR-O2C-001/002 | Operator | `/sales/orders/new`, edit page | POST/PATCH `/sales-orders` | `CreateSalesOrder`, `UpdateSalesOrder` | insert/update SO + lines + audit | `[*] → DRAFT` / `DRAFT → DRAFT` | T-SAL-SO-001-01 |
+| SAL-SO-001 | BR-O2C-001/002 | Operator | `/sales/sales-orders`, create/edit form | POST `/sales-orders`; PATCH `/sales-orders/{id}` | `CreateOrder`, `UpdateOrder` | insert/update SO + lines + audit | `[*] → DRAFT` / `DRAFT → DRAFT` | T-SAL-SO-001-01 |
 | SAL-SO-003 | BR-O2C-003 | System | stock availability feedback | POST `/{id}/validate-stock` | `ValidateSalesOrderStock` | read balance/version; no stock mutation | `DRAFT → DRAFT` | T-SAL-SO-003-01/02 |
 | SAL-SO-002 | BR-O2C-002/003 | Operator | order detail, Submit | POST `/{id}/submit` | `SubmitSalesOrder` | guarded SO update + audit | `DRAFT → SUBMITTED` | T-SAL-SO-002-01 |
 | SAL-SO-004 | BR-O2C-003/004, BR-GEN-011 | Admin | approval inbox/detail | POST `/{id}/approve` or `/reject` | `ReviewSalesOrder` | stock recheck; maker-checker; guarded SO update + audit | `SUBMITTED → APPROVED|REJECTED` | T-SAL-SO-004-01/02/03 |
@@ -104,6 +104,7 @@ These actions are sourced from Level 0 capabilities because they are initializat
 
 | Action ID | BPMN source | Requirement | Actor/trigger | UI / API | Use case | State/result | Audit expectation | Test family |
 |---|---|---|---|---|---|---|---|---|
+| ACT-AUTH-USER-STATUS | CAP-AUTH-001 | BR-AUTH-009/010 | Admin | POST `/users/{id}/activate|deactivate` | `SetUserStatus` | ACTIVE/DEACTIVATED lifecycle; deactivation revokes sessions and pending tokens | actor, prior/new state | T-ACT-AUTH-USER-STATUS-* |
 | ACT-AUTH-ADMIN-BOOTSTRAP | CAP-AUTH-001 | BR-AUTH-008 | Local operator/System | CLI only; no HTTP/UI | `BootstrapFirstAdmin` | no users → first ACTIVE Admin | system actor, success/refusal, no password | T-ACT-AUTH-ADMIN-BOOTSTRAP-* |
 | ACT-AUTH-INVITE-REVOKE | CAP-AUTH-001 | BR-AUTH-002/007 | Admin | POST `/user-invitations/{id}/revoke` | `RevokeInvitation` | CREATED/SHARED → REVOKED | actor, token record ID, prior/new state; no raw token | T-ACT-AUTH-INVITE-REVOKE-* |
 | ACT-AUTH-INVITE-EXPIRE | CAP-AUTH-001 | BR-AUTH-002/007 | System on access | internal | `ExpireInvitation` | CREATED/SHARED → EXPIRED | system actor, token record ID, expiry time; no raw token | T-ACT-AUTH-INVITE-EXPIRE-* |

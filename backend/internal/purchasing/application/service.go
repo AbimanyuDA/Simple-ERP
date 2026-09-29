@@ -17,12 +17,26 @@ type Document struct {
 	DocumentNo string `json:"documentNo"`
 	Status     string `json:"status"`
 	CreatorID  string `json:"creatorId"`
+	Purpose    string `json:"purpose,omitempty"`
 	Version    int    `json:"version"`
 }
+type FulfillmentLine struct {
+	ID                string  `json:"id"`
+	ProductID         string  `json:"productId"`
+	Quantity          float64 `json:"quantity"`
+	UnitPrice         float64 `json:"unitPrice"`
+	ProcessedQuantity float64 `json:"processedQuantity"`
+	RemainingQuantity float64 `json:"remainingQuantity"`
+}
+type OrderDetail struct {
+	Document
+	Lines []FulfillmentLine `json:"lines"`
+}
 type Store interface {
-	CreateRequest(context.Context, string, []LineInput, string) (Document, error)
+	CreateRequest(context.Context, string, string, []LineInput, string) (Document, error)
 	ListRequests(context.Context) ([]Document, error)
 	ListOrders(context.Context) ([]Document, error)
+	GetOrder(context.Context, string) (OrderDetail, error)
 	ListReceipts(context.Context) ([]Document, error)
 	TransitionRequest(context.Context, string, string, string, string, int, string) (Document, error)
 	ConvertToOrder(context.Context, string, string, string, string, string) (Document, error)
@@ -37,13 +51,16 @@ type Store interface {
 type Service struct{ store Store }
 
 func NewService(s Store) Service { return Service{s} }
-func (s Service) CreateRequest(ctx context.Context, actor string, l []LineInput, req string) (Document, error) {
-	return s.store.CreateRequest(ctx, actor, l, req)
+func (s Service) CreateRequest(ctx context.Context, actor, purpose string, l []LineInput, req string) (Document, error) {
+	return s.store.CreateRequest(ctx, actor, purpose, l, req)
 }
 func (s Service) ListRequests(ctx context.Context) ([]Document, error) {
 	return s.store.ListRequests(ctx)
 }
 func (s Service) ListOrders(ctx context.Context) ([]Document, error) { return s.store.ListOrders(ctx) }
+func (s Service) GetOrder(ctx context.Context, id string) (OrderDetail, error) {
+	return s.store.GetOrder(ctx, id)
+}
 func (s Service) ListReceipts(ctx context.Context) ([]Document, error) {
 	return s.store.ListReceipts(ctx)
 }

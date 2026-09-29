@@ -2,6 +2,8 @@ package domain
 
 import (
 	"errors"
+	"math"
+	"strconv"
 	"time"
 )
 
@@ -26,6 +28,25 @@ type Invoice struct {
 	Status      InvoiceStatus
 	Total       float64
 	Outstanding float64
+}
+
+func MoneyMinorUnits(amount float64) (int64, error) {
+	if math.IsNaN(amount) || math.IsInf(amount, 0) || amount < 0 {
+		return 0, errors.New("invalid monetary amount")
+	}
+	normalized, err := strconv.ParseFloat(strconv.FormatFloat(amount, 'f', 2, 64), 64)
+	if err != nil {
+		return 0, errors.New("invalid monetary amount")
+	}
+	ulp := math.Abs(math.Nextafter(normalized, math.Inf(1)) - normalized)
+	if math.Abs(normalized-amount) > ulp {
+		return 0, errors.New("monetary amount exceeds two decimal places")
+	}
+	scaled := normalized * 100
+	if scaled > math.MaxInt64 {
+		return 0, errors.New("monetary amount exceeds supported range")
+	}
+	return int64(math.Round(scaled)), nil
 }
 
 func ExactMatch(expected, actual []InvoiceLine) error {
@@ -78,7 +99,9 @@ func (i Invoice) ReversePayment(amount float64) (Invoice, error) {
 }
 
 func ValidatePayment(amount, allocationTotal float64, paymentCurrency, invoiceCurrency, paymentDate, invoiceDate string) error {
-	if amount <= 0 || amount != allocationTotal {
+	amountMinor, amountErr := MoneyMinorUnits(amount)
+	allocationMinor, allocationErr := MoneyMinorUnits(allocationTotal)
+	if amountErr != nil || allocationErr != nil || amountMinor <= 0 || amountMinor != allocationMinor {
 		return errors.New("payment amount and allocations must be positive and equal")
 	}
 	if paymentCurrency != invoiceCurrency {

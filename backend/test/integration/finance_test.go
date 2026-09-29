@@ -11,6 +11,8 @@ import (
 	financeapp "github.com/simple-erp/backend/internal/finance/application"
 	purchasepg "github.com/simple-erp/backend/internal/purchasing/adapter/postgres"
 	purchaseapp "github.com/simple-erp/backend/internal/purchasing/application"
+	reportingpg "github.com/simple-erp/backend/internal/reporting/adapter/postgres"
+	reportingapp "github.com/simple-erp/backend/internal/reporting/application"
 	salespg "github.com/simple-erp/backend/internal/sales/adapter/postgres"
 	salesapp "github.com/simple-erp/backend/internal/sales/application"
 )
@@ -21,8 +23,9 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	ctx := context.Background()
 	purchasing := purchaseapp.NewService(purchasepg.Store{Pool: pool})
 	finance := financeapp.NewService(financepg.Store{Pool: pool})
+	reporting := reportingapp.NewService(reportingpg.Store{Pool: pool})
 
-	request, err := purchasing.CreateRequest(ctx, operatorID, []purchaseapp.LineInput{{ProductID: productID, Quantity: 10, UnitPrice: 100}}, "fin-p2p-1")
+	request, err := purchasing.CreateRequest(ctx, operatorID, "Restock product", []purchaseapp.LineInput{{ProductID: productID, Quantity: 10, UnitPrice: 100}}, "fin-p2p-1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,6 +70,10 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	if err != nil || invoice.Status != "MATCH_EXCEPTION" {
 		t.Fatalf("invoice=%#v err=%v", invoice, err)
 	}
+	summary, err := reporting.Summary(ctx)
+	if err != nil || summary.Payables != 0 {
+		t.Fatalf("match-exception invoice leaked into payables: summary=%#v err=%v", summary, err)
+	}
 	invoice, err = finance.ResolveSupplierInvoice(ctx, invoice.ID, []financeapp.InvoiceLineInput{{ReferenceID: orderLineID, Quantity: 10, UnitPrice: 100}}, adminID, "fin-p2p-10")
 	if err != nil {
 		t.Fatal(err)
@@ -74,6 +81,10 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, adminID, "fin-p2p-11")
 	if err != nil || invoice.Status != "POSTED" {
 		t.Fatalf("invoice=%#v err=%v", invoice, err)
+	}
+	summary, err = reporting.Summary(ctx)
+	if err != nil || summary.Payables != 1000 {
+		t.Fatalf("posted invoice missing from payables: summary=%#v err=%v", summary, err)
 	}
 	if _, err = purchasing.ReverseReceipt(ctx, receipt.ID, "should be blocked", adminID, "fin-p2p-guard"); err == nil {
 		t.Fatal("receipt reversal accepted with active invoice")
@@ -111,6 +122,11 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	if _, err = finance.VoidSupplierInvoice(ctx, invoice.ID, "replace incorrect invoice", adminID, "fin-p2p-19"); err != nil {
 		t.Fatal(err)
 	}
+	missingLink := supplierInvoice(order.ID, "INV-MISSING-LINK", 10, 100, "")
+	missingLink.Lines[0].ReferenceID = orderLineID
+	if _, err = finance.CreateSupplierInvoice(ctx, missingLink, adminID, "fin-p2p-missing-link"); err == nil {
+		t.Fatal("supplier replacement accepted without replacesInvoiceId")
+	}
 	replacementInput := supplierInvoice(order.ID, "INV-2", 10, 100, invoice.ID)
 	replacementInput.Lines[0].ReferenceID = orderLineID
 	replacement, err := finance.CreateSupplierInvoice(ctx, replacementInput, adminID, "fin-p2p-20")
@@ -145,6 +161,10 @@ func TestO2CConsolidatedInvoicePartialPaymentCompletionAndVoid(t *testing.T) {
 	}
 	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), adminID, "fin-o2c-early"); err == nil {
 		t.Fatal("early sales invoice accepted")
+	}
+	order, err = sales.TransitionOrder(ctx, order.ID, "confirm", operatorID, "", order.Version, "fin-o2c-confirm")
+	if err != nil {
+		t.Fatal(err)
 	}
 	var orderLineID string
 	if err = pool.QueryRow(ctx, `SELECT id FROM sales_order_lines WHERE sales_order_id=$1`, order.ID).Scan(&orderLineID); err != nil {
@@ -194,6 +214,9 @@ func TestO2CConsolidatedInvoicePartialPaymentCompletionAndVoid(t *testing.T) {
 	if _, err = finance.VoidSalesInvoice(ctx, invoice.ID, "replace invoice", adminID, "fin-o2c-14"); err != nil {
 		t.Fatal(err)
 	}
+	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), adminID, "fin-o2c-missing-link"); err == nil {
+		t.Fatal("sales replacement accepted without replacesInvoiceId")
+	}
 	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, invoice.ID), adminID, "fin-o2c-15"); err != nil {
 		t.Fatal(err)
 	}
@@ -212,9 +235,10 @@ func payment(partyID, invoiceID string, amount float64) financeapp.PaymentInput 
 func assertState(t *testing.T, pool *pgxpool.Pool, table, id, expected string) {
 	t.Helper()
 	query := map[string]string{
-		"purchase_orders":   `SELECT status FROM purchase_orders WHERE id=$1`,
-		"purchase_requests": `SELECT status FROM purchase_requests WHERE id=$1`,
-		"sales_orders":      `SELECT status FROM sales_orders WHERE id=$1`,
+		"purchase_orders":       `SELECT status FROM purchase_orders WHERE id=$1`,
+		"purchase_requests":     `SELECT status FROM purchase_requests WHERE id=$1`,
+		"sales_orders":          `SELECT status FROM sales_orders WHERE id=$1`,
+		"inventory_adjustments": `SELECT status FROM inventory_adjustments WHERE id=$1`,
 	}[table]
 	var actual string
 	if err := pool.QueryRow(context.Background(), query, id).Scan(&actual); err != nil {

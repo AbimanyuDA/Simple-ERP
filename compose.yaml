@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-simple_erp}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simple_erp_local}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,7 +24,17 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-simple_erp}:${POSTGRES_PASSWORD:-simple_erp_local}@postgres:5432/${POSTGRES_DB:-simple_erp}?sslmode=disable
       SESSION_PEPPER: ${SESSION_PEPPER:-local-development-pepper-change-me-32-bytes}
     ports:
-      - "8080:8080"
+      - "${BACKEND_HOST_PORT:-8080}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    build: ./backend
+    entrypoint: ["migrate"]
+    command: ["up"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-simple_erp}:${POSTGRES_PASSWORD:-simple_erp_local}@postgres:5432/${POSTGRES_DB:-simple_erp}?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,7 +48,7 @@ services:
       INTERNAL_API_ORIGIN: http://backend:8080
       NEXT_PUBLIC_API_BASE_URL: /api/v1
     ports:
-      - "3000:3000"
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
     depends_on:
       - backend
 

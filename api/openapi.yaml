@@ -44,7 +44,7 @@ paths:
     post:
       summary: Activate an invited user
       security: []
-      operationId: AUTH-USR-003-activate
+      operationId: AUTH-USR-005-activate
       tags: [Authentication]
       requestBody: {$ref: '#/components/requestBodies/TokenPassword'}
       responses: {'204': {description: User activated}, '400': {$ref: '#/components/responses/ValidationError'}}
@@ -52,7 +52,7 @@ paths:
     post:
       summary: Consume a password reset token
       security: []
-      operationId: AUTH-PWD-003-reset
+      operationId: AUTH-PWD-005-reset
       tags: [Authentication]
       requestBody: {$ref: '#/components/requestBodies/TokenPassword'}
       responses: {'204': {description: Password replaced and sessions revoked}, '400': {$ref: '#/components/responses/ValidationError'}}
@@ -140,6 +140,9 @@ paths:
       operationId: PUR-PR-001-create
       tags: [Purchasing]
       parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/PurchaseRequestCreate'}}}
       responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
   /purchase-requests/{id}/{action}:
     post:
@@ -169,6 +172,15 @@ paths:
         - {$ref: '#/components/parameters/CSRF'}
         - {$ref: '#/components/parameters/Idempotency'}
       responses: {'200': {description: State changed}, '409': {description: Invalid transition}}
+  /purchase-orders/{id}:
+    get:
+      summary: Get a purchase order with lines and remaining receipt quantities
+      operationId: purchase-order-detail
+      tags: [Purchasing]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses:
+        '200': {description: Purchase order detail with fulfillment lines}
+        '404': {description: Purchase order not found}
   /purchase-orders/{id}/goods-receipts:
     post:
       summary: Create a partial or final goods receipt
@@ -202,6 +214,42 @@ paths:
       tags: [Sales]
       parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
       responses: {'201': {description: Draft created}, '409': {description: Invalid input}}
+  /sales-orders/{id}:
+    get:
+      summary: Get a sales order with confirmation state and remaining delivery quantities
+      operationId: sales-order-detail
+      tags: [Sales]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses:
+        '200': {description: Sales order detail with fulfillment lines}
+        '404': {description: Sales order not found}
+    patch:
+      summary: Replace lines on a draft sales order
+      operationId: SAL-SO-001-update
+      tags: [Sales]
+      parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, lines]
+              properties:
+                version: {type: integer, minimum: 1}
+                lines:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [productId, quantity, unitPrice]
+                    properties:
+                      productId: {type: string, format: uuid}
+                      quantity: {type: number, exclusiveMinimum: 0}
+                      unitPrice: {type: number, minimum: 0}
+      responses:
+        '200': {description: Draft lines replaced and version incremented}
+        '409': {description: Invalid state, stale version, product, quantity, or price}
   /sales-orders/{id}/{action}:
     post:
       summary: Run a sales order state command
@@ -281,7 +329,10 @@ paths:
       operationId: PUR-INV-001-create
       tags: [Finance]
       parameters: [{$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
-      responses: {'201': {description: MATCH_PENDING invoice}, '409': {description: "Early, duplicate, or invalid invoice"}}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/SupplierInvoiceCreate'}}}
+      responses: {'201': {description: MATCH_PENDING invoice}, '409': {description: "Early, duplicate, invalid, or missing replacement lineage"}}
   /supplier-invoices/{id}/{action}:
     post:
       summary: Match, resolve, or void a supplier invoice
@@ -295,6 +346,15 @@ paths:
           schema: {type: string, enum: [match, resolve-match, void]}
         - {$ref: '#/components/parameters/CSRF'}
         - {$ref: '#/components/parameters/Idempotency'}
+      requestBody:
+        required: false
+        description: No body for match; corrected lines for resolve-match; mandatory reason for void.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - {$ref: '#/components/schemas/SupplierMatchResolution'}
+                - {$ref: '#/components/schemas/VoidReason'}
       responses: {'200': {description: "PUR-INV-002, PUR-INV-003, or ACT-FIN-SINV-VOID applied"}, '409': {description: Match or state conflict}}
   /supplier-payments:
     get:
@@ -328,7 +388,10 @@ paths:
       operationId: SAL-INV-001-create
       tags: [Finance]
       parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
-      responses: {'201': {description: Posted sales invoice}, '409': {description: Early or duplicate invoice}}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/SalesInvoiceCreate'}}}
+      responses: {'201': {description: Posted sales invoice}, '409': {description: "Early, duplicate, or missing replacement lineage"}}
   /sales-invoices:
     get:
       summary: List sales invoices and outstanding AR
@@ -341,6 +404,9 @@ paths:
       operationId: ACT-FIN-CINV-VOID
       tags: [Finance]
       parameters: [{$ref: '#/components/parameters/ID'}, {$ref: '#/components/parameters/CSRF'}, {$ref: '#/components/parameters/Idempotency'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/VoidReason'}}}
       responses: {'200': {description: Invoice voided}, '409': {description: Active allocation or state conflict}}
   /customer-payments:
     get:
@@ -421,6 +487,69 @@ components:
       type: object
       required: [message]
       properties: {message: {type: string}}
+    InvoiceLine:
+      type: object
+      additionalProperties: false
+      required: [referenceId, quantity, unitPrice]
+      properties:
+        referenceId: {type: string, format: uuid}
+        quantity: {type: number, exclusiveMinimum: 0}
+        unitPrice: {type: number, minimum: 0}
+    PurchaseRequestCreate:
+      type: object
+      additionalProperties: false
+      required: [purpose, lines]
+      properties:
+        purpose: {type: string, minLength: 1}
+        lines:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [productId, quantity, unitPrice]
+            properties:
+              productId: {type: string, format: uuid}
+              quantity: {type: number, exclusiveMinimum: 0}
+              unitPrice: {type: number, minimum: 0}
+    SupplierInvoiceCreate:
+      type: object
+      additionalProperties: false
+      required: [purchaseOrderId, supplierInvoiceNumber, invoiceDate, dueDate, currency, lines]
+      properties:
+        purchaseOrderId: {type: string, format: uuid}
+        supplierInvoiceNumber: {type: string, minLength: 1}
+        invoiceDate: {type: string, format: date}
+        dueDate: {type: string, format: date}
+        currency: {type: string, minLength: 3, maxLength: 3}
+        replacesInvoiceId: {type: string, format: uuid}
+        lines:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/InvoiceLine'}
+    SupplierMatchResolution:
+      type: object
+      additionalProperties: false
+      required: [lines]
+      properties:
+        lines:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/InvoiceLine'}
+    SalesInvoiceCreate:
+      type: object
+      additionalProperties: false
+      required: [invoiceDate, dueDate, currency]
+      properties:
+        invoiceDate: {type: string, format: date}
+        dueDate: {type: string, format: date}
+        currency: {type: string, minLength: 3, maxLength: 3}
+        replacesInvoiceId: {type: string, format: uuid}
+    VoidReason:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties: {reason: {type: string, minLength: 1}}
   requestBodies:
     TokenPassword:
       required: true

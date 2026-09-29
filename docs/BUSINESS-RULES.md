@@ -11,7 +11,7 @@
 | Supplier | External participant | Receive purchase order; deliver goods; issue supplier invoice | No direct application access in MVP |
 | Customer | External participant | Place order; receive confirmation/goods/invoice; make payment | No direct application access in MVP |
 
-Permissions are capability-based internally even though MVP exposes two bundled roles. This prevents authorization checks from being hard-coded as `role == ADMIN` throughout use cases.
+The implemented MVP uses two bundled roles, `ADMIN` and `OPERATOR`. Route middleware and handlers enforce authentication and the Admin-only commands; a separate persisted capability/permission model is not implemented.
 
 ## 2. Domain ownership
 
@@ -26,7 +26,7 @@ Permissions are capability-based internally even though MVP exposes two bundled 
 | Reporting | Read models and dashboard metrics | Mutation of business documents |
 | Audit | Append-only critical operation history | Domain state decisions |
 
-Process owner modules orchestrate cross-domain ports. Purchasing calls Inventory and Finance application ports; Sales calls Inventory and Finance ports. Shared database does not permit direct cross-module table writes.
+Modules are separated by Go packages and HTTP surfaces, but their PostgreSQL stores share one schema. Multi-entity transactions intentionally update related tables directly—for example receipt/delivery posting updates stock, and payment posting closes or reopens source documents. This is the implemented modular-monolith boundary; cross-module application ports are a future architecture option, not current evidence.
 
 ## 3. Global business rules
 
@@ -36,7 +36,7 @@ Process owner modules orchestrate cross-domain ports. Purchasing calls Inventory
 | BR-GEN-002 | A command is authorized before domain validation, and both occur before persistence. |
 | BR-GEN-003 | Invalid state transition returns conflict and performs no partial write. |
 | BR-GEN-004 | Posted stock/finance records are immutable; correction uses linked reversal. |
-| BR-GEN-005 | Critical command writes actor, action, entity, entity ID, timestamp, previous state, new state, stable trace ID (BPMN task ID or supporting action ID), request ID, and JSON snapshot/diff to audit. |
+| BR-GEN-005 | Critical command writes actor, action, entity, entity ID, timestamp, previous state, new state, stable trace ID (BPMN task ID or supporting action ID), request ID, and a mandatory reason where applicable. Full JSON before/after snapshots are outside the current MVP baseline. |
 | BR-GEN-006 | All totals are calculated server-side from quantity, unit price, tax, and discount inputs. Client totals are informational only. |
 | BR-GEN-007 | Disabled users cannot authenticate or start new sessions; historical records retain their actor reference. |
 | BR-GEN-008 | Inactive master data cannot be selected for a new document but remains visible on historical documents. |

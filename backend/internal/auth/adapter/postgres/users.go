@@ -50,8 +50,11 @@ func (s UserAdminStore) SetUserStatus(ctx context.Context, id, status string, ve
 		if _, e = tx.Exec(ctx, `UPDATE sessions SET revoked_at=now() WHERE user_id=$1 AND revoked_at IS NULL`, id); e != nil {
 			return e
 		}
+		if _, e = tx.Exec(ctx, `UPDATE action_tokens SET revoked_at=now() WHERE user_id=$1 AND consumed_at IS NULL AND revoked_at IS NULL`, id); e != nil {
+			return e
+		}
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,'SET_USER_STATUS','AUTH-USR-004','USER',$2,$3,$4,$5)`, actor, id, previous, status, request)
+	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,'SET_USER_STATUS','ACT-AUTH-USER-STATUS','USER',$2,$3,$4,$5)`, actor, id, previous, status, request)
 	if e != nil {
 		return e
 	}

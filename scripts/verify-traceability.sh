@@ -27,10 +27,10 @@ for task_id in $task_ids; do
 done
 
 action_count=$(grep -c '^| ACT-' "$mapping" || true)
-if [ "$action_count" -ne 21 ]; then
-  echo "expected 21 supporting action mappings, found $action_count" >&2
+if [ "$action_count" -ne 22 ]; then
+  echo "expected 22 supporting action mappings, found $action_count" >&2
   exit 1
 fi
 
-echo "traceability structure verified: 39 BPMN tasks and 21 supporting actions have exactly one mapping row"
+echo "traceability structure verified: 39 BPMN tasks and 22 supporting actions have exactly one mapping row"
 echo "note: this structural check does not prove source, UI, API, audit, test, or runtime implementation"

@@ -18,7 +18,7 @@ func TestCAPRPT001DashboardAndCAPAUD001AuditAreReconciledAndRedacted(t *testing.
 	ctx := context.Background()
 	purchasing := purchaseapp.NewService(purchasepg.Store{Pool: pool})
 	reporting := reportingapp.NewService(reportingpg.Store{Pool: pool})
-	request, err := purchasing.CreateRequest(ctx, operatorID, []purchaseapp.LineInput{{ProductID: productID, Quantity: 2, UnitPrice: 100}}, "report-request")
+	request, err := purchasing.CreateRequest(ctx, operatorID, "Reporting fixture", []purchaseapp.LineInput{{ProductID: productID, Quantity: 2, UnitPrice: 100}}, "report-request")
 	if err != nil {
 		t.Fatal(err)
 	}
