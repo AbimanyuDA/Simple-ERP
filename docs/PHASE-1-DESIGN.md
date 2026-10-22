@@ -4,7 +4,7 @@
 
 Mini ERP dirancang sebagai web application end-to-end untuk satu perusahaan UMKM, dengan satu deployment backend Go berbentuk modular monolith. BPMN 2.0 adalah source of truth untuk urutan proses dan state transition. Implementasi kelak wajib mengikuti mapping stabil dari BPMN task ke requirement, UI, API, use case, operasi database, state transition, dan automated test.
 
-Baseline ini disetujui pada 2026-09-21 dengan keputusan final OD-001–OD-010 dan tambahan scope pada `REVIEW-FINDINGS.md`. Persetujuan Phase 1 bukan izin implementasi; rencana Phase 2 masih memerlukan review terpisah.
+Ini arsip keputusan desain awal yang disetujui pada 2026-09-21. Beberapa aturan role dan alur sudah berubah; untuk kondisi implementasi saat ini lihat `RBAC-AUDIT.md` dan `bpm-haqi/README.md`. Dokumen ini bukan bukti penerimaan runtime.
 
 ## 2. Scope Phase 1
 
@@ -149,4 +149,4 @@ Baseline Phase 1 telah melewati gate berikut:
 6. tidak ada module dependency yang melanggar dependency rule;
 7. user menyetujui baseline sebelum implementation plan dibuat.
 
-Implementation gate berikutnya adalah persetujuan terhadap `docs/superpowers/plans/2026-09-21-mini-erp-phase-2.md`.
+Gate di atas menjelaskan keputusan historis Phase 1, bukan status verifikasi aplikasi saat ini.

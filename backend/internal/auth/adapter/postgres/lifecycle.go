@@ -67,7 +67,7 @@ func (s LifecycleStore) Consume(ctx context.Context, digest string, kind domain.
 		trace = "AUTH-USR-005"
 		action = "ACTIVATE_INVITATION"
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,$2,$3,'USER',$1,$4,'ACTIVE',$5)`, userID, action, trace, previousStatus, request)
+	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,previous_state,new_state,request_id)VALUES($1,$2,$3,'USER',$6,$4,'ACTIVE',$5)`, userID, action, trace, previousStatus, request, userID)
 	if e != nil {
 		return e
 	}

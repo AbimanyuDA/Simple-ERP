@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1145" viewBox="0 0 1320 1145">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#0f172a">
+<text x="25" y="30" font-size="20" text-anchor="start"><tspan x="25" dy="0">L2 | Revisi, pembatalan dan koreksi Sales</tspan></text>
+<text x="25" y="56" font-size="12" text-anchor="start"><tspan x="25" dy="0">AS-IS KODE 2026-10-21 | Lane dengan 'atau' berarti pilihan aktor | Detail kegagalan: dokumentasi model</tspan></text>
+<rect x="20" y="100.0" width="1280" height="1010.0" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="100" y="180.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Pemilik</tspan><tspan x="100" dy="16">kebutuhan (role</tspan><tspan x="100" dy="16">pada detail)</tspan></text>
+<polyline points="238,605.0 274.0,605.0 274.0,605.0 310,605.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="488,605.0 519.0,605.0 519.0,605.0 550,605.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,190.0 850,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="147.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Edit SO draft</tspan></text>
+<polyline points="1028,190.0 1074.0,190.0 1074.0,190.0 1120,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,345.0 850,345.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="302.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Cek stok manual</tspan></text>
+<polyline points="1028,345.0 1074.0,345.0 1074.0,345.0 1120,345.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,500.0 850,500.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="457.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Cancel SO</tspan></text>
+<polyline points="1028,500.0 1074.0,500.0 1074.0,500.0 1120,500.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,655.0 850,655.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="612.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Copy SO ditolak</tspan></text>
+<polyline points="1028,655.0 1074.0,655.0 1074.0,655.0 1120,655.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,810.0 850,810.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="767.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Cancel delivery draft</tspan></text>
+<polyline points="1028,810.0 1074.0,810.0 1074.0,810.0 1120,810.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,605.0 645,605.0 645,965.0 850,965.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="616" y1="612.0" x2="628" y2="598.0" stroke="#475569" stroke-width="1.5"/>
+<text x="688" y="922.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Reverse delivery</tspan></text>
+<polyline points="1028,965.0 1074.0,965.0 1074.0,965.0 1120,965.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<circle cx="219.0" cy="605.0" r="19.0" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="219.0" y="644.0" font-size="12" text-anchor="middle"><tspan x="219.0" dy="0">Kebutuhan muncul</tspan></text>
+<rect x="310" y="560.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="322" y="575.0" font-size="9" text-anchor="start"><tspan x="322" dy="0">U</tspan></text>
+<text x="399.0" y="592.0" font-size="12" text-anchor="middle"><tspan x="399.0" dy="0">Pilih kebutuhan</tspan></text>
+<path d="M577.0,578.0 L604,605.0 L577.0,632.0 L550,605.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="577.0" y="610.0" font-size="18" text-anchor="middle"><tspan x="577.0" dy="0">X</tspan></text>
+<text x="577.0" y="652.0" font-size="12" text-anchor="middle"><tspan x="577.0" dy="0">Kebutuhan apa?</tspan></text>
+<rect x="850" y="145" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="160" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="177" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Edit SO draft</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="221" width="12" height="12"/><path d="M936.0,227 H942.0 M939.0,224 V230"/></g>
+<circle cx="1139.0" cy="190.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="229" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="300" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="315" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="332" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Cek stok manual</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="376" width="12" height="12"/><path d="M936.0,382 H942.0 M939.0,379 V385"/></g>
+<circle cx="1139.0" cy="345.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="384" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="455" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="470" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="487" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Cancel SO</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="531" width="12" height="12"/><path d="M936.0,537 H942.0 M939.0,534 V540"/></g>
+<circle cx="1139.0" cy="500.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="539" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="610" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="625" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="642" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Copy SO ditolak</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="686" width="12" height="12"/><path d="M936.0,692 H942.0 M939.0,689 V695"/></g>
+<circle cx="1139.0" cy="655.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="694" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="765" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="780" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="797" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Cancel delivery draft</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="841" width="12" height="12"/><path d="M936.0,847 H942.0 M939.0,844 V850"/></g>
+<circle cx="1139.0" cy="810.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="849" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="920" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="935" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="952" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Reverse delivery</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="996" width="12" height="12"/><path d="M936.0,1002 H942.0 M939.0,999 V1005"/></g>
+<circle cx="1139.0" cy="965.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1004" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+</g></svg>

@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const adminEmail = process.env.E2E_ADMIN_EMAIL ?? "admin@example.test";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? "Kuat-sekali-2026!";
 
-test("CAP-AUTH-001 operator signs in through secure session cookies", async ({ page }) => {
+test("CAP-AUTH-001 super admin signs in through secure session cookies", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/login$/);
   await page.getByLabel("Email").fill(adminEmail);

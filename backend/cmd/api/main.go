@@ -69,18 +69,27 @@ func main() {
 	api.Handle("/auth/reset-password", lifecycle.PublicRoutes())
 	api.Post("/auth/refresh", sessionHandler.Refresh)
 	api.With(func(next http.Handler) http.Handler { return authMiddleware.RequireAuth(next) }).Post("/auth/logout", sessionHandler.Logout)
-	api.Handle("/user-invitations", authMiddleware.RequireRole("ADMIN", lifecycle.AdminRoutes()))
-	api.Handle("/user-invitations/*", authMiddleware.RequireRole("ADMIN", lifecycle.AdminRoutes()))
-	api.Handle("/password-resets/*", authMiddleware.RequireRole("ADMIN", lifecycle.AdminRoutes()))
-	api.Mount("/users", authMiddleware.RequireRole("ADMIN", usersHandler.Routes()))
+	api.With(authMiddleware.RequireAuth).Get("/auth/session", func(w http.ResponseWriter, r *http.Request) {
+		principal, _ := application.PrincipalFrom(r.Context())
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{"userId": principal.UserID, "email": principal.Email, "displayName": principal.DisplayName, "role": principal.Role})
+	})
+	api.Handle("/user-invitations", authMiddleware.RequireRole(domain.RoleSuperAdmin, lifecycle.AdminRoutes()))
+	api.Handle("/user-invitations/*", authMiddleware.RequireRole(domain.RoleSuperAdmin, lifecycle.AdminRoutes()))
+	api.Handle("/password-resets/*", authMiddleware.RequireRole(domain.RoleSuperAdmin, lifecycle.AdminRoutes()))
+	api.Mount("/users", authMiddleware.RequireRole(domain.RoleSuperAdmin, usersHandler.Routes()))
 	// Authenticated users may read master data for operational selection.
-	// Mutations remain ADMIN-only in the Master Data handler.
+	// Mutations require Supervisor or Super Admin in the Master Data handler.
 	api.Mount("/master-data", authMiddleware.RequireAuth(masterHandler.Routes()))
-	api.Handle("/settings/organization", authMiddleware.RequireRole("ADMIN", settingsHandler))
+	api.Handle("/settings/organization", authMiddleware.RequireRole(domain.RoleSuperAdmin, settingsHandler))
 	api.Group(func(r chi.Router) {
 		r.Use(authMiddleware.RequireAuth)
 		r.Use(idempotency.Middleware(idempotency.PostgresStore{Pool: pool}))
 		purchaseHandler.Register(r)
+		// AP is shared: Staff drafts supplier invoices/payments, Supervisor verifies/posts.
+		financeHandler.RegisterSupplier(r)
+		// AR follows the same maker/checker split; handlers enforce action-level roles.
+		financeHandler.RegisterSales(r)
 		salesHandler.Register(r)
 		inventoryHandler.Register(r)
 		reportingHandler.RegisterDashboard(r)
@@ -88,7 +97,7 @@ func main() {
 			admin.Use(func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
 					principal, _ := application.PrincipalFrom(request.Context())
-					if principal.Role != "ADMIN" {
+					if !domain.CanApprove(principal.Role) {
 						w.Header().Set("Content-Type", "application/json")
 						w.WriteHeader(http.StatusForbidden)
 						_ = json.NewEncoder(w).Encode(map[string]string{"message": "Akses ditolak."})
@@ -97,7 +106,6 @@ func main() {
 					next.ServeHTTP(w, request)
 				})
 			})
-			financeHandler.Register(admin)
 			reportingHandler.RegisterAdmin(admin)
 		})
 	})

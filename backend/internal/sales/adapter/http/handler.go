@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	authapp "github.com/simple-erp/backend/internal/auth/application"
+	"github.com/simple-erp/backend/internal/auth/domain"
 	"github.com/simple-erp/backend/internal/sales/application"
 	"net/http"
 )
@@ -63,6 +64,10 @@ func (h Handler) get(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) create(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		CustomerID, WarehouseID string
 		Lines                   []application.LineInput `json:"lines"`
@@ -78,6 +83,10 @@ func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 	respond(w, 201, v)
 }
 func (h Handler) update(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Version int
 		Lines   []application.LineInput `json:"lines"`
@@ -95,7 +104,7 @@ func (h Handler) update(w http.ResponseWriter, r *http.Request) {
 func (h Handler) action(w http.ResponseWriter, r *http.Request) {
 	a := chi.URLParam(r, "action")
 	actor := p(r)
-	if (a == "approve" || a == "reject") && actor.Role != "ADMIN" {
+	if (a == "approve" || a == "reject") && !domain.CanApprove(actor.Role) || (a != "approve" && a != "reject" && !domain.CanCreate(actor.Role)) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}
@@ -129,6 +138,10 @@ func (h Handler) action(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) cancelDelivery(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct{ Reason string }
 	if !decode(w, r, &in) {
 		return
@@ -141,6 +154,10 @@ func (h Handler) cancelDelivery(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) delivery(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Lines []application.DeliveryLineInput `json:"lines"`
 	}
@@ -155,6 +172,10 @@ func (h Handler) delivery(w http.ResponseWriter, r *http.Request) {
 	respond(w, 201, v)
 }
 func (h Handler) post(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct{ Version int }
 	if !decode(w, r, &in) {
 		return
@@ -167,7 +188,7 @@ func (h Handler) post(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) reverse(w http.ResponseWriter, r *http.Request) {
-	if p(r).Role != "ADMIN" {
+	if !domain.CanApprove(p(r).Role) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}

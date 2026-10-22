@@ -4,7 +4,7 @@ This document is Level 3 traceability. It is deliberately not a BPMN diagram.
 
 Current operational UI routes are `/purchasing/purchase-requests`, `/purchasing/purchase-orders`, `/purchasing/goods-receipts`, `/sales/sales-orders`, `/sales/deliveries`, `/inventory/stock-balances`, `/inventory/stock-movements`, and `/inventory/stock-adjustments`. Read-only list endpoints and navigation routes support presentation only and do not create new BPMN tasks or trace IDs. Older UI labels such as `.../new`, detail pages, or draft `PATCH` operations in the target matrix are not implementation evidence unless they also exist in the registered routes and source code.
 
-Phase 2 concrete implementation paths and verification evidence are recorded per gate in `docs/checkpoints/`. Checkpoints 1–4 are documented in `CHECKPOINT-1.md` through `CHECKPOINT-4.md`; stable IDs remain unchanged and appear in application metadata, audit writes, automated-test names, and OpenAPI operation IDs.
+This matrix records the original design baseline. For the current three-role behavior and more detailed BPMN hierarchy, use `RBAC-AUDIT.md` and `bpm-haqi/README.md`. Stable IDs remain useful for source and audit traceability, but this document alone is not runtime acceptance evidence.
 
 ## Stable ID convention
 

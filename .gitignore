@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+user.md
+docs/MANUAL-TEST-SCENARIOS.md
+docs/bpm-haqi/qa/*.png
+docs/bpm-haqi/image*.png
 *.pem
 *.key
 *.crt
@@ -34,6 +38,7 @@ frontend/pnpm-debug.log*
 
 # Local database and runtime data
 .data/
+backups/
 tmp/
 *.pid
 *.log
@@ -49,5 +54,6 @@ tmp/
 
 # Tool caches
 .cache/
+.gocache/
 .eslintcache
 .nyc_output/

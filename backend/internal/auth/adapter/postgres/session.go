@@ -33,9 +33,14 @@ func (s SessionStore) Rotate(ctx context.Context, old string, n domain.Session, 
 	if e != nil || tag.RowsAffected() != 1 {
 		return ErrRefreshReuse
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO sessions(user_id,family_id,access_hash,refresh_hash,csrf_hash,access_expires_at,refresh_idle_expires_at,refresh_absolute_expires_at)VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, n.UserID, n.FamilyID, n.AccessHash, n.RefreshHash, n.CSRFHash, n.AccessExpiresAt, n.RefreshIdleExpiresAt, n.RefreshAbsoluteExpiresAt)
+	tag, e = tx.Exec(ctx, `INSERT INTO sessions(user_id,family_id,access_hash,refresh_hash,csrf_hash,access_expires_at,refresh_idle_expires_at,refresh_absolute_expires_at)
+		SELECT $1,$2,$3,$4,$5,LEAST($6,s.refresh_absolute_expires_at),LEAST($7,s.refresh_absolute_expires_at),s.refresh_absolute_expires_at
+		FROM sessions s WHERE s.refresh_hash=$8 AND s.family_id=$2`, n.UserID, n.FamilyID, n.AccessHash, n.RefreshHash, n.CSRFHash, n.AccessExpiresAt, n.RefreshIdleExpiresAt, old)
 	if e != nil {
 		return e
+	}
+	if tag.RowsAffected() != 1 {
+		return ErrRefreshReuse
 	}
 	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,new_state,request_id)VALUES($1,'REFRESH_SESSION','CAP-AUTH-001','SESSION',$2,'ROTATED',$3)`, n.UserID, n.FamilyID, request)
 	if e != nil {

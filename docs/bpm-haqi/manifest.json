@@ -1,0 +1,2662 @@
+{
+  "snapshot": "2026-10-21 working tree",
+  "models": [
+    {
+      "id": "l3-bootstrap",
+      "level": 3,
+      "title": "Bootstrap Super Admin pertama",
+      "file": "level-3/l3-bootstrap.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/bootstrap.go",
+          "CreateFirstAdmin"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-login",
+      "level": 3,
+      "title": "Login dan penerbitan sesi",
+      "file": "level-3/l3-login.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/http/handler.go",
+          "handleLogin"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-refresh",
+      "level": 3,
+      "title": "Rotasi refresh token",
+      "file": "level-3/l3-refresh.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/session.go",
+          "ResolveRefresh / Rotate"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-logout",
+      "level": 3,
+      "title": "Logout sesi saat ini",
+      "file": "level-3/l3-logout.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/session.go",
+          "Logout"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-invite",
+      "level": 3,
+      "title": "Undang pengguna dan tetapkan role",
+      "file": "level-3/l3-invite.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "Invite"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-token-share",
+      "level": 3,
+      "title": "Tandai token telah dibagikan",
+      "file": "level-3/l3-token-share.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "MarkTokenShared"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-token-revoke",
+      "level": 3,
+      "title": "Cabut token undangan atau reset",
+      "file": "level-3/l3-token-revoke.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "RevokeToken"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-activate-invitation",
+      "level": 3,
+      "title": "Aktivasi pengguna dari undangan",
+      "file": "level-3/l3-activate-invitation.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "Consume"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-reset-request",
+      "level": 3,
+      "title": "Terbitkan token reset password",
+      "file": "level-3/l3-reset-request.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "CreateReset"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-reset-consume",
+      "level": 3,
+      "title": "Terapkan password baru",
+      "file": "level-3/l3-reset-consume.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/lifecycle.go",
+          "Consume"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-user-status",
+      "level": 3,
+      "title": "Aktivasi administratif dan deaktivasi pengguna",
+      "file": "level-3/l3-user-status.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/users.go",
+          "SetUserStatus"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-session-revoke",
+      "level": 3,
+      "title": "Cabut seluruh sesi pengguna",
+      "file": "level-3/l3-session-revoke.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/users.go",
+          "RevokeSessions"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-master-create",
+      "level": 3,
+      "title": "Buat master data",
+      "file": "level-3/l3-master-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/masterdata/adapter/postgres/store.go",
+          "Create"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-master-status",
+      "level": 3,
+      "title": "Aktif/nonaktifkan master data",
+      "file": "level-3/l3-master-status.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/masterdata/adapter/postgres/store.go",
+          "SetActive"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-settings",
+      "level": 3,
+      "title": "Ubah pengaturan organisasi",
+      "file": "level-3/l3-settings.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/masterdata/adapter/postgres/settings.go",
+          "Update"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-pr-create",
+      "level": 3,
+      "title": "Buat Purchase Request",
+      "file": "level-3-p2p/l3-pr-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CreateRequest"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-pr-submit",
+      "level": 3,
+      "title": "Submit Purchase Request",
+      "file": "level-3-p2p/l3-pr-submit.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "TransitionRequest"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-pr-review",
+      "level": 3,
+      "title": "Review Purchase Request",
+      "file": "level-3-p2p/l3-pr-review.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "TransitionRequest"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 9
+    },
+    {
+      "id": "l3-po-convert",
+      "level": 3,
+      "title": "Konversi PR menjadi Purchase Order",
+      "file": "level-3-p2p/l3-po-convert.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "ConvertToOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-po-issue",
+      "level": 3,
+      "title": "Terbitkan Purchase Order",
+      "file": "level-3-p2p/l3-po-issue.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "IssueOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-gr-create",
+      "level": 3,
+      "title": "Catat penerimaan barang",
+      "file": "level-3-p2p/l3-gr-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CreateReceipt"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-gr-post",
+      "level": 3,
+      "title": "Posting penerimaan dan stok masuk",
+      "file": "level-3-p2p/l3-gr-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "PostReceipt"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-pr-cancel",
+      "level": 3,
+      "title": "Batalkan PR draft",
+      "file": "level-3-p2p/l3-pr-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "TransitionRequest"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-pr-copy",
+      "level": 3,
+      "title": "Salin PR ditolak menjadi draft baru",
+      "file": "level-3-p2p/l3-pr-copy.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CopyRequest"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-po-cancel",
+      "level": 3,
+      "title": "Batalkan Purchase Order",
+      "file": "level-3-p2p/l3-po-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CancelOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-gr-cancel",
+      "level": 3,
+      "title": "Batalkan Goods Receipt draft",
+      "file": "level-3-p2p/l3-gr-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CancelReceipt"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-gr-reverse",
+      "level": 3,
+      "title": "Reverse Goods Receipt yang sudah posted",
+      "file": "level-3-p2p/l3-gr-reverse.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "ReverseReceipt"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-so-create",
+      "level": 3,
+      "title": "Buat Sales Order",
+      "file": "level-3/l3-so-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CreateOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-so-edit",
+      "level": 3,
+      "title": "Revisi line Sales Order draft",
+      "file": "level-3/l3-so-edit.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "UpdateOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-so-stock",
+      "level": 3,
+      "title": "Periksa ketersediaan stok SO",
+      "file": "level-3/l3-so-stock.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "ValidateStock"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-so-submit",
+      "level": 3,
+      "title": "Submit Sales Order",
+      "file": "level-3/l3-so-submit.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "TransitionOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-so-review",
+      "level": 3,
+      "title": "Review Sales Order",
+      "file": "level-3/l3-so-review.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "TransitionOrder"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 9
+    },
+    {
+      "id": "l3-so-confirm",
+      "level": 3,
+      "title": "Konfirmasi Sales Order approved",
+      "file": "level-3/l3-so-confirm.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "TransitionOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-delivery-create",
+      "level": 3,
+      "title": "Buat Delivery",
+      "file": "level-3/l3-delivery-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CreateDelivery"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-delivery-post",
+      "level": 3,
+      "title": "Posting delivery dan stok keluar",
+      "file": "level-3/l3-delivery-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "PostDelivery"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-so-cancel",
+      "level": 3,
+      "title": "Batalkan Sales Order",
+      "file": "level-3/l3-so-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "TransitionOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-so-copy",
+      "level": 3,
+      "title": "Salin SO ditolak menjadi draft baru",
+      "file": "level-3/l3-so-copy.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CopyOrder"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-delivery-cancel",
+      "level": 3,
+      "title": "Batalkan delivery draft",
+      "file": "level-3/l3-delivery-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CancelDelivery"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-delivery-reverse",
+      "level": 3,
+      "title": "Reverse delivery posted",
+      "file": "level-3/l3-delivery-reverse.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "ReverseDelivery"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-adj-create",
+      "level": 3,
+      "title": "Catat stock opname / adjustment",
+      "file": "level-3/l3-adj-create.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "CreateAdjustment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-adj-submit",
+      "level": 3,
+      "title": "Submit stock adjustment",
+      "file": "level-3/l3-adj-submit.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "TransitionAdjustment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-adj-review",
+      "level": 3,
+      "title": "Review stock adjustment",
+      "file": "level-3/l3-adj-review.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "TransitionAdjustment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 9
+    },
+    {
+      "id": "l3-adj-post",
+      "level": 3,
+      "title": "Posting selisih stock adjustment",
+      "file": "level-3/l3-adj-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "PostAdjustment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-adj-cancel",
+      "level": 3,
+      "title": "Batalkan adjustment draft atau approved",
+      "file": "level-3/l3-adj-cancel.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "TransitionAdjustment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-adj-reverse",
+      "level": 3,
+      "title": "Reverse adjustment selesai",
+      "file": "level-3/l3-adj-reverse.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "ReverseAdjustment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ap-invoice",
+      "level": 3,
+      "title": "Catat invoice supplier",
+      "file": "level-3-p2p/l3-ap-invoice.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateSupplierInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ap-match",
+      "level": 3,
+      "title": "Match invoice supplier",
+      "file": "level-3-p2p/l3-ap-match.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "MatchSupplierInvoice"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 9
+    },
+    {
+      "id": "l3-ap-resolve",
+      "level": 3,
+      "title": "Perbaiki mismatch invoice supplier",
+      "file": "level-3-p2p/l3-ap-resolve.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "ResolveSupplierInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ar-invoice",
+      "level": 3,
+      "title": "Buat draft invoice penjualan",
+      "file": "level-3/l3-ar-invoice.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateSalesInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ar-invoice-post",
+      "level": 3,
+      "title": "Post invoice penjualan",
+      "file": "level-3/l3-ar-invoice-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "PostSalesInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ap-payment",
+      "level": 3,
+      "title": "Catat pembayaran supplier",
+      "file": "level-3-p2p/l3-ap-payment.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateSupplierPayment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ap-payment-post",
+      "level": 3,
+      "title": "Posting pembayaran supplier",
+      "file": "level-3-p2p/l3-ap-payment-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "PostSupplierPayment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-ap-invoice-void",
+      "level": 3,
+      "title": "Void invoice supplier",
+      "file": "level-3-p2p/l3-ap-invoice-void.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "VoidSupplierInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ap-payment-void",
+      "level": 3,
+      "title": "Void pembayaran supplier",
+      "file": "level-3-p2p/l3-ap-payment-void.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "VoidSupplierPayment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-ar-payment",
+      "level": 3,
+      "title": "Catat pembayaran customer",
+      "file": "level-3/l3-ar-payment.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateCustomerPayment"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ar-payment-post",
+      "level": 3,
+      "title": "Posting pembayaran customer",
+      "file": "level-3/l3-ar-payment-post.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "PostCustomerPayment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-ar-invoice-void",
+      "level": 3,
+      "title": "Void invoice customer",
+      "file": "level-3/l3-ar-invoice-void.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "VoidSalesInvoice"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-ar-payment-void",
+      "level": 3,
+      "title": "Void pembayaran customer",
+      "file": "level-3/l3-ar-payment-void.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "VoidCustomerPayment"
+        ]
+      ],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l3-operational-read",
+      "level": 3,
+      "title": "Baca dokumen dan saldo operasional",
+      "file": "level-3/l3-operational-read.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "ListRequests / ListOrders / GetOrder / ListReceipts"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-admin-read",
+      "level": 3,
+      "title": "Baca pengguna dan pengaturan",
+      "file": "level-3/l3-admin-read.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/auth/adapter/postgres/users.go",
+          "ListUsers"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-finance-read",
+      "level": 3,
+      "title": "Baca invoice dan payment",
+      "file": "level-3/l3-finance-read.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "ListSupplierInvoices / ListSupplierPayments / ListSalesInvoices / ListCustomerPayments"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-dashboard",
+      "level": 3,
+      "title": "Baca ringkasan Dashboard",
+      "file": "level-3/l3-dashboard.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/reporting/adapter/postgres/store.go",
+          "Summary"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-report",
+      "level": 3,
+      "title": "Baca laporan dan audit trail",
+      "file": "level-3/l3-report.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/reporting/adapter/postgres/store.go",
+          "Purchases / Sales / Inventory / Payables / Receivables / Audit"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 7
+    },
+    {
+      "id": "l3-kontrol-request",
+      "level": 3,
+      "title": "Kontrol request, otorisasi dan idempotency",
+      "file": "level-3/l3-kontrol-request.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/cmd/api/main.go",
+          "main"
+        ],
+        [
+          "backend/internal/platform/idempotency/middleware.go",
+          "Middleware"
+        ],
+        [
+          "backend/internal/auth/adapter/http/middleware.go",
+          "RequireAuth / RequireRole"
+        ]
+      ],
+      "nodes": 12,
+      "flows": 12
+    },
+    {
+      "id": "l3-health",
+      "level": 3,
+      "title": "Pemeriksaan liveness aplikasi",
+      "file": "level-3/l3-health.bpmn",
+      "children": [],
+      "sources": [
+        [
+          "backend/internal/platform/httpserver/router.go",
+          "NewRouter"
+        ]
+      ],
+      "nodes": 7,
+      "flows": 6
+    },
+    {
+      "id": "l2-access",
+      "level": 2,
+      "title": "Undangan dan pengelolaan pengguna",
+      "file": "level-2/l2-access.bpmn",
+      "children": [
+        "l3-bootstrap",
+        "l3-invite",
+        "l3-token-share",
+        "l3-activate-invitation",
+        "l3-user-status",
+        "l3-session-revoke",
+        "l3-token-revoke",
+        "l3-admin-read"
+      ],
+      "sources": [],
+      "nodes": 19,
+      "flows": 18
+    },
+    {
+      "id": "l2-session",
+      "level": 2,
+      "title": "Login, sesi dan pemulihan password",
+      "file": "level-2/l2-session.bpmn",
+      "children": [
+        "l3-login",
+        "l3-refresh",
+        "l3-logout",
+        "l3-reset-request",
+        "l3-reset-consume"
+      ],
+      "sources": [],
+      "nodes": 13,
+      "flows": 12
+    },
+    {
+      "id": "l2-master-settings",
+      "level": 2,
+      "title": "Pemeliharaan master dan konfigurasi",
+      "file": "level-2/l2-master-settings.bpmn",
+      "children": [
+        "l3-operational-read",
+        "l3-master-create",
+        "l3-master-status",
+        "l3-admin-read",
+        "l3-settings"
+      ],
+      "sources": [],
+      "nodes": 13,
+      "flows": 12
+    },
+    {
+      "id": "l2-pr",
+      "level": 2,
+      "title": "Purchase Request dari draft sampai review",
+      "file": "level-2-p2p/l2-pr.bpmn",
+      "children": [
+        "l3-pr-create",
+        "l3-pr-submit",
+        "l3-pr-review"
+      ],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CreateRequest / TransitionRequest"
+        ]
+      ],
+      "nodes": 12,
+      "flows": 11
+    },
+    {
+      "id": "l2-po-gr",
+      "level": 2,
+      "title": "Purchase Order dan penerimaan barang",
+      "file": "level-2-p2p/l2-po-gr.bpmn",
+      "children": [
+        "l3-po-convert",
+        "l3-po-issue",
+        "l3-gr-create",
+        "l3-gr-post"
+      ],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "ConvertToOrder / IssueOrder / CreateReceipt / PostReceipt"
+        ]
+      ],
+      "nodes": 14,
+      "flows": 14
+    },
+    {
+      "id": "l2-so",
+      "level": 2,
+      "title": "Sales Order dari draft sampai konfirmasi",
+      "file": "level-2/l2-so.bpmn",
+      "children": [
+        "l3-so-create",
+        "l3-so-submit",
+        "l3-so-review",
+        "l3-so-confirm"
+      ],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CreateOrder / TransitionOrder"
+        ]
+      ],
+      "nodes": 15,
+      "flows": 14
+    },
+    {
+      "id": "l2-delivery",
+      "level": 2,
+      "title": "Pengiriman barang dan pencatatan stok keluar",
+      "file": "level-2/l2-delivery.bpmn",
+      "children": [
+        "l3-delivery-create",
+        "l3-delivery-post"
+      ],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CreateDelivery / PostDelivery"
+        ]
+      ],
+      "nodes": 8,
+      "flows": 8
+    },
+    {
+      "id": "l2-adjustment",
+      "level": 2,
+      "title": "Stock adjustment dengan review terpisah",
+      "file": "level-2/l2-adjustment.bpmn",
+      "children": [
+        "l3-adj-create",
+        "l3-adj-submit",
+        "l3-adj-review",
+        "l3-adj-post"
+      ],
+      "sources": [
+        [
+          "backend/internal/inventory/adapter/postgres/store.go",
+          "CreateAdjustment / TransitionAdjustment / PostAdjustment"
+        ]
+      ],
+      "nodes": 15,
+      "flows": 14
+    },
+    {
+      "id": "l2-ap",
+      "level": 2,
+      "title": "Invoice supplier sampai pelunasan",
+      "file": "level-2-p2p/l2-ap.bpmn",
+      "children": [
+        "l3-ap-invoice",
+        "l3-ap-match",
+        "l3-ap-payment",
+        "l3-ap-payment-post",
+        "l3-ap-resolve"
+      ],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateSupplierInvoice / MatchSupplierInvoice / PostSupplierPayment"
+        ]
+      ],
+      "nodes": 16,
+      "flows": 18
+    },
+    {
+      "id": "l2-ar",
+      "level": 2,
+      "title": "Invoice penjualan sampai penerimaan pembayaran",
+      "file": "level-2/l2-ar.bpmn",
+      "children": [
+        "l3-ar-invoice",
+        "l3-ar-invoice-post",
+        "l3-ar-payment",
+        "l3-ar-payment-post"
+      ],
+      "sources": [
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "CreateSalesInvoice / PostSalesInvoice / CreateCustomerPayment / PostCustomerPayment"
+        ]
+      ],
+      "nodes": 14,
+      "flows": 14
+    },
+    {
+      "id": "l2-purchase-correction",
+      "level": 2,
+      "title": "Pembatalan dan koreksi Purchasing",
+      "file": "level-2-p2p/l2-purchase-correction.bpmn",
+      "children": [
+        "l3-pr-cancel",
+        "l3-pr-copy",
+        "l3-po-cancel",
+        "l3-gr-cancel",
+        "l3-gr-reverse"
+      ],
+      "sources": [],
+      "nodes": 10,
+      "flows": 13
+    },
+    {
+      "id": "l2-sales-correction",
+      "level": 2,
+      "title": "Revisi, pembatalan dan koreksi Sales",
+      "file": "level-2/l2-sales-correction.bpmn",
+      "children": [
+        "l3-so-edit",
+        "l3-so-stock",
+        "l3-so-cancel",
+        "l3-so-copy",
+        "l3-delivery-cancel",
+        "l3-delivery-reverse"
+      ],
+      "sources": [],
+      "nodes": 15,
+      "flows": 14
+    },
+    {
+      "id": "l2-inventory-correction",
+      "level": 2,
+      "title": "Koreksi adjustment dan pembacaan stok",
+      "file": "level-2/l2-inventory-correction.bpmn",
+      "children": [
+        "l3-operational-read",
+        "l3-adj-cancel",
+        "l3-adj-reverse"
+      ],
+      "sources": [],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l2-finance-correction",
+      "level": 2,
+      "title": "Koreksi invoice dan payment",
+      "file": "level-2/l2-finance-correction.bpmn",
+      "children": [
+        "l3-ap-resolve",
+        "l3-ap-match",
+        "l3-ap-payment-void",
+        "l3-ap-invoice-void",
+        "l3-ar-payment-void",
+        "l3-ar-invoice-void"
+      ],
+      "sources": [],
+      "nodes": 15,
+      "flows": 14
+    },
+    {
+      "id": "l2-p2p-correction",
+      "level": 2,
+      "title": "Koreksi khusus Procure to Pay",
+      "file": "level-2-p2p/l2-p2p-correction.bpmn",
+      "children": [
+        "l2-purchase-correction",
+        "l3-ap-resolve",
+        "l3-ap-match",
+        "l3-ap-payment-void",
+        "l3-ap-invoice-void"
+      ],
+      "sources": [],
+      "nodes": 10,
+      "flows": 13
+    },
+    {
+      "id": "l2-reporting",
+      "level": 2,
+      "title": "Dashboard, daftar, laporan dan audit",
+      "file": "level-2/l2-reporting.bpmn",
+      "children": [
+        "l3-dashboard",
+        "l3-operational-read",
+        "l3-finance-read",
+        "l3-report"
+      ],
+      "sources": [],
+      "nodes": 11,
+      "flows": 10
+    },
+    {
+      "id": "l2-platform",
+      "level": 2,
+      "title": "Kontrol request dan health",
+      "file": "level-2/l2-platform.bpmn",
+      "children": [
+        "l3-kontrol-request",
+        "l3-health"
+      ],
+      "sources": [],
+      "nodes": 7,
+      "flows": 6
+    },
+    {
+      "id": "l1-access",
+      "level": 1,
+      "title": "Akses dan pengguna",
+      "file": "level-1/l1-access.bpmn",
+      "children": [
+        "l2-access",
+        "l2-session"
+      ],
+      "sources": [],
+      "nodes": 7,
+      "flows": 6
+    },
+    {
+      "id": "l1-p2p",
+      "level": 1,
+      "title": "Procure to Pay - permintaan sampai pelunasan",
+      "file": "level-1/l1-p2p.bpmn",
+      "children": [
+        "l2-pr",
+        "l2-po-gr",
+        "l2-ap",
+        "l2-p2p-correction"
+      ],
+      "sources": [
+        [
+          "backend/internal/purchasing/adapter/postgres/store.go",
+          "CreateRequest / ConvertToOrder / PostReceipt"
+        ],
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "PostSupplierPayment"
+        ]
+      ],
+      "nodes": 14,
+      "flows": 13
+    },
+    {
+      "id": "l1-o2c",
+      "level": 1,
+      "title": "Order to Cash - pesanan sampai pelunasan",
+      "file": "level-1/l1-o2c.bpmn",
+      "children": [
+        "l2-so",
+        "l2-delivery",
+        "l2-ar",
+        "l2-sales-correction"
+      ],
+      "sources": [
+        [
+          "backend/internal/sales/adapter/postgres/store.go",
+          "CreateOrder / TransitionOrder / PostDelivery"
+        ],
+        [
+          "backend/internal/finance/adapter/postgres/store.go",
+          "PostCustomerPayment"
+        ]
+      ],
+      "nodes": 14,
+      "flows": 13
+    },
+    {
+      "id": "l1-inventory",
+      "level": 1,
+      "title": "Pengendalian inventory",
+      "file": "level-1/l1-inventory.bpmn",
+      "children": [
+        "l2-adjustment",
+        "l2-inventory-correction"
+      ],
+      "sources": [],
+      "nodes": 7,
+      "flows": 6
+    },
+    {
+      "id": "l1-finance",
+      "level": 1,
+      "title": "Finance AP dan AR",
+      "file": "level-1/l1-finance.bpmn",
+      "children": [
+        "l2-ap",
+        "l2-ar",
+        "l2-finance-correction"
+      ],
+      "sources": [],
+      "nodes": 9,
+      "flows": 8
+    },
+    {
+      "id": "l1-administration",
+      "level": 1,
+      "title": "Master data dan konfigurasi",
+      "file": "level-1/l1-administration.bpmn",
+      "children": [
+        "l2-master-settings",
+        "l2-platform"
+      ],
+      "sources": [],
+      "nodes": 7,
+      "flows": 6
+    },
+    {
+      "id": "l1-reporting",
+      "level": 1,
+      "title": "Monitoring, laporan dan audit",
+      "file": "level-1/l1-reporting.bpmn",
+      "children": [
+        "l2-reporting"
+      ],
+      "sources": [],
+      "nodes": 4,
+      "flows": 3
+    },
+    {
+      "id": "l0-simple-erp",
+      "level": 0,
+      "title": "Simple ERP - landscape keseluruhan",
+      "file": "level-0/l0-simple-erp.bpmn",
+      "children": [
+        "l1-access",
+        "l1-p2p",
+        "l1-o2c",
+        "l1-inventory",
+        "l1-finance",
+        "l1-administration",
+        "l1-reporting"
+      ],
+      "sources": [],
+      "nodes": 17,
+      "flows": 16
+    },
+    {
+      "id": "role-staff",
+      "level": 1,
+      "title": "Perspektif role Staff",
+      "file": "level-1/role-staff.bpmn",
+      "children": [
+        "l3-login",
+        "l3-refresh",
+        "l3-logout",
+        "l3-pr-create",
+        "l3-pr-submit",
+        "l3-po-convert",
+        "l3-gr-create",
+        "l3-ap-invoice",
+        "l3-ap-resolve",
+        "l3-ap-payment",
+        "l3-so-create",
+        "l3-so-submit",
+        "l3-so-confirm",
+        "l2-delivery",
+        "l3-adj-create",
+        "l3-ar-invoice",
+        "l3-ar-payment",
+        "l3-adj-submit",
+        "l3-adj-post",
+        "l3-operational-read",
+        "l3-dashboard"
+      ],
+      "sources": [],
+      "nodes": 45,
+      "flows": 44
+    },
+    {
+      "id": "role-supervisor",
+      "level": 1,
+      "title": "Perspektif role Supervisor",
+      "file": "level-1/role-supervisor.bpmn",
+      "children": [
+        "l3-pr-review",
+        "l3-so-review",
+        "l3-adj-review",
+        "l3-po-issue",
+        "l3-gr-post",
+        "l3-po-cancel",
+        "l3-ap-match",
+        "l3-ap-payment-post",
+        "l3-ap-invoice-void",
+        "l3-ap-payment-void",
+        "l3-ar-invoice-post",
+        "l3-ar-payment-post",
+        "l2-ar",
+        "l2-finance-correction",
+        "l3-gr-reverse",
+        "l3-delivery-reverse",
+        "l3-adj-reverse",
+        "l3-master-create",
+        "l3-master-status",
+        "l3-report"
+      ],
+      "sources": [],
+      "nodes": 43,
+      "flows": 42
+    },
+    {
+      "id": "role-super-admin",
+      "level": 1,
+      "title": "Perspektif role Super Admin",
+      "file": "level-1/role-super-admin.bpmn",
+      "children": [
+        "l1-p2p",
+        "l1-o2c",
+        "l1-inventory",
+        "l1-finance",
+        "l2-access",
+        "l2-master-settings",
+        "l2-reporting"
+      ],
+      "sources": [],
+      "nodes": 17,
+      "flows": 16
+    }
+  ],
+  "operations": [
+    {
+      "model": "l3-bootstrap",
+      "actor": "Pengelola instalasi (CLI)",
+      "routes": [
+        "CLI bootstrap-admin --email --name"
+      ],
+      "trace": "ACT-AUTH-BOOTSTRAP",
+      "source": "backend/internal/auth/adapter/postgres/bootstrap.go",
+      "function": "CreateFirstAdmin",
+      "guard": "Hash password; lock bootstrap; cek belum ada user",
+      "effects": [
+        "Simpan Super Admin ACTIVE",
+        "Audit bootstrap; commit"
+      ],
+      "note": "Hanya instalasi tanpa user. Ini pengelola deployment, bukan role Staff. Password dibaca dari stdin."
+    },
+    {
+      "model": "l3-login",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "POST /auth/login"
+      ],
+      "trace": "CAP-AUTH-001",
+      "source": "backend/internal/auth/adapter/http/handler.go",
+      "function": "handleLogin",
+      "guard": "Validasi JSON, limit percobaan, user ACTIVE dan password",
+      "effects": [
+        "Buat token acak; simpan hash sesi dan audit LOGIN",
+        "Commit; kirim cookie akses, refresh, CSRF"
+      ],
+      "note": "LoginService dan LoginStore memverifikasi password dan menyimpan sesi. Limit 5 kegagalan per email+IP per 15 menit dalam memori. Gagal: 400/401/415/429, bukan status user LOCKED."
+    },
+    {
+      "model": "l3-refresh",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "POST /auth/refresh"
+      ],
+      "trace": "CAP-AUTH-001",
+      "source": "backend/internal/auth/adapter/postgres/session.go",
+      "function": "ResolveRefresh / Rotate",
+      "guard": "Cari hash; cek reuse, revoked dan expiry saat rotasi",
+      "effects": [
+        "Cabut sesi lama; buat sesi baru pada family sama",
+        "Audit REFRESH_SESSION; commit; ganti cookie"
+      ],
+      "note": "Reuse yang terdeteksi oleh ResolveRefresh mencabut seluruh family dan menolak request. Rotate mewarisi deadline absolut family dan membatasi expiry akses/idle dengannya. Rotate tidak memeriksa status user secara langsung."
+    },
+    {
+      "model": "l3-logout",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "POST /auth/logout"
+      ],
+      "trace": "CAP-AUTH-001",
+      "source": "backend/internal/auth/adapter/postgres/session.go",
+      "function": "Logout",
+      "guard": "RequireAuth + CSRF; cari sesi akses aktif",
+      "effects": [
+        "Cabut sesi yang memiliki access_hash",
+        "Audit LOGOUT; commit; hapus cookie"
+      ],
+      "note": "API dan tombol logout eksplisit tersedia di AppShell."
+    },
+    {
+      "model": "l3-invite",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /user-invitations"
+      ],
+      "trace": "AUTH-USR-001",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "Invite",
+      "guard": "Role valid; email unik; hasil insert harus berhasil",
+      "effects": [
+        "Generate token 24 jam; simpan user INVITED dan hash token",
+        "Audit INVITE_USER; commit; tampilkan raw token sekali"
+      ],
+      "note": "Role STAFF, SUPERVISOR, SUPER_ADMIN. Token digenerate sebelum store di LifecycleService. Tidak ada pengiriman email otomatis."
+    },
+    {
+      "model": "l3-token-share",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /user-invitations/{id}/mark-shared",
+        "POST /password-resets/{id}/mark-shared"
+      ],
+      "trace": "AUTH-USR-003 / AUTH-PWD-003",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "MarkTokenShared",
+      "guard": "Token belum shared, consumed, revoked atau expired",
+      "effects": [
+        "Isi shared_at; audit MARK_TOKEN_SHARED",
+        "Commit; respons 204"
+      ],
+      "note": "Mark-shared bukan syarat Consume. UI hanya menampilkan token undangan; endpoint mark-shared belum punya kontrol UI."
+    },
+    {
+      "model": "l3-token-revoke",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /user-invitations/{id}/revoke",
+        "POST /password-resets/{id}/revoke"
+      ],
+      "trace": "ACT-AUTH-INVITE-REVOKE / ACT-AUTH-RESET-REVOKE",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "RevokeToken",
+      "guard": "Token belum consumed atau revoked",
+      "effects": [
+        "Isi revoked_at; audit pencabutan token",
+        "Commit; pemakaian token berikutnya ditolak"
+      ],
+      "note": "Tidak ada job yang mengubah status EXPIRED; expiry diperiksa saat akses."
+    },
+    {
+      "model": "l3-activate-invitation",
+      "actor": "Penerima token (belum login)",
+      "routes": [
+        "POST /auth/activate-invitation"
+      ],
+      "trace": "AUTH-USR-005",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "Consume",
+      "guard": "Password valid; lock token dan user; token valid; user INVITED",
+      "effects": [
+        "Consume token; hash password; ubah user ACTIVE",
+        "Audit ACTIVATE_INVITATION; commit"
+      ],
+      "note": "Token valid tidak mensyaratkan shared_at. Hash password dibuat oleh LifecycleService sebelum transaksi Consume."
+    },
+    {
+      "model": "l3-reset-request",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /users/{id}/password-resets"
+      ],
+      "trace": "AUTH-PWD-001",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "CreateReset",
+      "guard": "Target user harus ACTIVE",
+      "effects": [
+        "Simpan hash reset token dengan expiry 24 jam",
+        "Audit CREATE_PASSWORD_RESET; tampilkan token sekali"
+      ],
+      "note": "Permintaan reset dimulai Super Admin; tidak ada endpoint forgot-password publik."
+    },
+    {
+      "model": "l3-reset-consume",
+      "actor": "Penerima token (belum login)",
+      "routes": [
+        "POST /auth/reset-password"
+      ],
+      "trace": "AUTH-PWD-005",
+      "source": "backend/internal/auth/adapter/postgres/lifecycle.go",
+      "function": "Consume",
+      "guard": "Lock token dan user; token reset valid; user ACTIVE",
+      "effects": [
+        "Consume token; simpan hash password baru",
+        "Cabut seluruh sesi user; audit RESET_PASSWORD; commit"
+      ],
+      "note": "Tidak ada state user LOCKED atau langkah unlock di implementasi."
+    },
+    {
+      "model": "l3-user-status",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /users/{id}/activate",
+        "POST /users/{id}/deactivate"
+      ],
+      "trace": "ACT-AUTH-USER-STATUS",
+      "source": "backend/internal/auth/adapter/postgres/users.go",
+      "function": "SetUserStatus",
+      "guard": "Cek versi; cegah deaktivasi diri/owner terakhir",
+      "effects": [
+        "Ubah status dan versi; saat deaktivasi cabut sesi dan token",
+        "Audit SET_USER_STATUS; commit"
+      ],
+      "note": "API status menerima target ACTIVE/DEACTIVATED; tidak memvalidasi transisi status sebelumnya atau password_hash. Aktivasi administratif berbeda dari aktivasi undangan. Guard owner memakai advisory lock."
+    },
+    {
+      "model": "l3-session-revoke",
+      "actor": "Super Admin",
+      "routes": [
+        "POST /users/{id}/revoke-sessions"
+      ],
+      "trace": "ACT-AUTH-SESSION-REVOKE",
+      "source": "backend/internal/auth/adapter/postgres/users.go",
+      "function": "RevokeSessions",
+      "guard": "Akses Super Admin; jalankan transaksi target user",
+      "effects": [
+        "Set revoked_at untuk semua sesi target yang masih aktif",
+        "Audit REVOKE_SESSIONS; commit"
+      ],
+      "note": "Tidak mengubah role atau password; tidak mencabut action_tokens."
+    },
+    {
+      "model": "l3-master-create",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /master-data/{kind}"
+      ],
+      "trace": "CAP-MDM-001",
+      "source": "backend/internal/masterdata/adapter/postgres/store.go",
+      "function": "Create",
+      "guard": "Kind di whitelist; input valid; constraint database",
+      "effects": [
+        "Insert unit, product, supplier, customer atau warehouse",
+        "Audit CREATE_MASTER_DATA; commit"
+      ],
+      "note": "Untuk product, INSERT SELECT unit code='PCS'; RowsAffected belum diperiksa. Bila PCS tidak ada, respons sukses/audit dapat muncul tanpa product. Tidak ada endpoint edit nama atau hapus."
+    },
+    {
+      "model": "l3-master-status",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "PATCH /master-data/{kind}/{id}/status"
+      ],
+      "trace": "CAP-MDM-001",
+      "source": "backend/internal/masterdata/adapter/postgres/store.go",
+      "function": "SetActive",
+      "guard": "Kind valid; id dan version cocok",
+      "effects": [
+        "Update active dan version",
+        "Audit SET_MASTER_DATA_STATUS; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-settings",
+      "actor": "Super Admin",
+      "routes": [
+        "PATCH /settings/organization"
+      ],
+      "trace": "CAP-MDM-001",
+      "source": "backend/internal/masterdata/adapter/postgres/settings.go",
+      "function": "Update",
+      "guard": "Currency 3 karakter; timezone dan warehouse terisi",
+      "effects": [
+        "Update singleton organization_settings",
+        "Audit UPDATE_SETTINGS; commit"
+      ],
+      "note": "Warehouse mengikuti FK; validasi domain tidak memeriksa timezone IANA, kode ISO atau warehouse aktif. Baca melalui GET pada route yang sama."
+    },
+    {
+      "model": "l3-pr-create",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-requests"
+      ],
+      "trace": "PUR-PR-001",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "CreateRequest",
+      "guard": "Tujuan terisi; line ada; qty positif; harga nonnegatif; produk aktif",
+      "effects": [
+        "Insert PR DRAFT, creator dan lines",
+        "Audit PUR-PR-001; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-pr-submit",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-requests/{id}/submit"
+      ],
+      "trace": "PUR-PR-002",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "TransitionRequest",
+      "guard": "Lock PR; status DRAFT dan version cocok",
+      "effects": [
+        "Ubah PR menjadi SUBMITTED; naikkan versi",
+        "Audit PUR-PR-002; commit"
+      ],
+      "note": "Tidak ada pemeriksaan actor==creator untuk submit."
+    },
+    {
+      "model": "l3-pr-review",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /purchase-requests/{id}/approve",
+        "POST /purchase-requests/{id}/reject"
+      ],
+      "trace": "PUR-PR-003",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "TransitionRequest",
+      "guard": "Lock PR; SUBMITTED; versi cocok; Supervisor bukan creator; Super Admin boleh self-review",
+      "effects": [
+        "Approve: APPROVED; reject beralasan: REJECTED",
+        "Simpan reviewer; audit PUR-PR-003; commit"
+      ],
+      "note": "Bypass self-review Super Admin memeriksa role aktif di database; guard status/versi tetap berlaku."
+    },
+    {
+      "model": "l3-po-convert",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-requests/{id}/purchase-order"
+      ],
+      "trace": "PUR-PO-001",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "ConvertToOrder",
+      "guard": "Lock PR APPROVED; supplier dan warehouse aktif",
+      "effects": [
+        "Salin PR lines ke PO DRAFT baru",
+        "PR menjadi CONVERTED_TO_PO; audit; commit"
+      ],
+      "note": "Tidak ada endpoint edit PO. Konversi tidak memeriksa creator PR sama dengan actor."
+    },
+    {
+      "model": "l3-po-issue",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /purchase-orders/{id}/issue"
+      ],
+      "trace": "PUR-PO-002",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "IssueOrder",
+      "guard": "PO DRAFT; version cocok; Supervisor bukan creator; Super Admin boleh self-issue",
+      "effects": [
+        "Update PO menjadi ISSUED",
+        "Audit PUR-PO-002; commit"
+      ],
+      "note": "Tidak ada email atau pengiriman otomatis PO ke supplier."
+    },
+    {
+      "model": "l3-gr-create",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-orders/{id}/goods-receipts"
+      ],
+      "trace": "PUR-GR-001",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "CreateReceipt",
+      "guard": "PO ISSUED/PARTIALLY_RECEIVED; line milik PO; qty positif",
+      "effects": [
+        "Insert Goods Receipt DRAFT dan lines",
+        "Audit PUR-GR-001; commit"
+      ],
+      "note": "Batas sisa kuantitas diperiksa lagi saat post."
+    },
+    {
+      "model": "l3-gr-post",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /goods-receipts/{id}/post"
+      ],
+      "trace": "PUR-GR-002",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "PostReceipt",
+      "guard": "Lock GR/PO/lines; draft dan versi cocok; Supervisor bukan creator; Super Admin boleh self-post; qty tidak melebihi sisa",
+      "effects": [
+        "Tambahkan saldo dan immutable stock movements",
+        "Update GR POSTED; PO PARTIALLY_RECEIVED atau RECEIVED",
+        "Audit PUR-GR-002; commit atomik"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-pr-cancel",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-requests/{id}/cancel"
+      ],
+      "trace": "ACT-PUR-PR-CANCEL",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "TransitionRequest",
+      "guard": "PR DRAFT; versi cocok; actor creator atau Super Admin; alasan ada",
+      "effects": [
+        "Ubah PR CANCELLED; naikkan versi",
+        "Audit ACT-PUR-PR-CANCEL; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-pr-copy",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /purchase-requests/{id}/copy"
+      ],
+      "trace": "ACT-PUR-PR-COPY",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "CopyRequest",
+      "guard": "PR sumber REJECTED; semua produk masih aktif",
+      "effects": [
+        "Salin purpose/lines ke PR baru; isi copied_from_id",
+        "PR sumber tetap REJECTED; audit; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-po-cancel",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /purchase-orders/{id}/cancel"
+      ],
+      "trace": "ACT-PUR-PO-CANCEL",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "CancelOrder",
+      "guard": "PO DRAFT/ISSUED; tidak ada GR POSTED; alasan ada",
+      "effects": [
+        "Ubah PO CANCELLED; PR asal kembali APPROVED",
+        "Audit PO dan PR; commit atomik"
+      ],
+      "note": "PO batal tetap tercatat. PR dapat dikonversi ke satu PO pengganti aktif; tidak ada owner check atau version input."
+    },
+    {
+      "model": "l3-gr-cancel",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /goods-receipts/{id}/cancel"
+      ],
+      "trace": "ACT-PUR-GR-CANCEL",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "CancelReceipt",
+      "guard": "GR DRAFT; alasan tidak kosong",
+      "effects": [
+        "Ubah GR CANCELLED; naikkan versi",
+        "Audit ACT-PUR-GR-CANCEL; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-gr-reverse",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /goods-receipts/{id}/reverse"
+      ],
+      "trace": "ACT-PUR-GR-REVERSE",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "ReverseReceipt",
+      "guard": "Lock GR POSTED; tidak ada invoice non-VOID; stok akhir nonnegatif",
+      "effects": [
+        "Kurangi saldo/received qty; append movement inverse",
+        "GR REVERSED; PO ISSUED atau PARTIALLY_RECEIVED",
+        "Audit reversal; commit atomik"
+      ],
+      "note": "Movement lama tidak diedit/dihapus. Tidak ada syarat reviewer berbeda dari creator untuk reversal."
+    },
+    {
+      "model": "l3-so-create",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders"
+      ],
+      "trace": "SAL-SO-001",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "CreateOrder",
+      "guard": "Master aktif; line ada; qty positif; harga nonnegatif",
+      "effects": [
+        "Insert SO DRAFT, creator dan lines",
+        "Audit SAL-SO-001; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-so-edit",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "PATCH /sales-orders/{id}"
+      ],
+      "trace": "SAL-SO-001",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "UpdateOrder",
+      "guard": "Lock SO DRAFT; versi cocok; validasi produk dan nilai line",
+      "effects": [
+        "Ganti lines; naikkan versi SO",
+        "Audit UPDATE_SALES_ORDER; commit"
+      ],
+      "note": "Tidak ada pemeriksaan editor==creator; maker-checker selanjutnya hanya membandingkan creator_id."
+    },
+    {
+      "model": "l3-so-stock",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/validate-stock"
+      ],
+      "trace": "SAL-SO-003",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "ValidateStock",
+      "guard": "Lock SO DRAFT; versi cocok; saldo cukup untuk tiap line",
+      "effects": [
+        "Audit VALIDATE_SALES_ORDER_STOCK",
+        "Commit; SO tetap DRAFT; tanpa reservasi stok"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-so-submit",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/submit"
+      ],
+      "trace": "SAL-SO-002 / SAL-SO-003",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "TransitionOrder",
+      "guard": "Lock SO DRAFT; versi cocok; cek stok ulang",
+      "effects": [
+        "Audit validasi stok; SO SUBMITTED",
+        "Audit SAL-SO-002; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-so-review",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/approve",
+        "POST /sales-orders/{id}/reject"
+      ],
+      "trace": "SAL-SO-004",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "TransitionOrder",
+      "guard": "SUBMITTED; versi cocok; Supervisor bukan creator; Super Admin boleh self-review; approve perlu stok cukup",
+      "effects": [
+        "Approve: APPROVED; reject beralasan: REJECTED",
+        "Simpan reviewer; audit SAL-SO-004; commit"
+      ],
+      "note": "Cek stok tidak mereservasi stok. Reject wajib alasan."
+    },
+    {
+      "model": "l3-so-confirm",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/confirm"
+      ],
+      "trace": "SAL-SO-005",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "TransitionOrder",
+      "guard": "SO APPROVED; versi cocok; belum confirmed",
+      "effects": [
+        "Isi confirmed_at; status tetap APPROVED",
+        "Naikkan versi; audit SAL-SO-005; commit"
+      ],
+      "note": "Confirm dipicu Staff/Super Admin melalui API; bukan aksi background otomatis."
+    },
+    {
+      "model": "l3-delivery-create",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/deliveries"
+      ],
+      "trace": "SAL-DLV-001",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "CreateDelivery",
+      "guard": "SO APPROVED/PARTIALLY_DELIVERED dan confirmed; line valid; qty positif",
+      "effects": [
+        "Insert delivery DRAFT dan lines",
+        "Audit SAL-DLV-001; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-delivery-post",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /deliveries/{id}/post"
+      ],
+      "trace": "SAL-DLV-002",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "PostDelivery",
+      "guard": "Lock delivery/SO/lines/saldo; versi cocok; sisa dan stok cukup",
+      "effects": [
+        "Kurangi stok; append stock movement keluar",
+        "Delivery POSTED; SO PARTIALLY_DELIVERED atau DELIVERED",
+        "Audit SAL-DLV-002; commit atomik"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-so-cancel",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/cancel"
+      ],
+      "trace": "ACT-SAL-SO-CANCEL",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "TransitionOrder",
+      "guard": "SO DRAFT/APPROVED; versi cocok; actor creator atau Super Admin",
+      "effects": [
+        "Ubah SO CANCELLED",
+        "Audit ACT-SAL-SO-CANCEL; commit"
+      ],
+      "note": "Alasan wajib. Tidak ada cancel untuk SO PARTIALLY_DELIVERED."
+    },
+    {
+      "model": "l3-so-copy",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/copy"
+      ],
+      "trace": "ACT-SAL-SO-COPY",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "CopyOrder",
+      "guard": "SO sumber REJECTED; master sumber masih aktif",
+      "effects": [
+        "Salin customer, warehouse dan lines ke SO DRAFT baru",
+        "Isi copied_from_id; audit; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-delivery-cancel",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /deliveries/{id}/cancel"
+      ],
+      "trace": "ACT-SAL-DLV-CANCEL",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "CancelDelivery",
+      "guard": "Delivery DRAFT; alasan tidak kosong",
+      "effects": [
+        "Ubah delivery CANCELLED",
+        "Audit ACT-SAL-DLV-CANCEL; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-delivery-reverse",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /deliveries/{id}/reverse"
+      ],
+      "trace": "ACT-SAL-DLV-REVERSE",
+      "source": "backend/internal/sales/adapter/postgres/store.go",
+      "function": "ReverseDelivery",
+      "guard": "Lock delivery POSTED; tidak ada invoice penjualan non-VOID",
+      "effects": [
+        "Tambah kembali stok; append movement inverse; kurangi delivered qty",
+        "Delivery REVERSED; SO APPROVED atau PARTIALLY_DELIVERED",
+        "Audit reversal; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-adj-create",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments"
+      ],
+      "trace": "INV-ADJ-001",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "CreateAdjustment",
+      "guard": "Warehouse/produk aktif; line ada; counted quantity nonnegatif",
+      "effects": [
+        "Snapshot saldo; simpan counted quantity pada adjustment DRAFT",
+        "Audit INV-ADJ-001; commit"
+      ],
+      "note": "Tidak ada endpoint edit atau copy adjustment saat ini."
+    },
+    {
+      "model": "l3-adj-submit",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments/{id}/submit"
+      ],
+      "trace": "INV-ADJ-002",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "TransitionAdjustment",
+      "guard": "Lock adjustment DRAFT; versi cocok",
+      "effects": [
+        "Ubah adjustment SUBMITTED",
+        "Audit INV-ADJ-002; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-adj-review",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments/{id}/approve",
+        "POST /inventory-adjustments/{id}/reject"
+      ],
+      "trace": "INV-ADJ-003",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "TransitionAdjustment",
+      "guard": "SUBMITTED; versi cocok; Supervisor bukan creator; Super Admin boleh self-review; approve perlu snapshot masih sama",
+      "effects": [
+        "Approve: APPROVED; reject beralasan: REJECTED",
+        "Simpan reviewer; audit INV-ADJ-003; commit"
+      ],
+      "note": "Jika saldo berubah, approve ditolak; belum ada refresh snapshot atau revisi adjustment."
+    },
+    {
+      "model": "l3-adj-post",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments/{id}/post"
+      ],
+      "trace": "INV-ADJ-004 / INV-ADJ-005",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "PostAdjustment",
+      "guard": "Lock adjustment APPROVED dan saldo; versi dan snapshot cocok",
+      "effects": [
+        "Hitung counted minus snapshot; update saldo dan movement nonzero",
+        "Ubah adjustment COMPLETED",
+        "Audit INV-ADJ-004 dan INV-ADJ-005; commit atomik"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-adj-cancel",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments/{id}/cancel"
+      ],
+      "trace": "ACT-INV-ADJ-CANCEL",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "TransitionAdjustment",
+      "guard": "DRAFT atau APPROVED; versi cocok; creator atau Super Admin aktif; alasan ada",
+      "effects": [
+        "Ubah adjustment CANCELLED",
+        "Audit ACT-INV-ADJ-CANCEL; commit"
+      ],
+      "note": "Jika stok berubah setelah APPROVED, Staff membatalkan dengan alasan, membuat draft baru dari snapshot terkini, lalu meminta approval ulang."
+    },
+    {
+      "model": "l3-adj-reverse",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /inventory-adjustments/{id}/reverse"
+      ],
+      "trace": "ACT-INV-ADJ-REVERSE",
+      "source": "backend/internal/inventory/adapter/postgres/store.go",
+      "function": "ReverseAdjustment",
+      "guard": "Lock adjustment COMPLETED; saldo setelah inverse nonnegatif",
+      "effects": [
+        "Append movement inverse; ubah saldo",
+        "Adjustment REVERSED; audit; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-ap-invoice",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /supplier-invoices"
+      ],
+      "trace": "PUR-INV-001",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "CreateSupplierInvoice",
+      "guard": "PO RECEIVED; metadata/lines valid; aturan invoice pengganti terpenuhi",
+      "effects": [
+        "Simpan invoice MATCH_PENDING dan line invoice",
+        "Audit PUR-INV-001; commit"
+      ],
+      "note": "Hanya PO diterima penuh. Supervisor melakukan match setelah Staff membuat invoice."
+    },
+    {
+      "model": "l3-ap-match",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /supplier-invoices/{id}/match"
+      ],
+      "trace": "PUR-INV-002",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "MatchSupplierInvoice",
+      "guard": "Lock invoice MATCH_PENDING; Supervisor bukan creator; Super Admin boleh self-match; baca line PO dan invoice",
+      "effects": [
+        "ExactMatch: cocok menjadi POSTED; tidak cocok MATCH_EXCEPTION",
+        "Simpan mismatch_reason dan versi; audit PUR-INV-002; commit"
+      ],
+      "note": "Kode membandingkan line PO dengan invoice. Bukan query three-way match GR terpisah pada saat match; PO RECEIVED sudah disyaratkan saat create."
+    },
+    {
+      "model": "l3-ap-resolve",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /supplier-invoices/{id}/resolve-match"
+      ],
+      "trace": "PUR-INV-003",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "ResolveSupplierInvoice",
+      "guard": "Lock invoice MATCH_EXCEPTION; line qty/harga valid",
+      "effects": [
+        "Ganti lines dan total; outstanding direset ke total",
+        "Status MATCH_PENDING; audit PUR-INV-003; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-ar-invoice",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /sales-orders/{id}/sales-invoice"
+      ],
+      "trace": "SAL-INV-001",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "CreateSalesInvoice",
+      "guard": "Lock SO DELIVERED; total positif; aturan replacement terpenuhi",
+      "effects": [
+        "Ambil delivered qty dan harga SO; simpan invoice DRAFT",
+        "Audit SAL-INV-001; commit"
+      ],
+      "note": "Invoice konsolidasi setelah seluruh delivery. Supervisor harus post sebelum dapat dibayar."
+    },
+    {
+      "model": "l3-ar-invoice-post",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /sales-invoices/{id}/post"
+      ],
+      "trace": "SAL-INV-001",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "PostSalesInvoice",
+      "guard": "Lock invoice DRAFT; versi cocok; SO masih DELIVERED; Supervisor bukan creator, Super Admin aktif boleh self-post",
+      "effects": [
+        "Ubah invoice menjadi POSTED dan naikkan versi",
+        "Audit SAL-INV-001; commit"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-ap-payment",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /supplier-payments"
+      ],
+      "trace": "PUR-PAY-001",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "CreateSupplierPayment",
+      "guard": "Party aktif; alokasi unik sesuai amount; metadata terisi; constraint DB",
+      "effects": [
+        "Simpan payment DRAFT dan alokasi invoice",
+        "Audit PUR-PAY-001; commit"
+      ],
+      "note": "Pembayaran dicatat, tidak mengeksekusi transfer bank. Validasi invoice dan outstanding diperketat saat post."
+    },
+    {
+      "model": "l3-ap-payment-post",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /supplier-payments/{id}/post"
+      ],
+      "trace": "PUR-PAY-002",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "PostSupplierPayment",
+      "guard": "Lock payment/invoice; DRAFT dan versi cocok; party/currency/tanggal/outstanding valid; Supervisor bukan creator, Super Admin aktif boleh self-post",
+      "effects": [
+        "Kurangi outstanding; invoice PARTIALLY_PAID atau PAID",
+        "Jika semua invoice non-VOID lunas: PO RECEIVED ke CLOSED; PR ke COMPLETED",
+        "Payment POSTED; audit alokasi/penutupan; commit atomik"
+      ],
+      "note": "Created_by dibandingkan dengan actor, kecuali Super Admin aktif sebagai bypass."
+    },
+    {
+      "model": "l3-ap-invoice-void",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /supplier-invoices/{id}/void"
+      ],
+      "trace": "ACT-FIN-SINV-VOID",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "VoidSupplierInvoice",
+      "guard": "Invoice POSTED; untuk AR DRAFT juga boleh; tanpa alokasi dari payment POSTED; alasan ada",
+      "effects": [
+        "Tandai invoice VOID; simpan voided_by dan alasan",
+        "Audit void; commit"
+      ],
+      "note": "Tidak membuat jurnal akuntansi baru; aplikasi tidak memiliki general ledger."
+    },
+    {
+      "model": "l3-ap-payment-void",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /supplier-payments/{id}/void"
+      ],
+      "trace": "ACT-FIN-SPAY-VOID",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "VoidSupplierPayment",
+      "guard": "Lock payment POSTED dan invoice terkait; alasan ada",
+      "effects": [
+        "Kembalikan outstanding; hitung ulang status invoice",
+        "Jika tidak lunas lagi: PO CLOSED ke RECEIVED; PR COMPLETED ke CONVERTED_TO_PO",
+        "Payment VOID; audit reversal alokasi; commit"
+      ],
+      "note": "Alokasi historis dipertahankan; efek payment VOID dikecualikan dari hitungan pembayaran aktif."
+    },
+    {
+      "model": "l3-ar-payment",
+      "actor": "Staff atau Super Admin",
+      "routes": [
+        "POST /customer-payments"
+      ],
+      "trace": "SAL-PAY-001",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "CreateCustomerPayment",
+      "guard": "Party aktif; alokasi unik sesuai amount; metadata terisi; constraint DB",
+      "effects": [
+        "Simpan payment DRAFT dan alokasi invoice",
+        "Audit SAL-PAY-001; commit"
+      ],
+      "note": "Pembayaran dicatat, tidak mengeksekusi transfer bank. Validasi invoice dan outstanding diperketat saat post."
+    },
+    {
+      "model": "l3-ar-payment-post",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /customer-payments/{id}/post"
+      ],
+      "trace": "SAL-PAY-002",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "PostCustomerPayment",
+      "guard": "Lock payment/invoice; DRAFT dan versi cocok; party/currency/tanggal/outstanding valid; Supervisor bukan creator, Super Admin aktif boleh self-post",
+      "effects": [
+        "Kurangi outstanding; invoice PARTIALLY_PAID atau PAID",
+        "Jika semua invoice non-VOID lunas: SO DELIVERED ke COMPLETED",
+        "Payment POSTED; audit alokasi/penutupan; commit atomik"
+      ],
+      "note": "Created_by dibandingkan dengan actor, kecuali Super Admin aktif sebagai bypass."
+    },
+    {
+      "model": "l3-ar-invoice-void",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /sales-invoices/{id}/void"
+      ],
+      "trace": "ACT-FIN-CINV-VOID",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "VoidSalesInvoice",
+      "guard": "Invoice POSTED; untuk AR DRAFT juga boleh; tanpa alokasi dari payment POSTED; alasan ada",
+      "effects": [
+        "Tandai invoice VOID; simpan voided_by dan alasan",
+        "Audit void; commit"
+      ],
+      "note": "Tidak membuat jurnal akuntansi baru; aplikasi tidak memiliki general ledger."
+    },
+    {
+      "model": "l3-ar-payment-void",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "POST /customer-payments/{id}/void"
+      ],
+      "trace": "ACT-FIN-CPAY-VOID",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "VoidCustomerPayment",
+      "guard": "Lock payment POSTED dan invoice terkait; alasan ada",
+      "effects": [
+        "Kembalikan outstanding; hitung ulang status invoice",
+        "Jika tidak lunas lagi: SO COMPLETED ke DELIVERED",
+        "Payment VOID; audit reversal alokasi; commit"
+      ],
+      "note": "Alokasi historis dipertahankan; efek payment VOID dikecualikan dari hitungan pembayaran aktif."
+    },
+    {
+      "model": "l3-operational-read",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "GET /purchase-requests",
+        "GET /purchase-orders",
+        "GET /purchase-orders/{id}",
+        "GET /goods-receipts",
+        "GET /sales-orders",
+        "GET /sales-orders/{id}",
+        "GET /deliveries",
+        "GET /inventory/balances",
+        "GET /inventory/movements",
+        "GET /inventory-adjustments",
+        "GET /master-data/{kind}",
+        "GET /auth/session"
+      ],
+      "trace": "",
+      "source": "backend/internal/purchasing/adapter/postgres/store.go",
+      "function": "ListRequests / ListOrders / GetOrder / ListReceipts",
+      "guard": "Sesi aktif; ID detail harus ditemukan",
+      "effects": [
+        "Query daftar/detail sesuai endpoint",
+        "Kirim JSON; tidak mengubah dokumen"
+      ],
+      "note": "Sumber tambahan: sales Store.ListOrders/GetOrder/ListDeliveries; inventory Store.Balances/Movements/ListAdjustments; masterdata Store.List; auth/session handler inline main.go. Daftar lintas creator; movement dibatasi 500."
+    },
+    {
+      "model": "l3-admin-read",
+      "actor": "Super Admin",
+      "routes": [
+        "GET /users",
+        "GET /settings/organization"
+      ],
+      "trace": "",
+      "source": "backend/internal/auth/adapter/postgres/users.go",
+      "function": "ListUsers",
+      "guard": "Sesi aktif; role SUPER_ADMIN",
+      "effects": [
+        "Query users atau organization_settings",
+        "Kirim JSON tanpa perubahan"
+      ],
+      "note": "Sumber settings: internal/masterdata/adapter/postgres/settings.go Get."
+    },
+    {
+      "model": "l3-finance-read",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "GET /supplier-invoices",
+        "GET /supplier-payments",
+        "GET /sales-invoices",
+        "GET /customer-payments"
+      ],
+      "trace": "",
+      "source": "backend/internal/finance/adapter/postgres/store.go",
+      "function": "ListSupplierInvoices / ListSupplierPayments / ListSalesInvoices / ListCustomerPayments",
+      "guard": "Semua role aktif dapat membaca AP dan AR",
+      "effects": [
+        "Query daftar AP dan AR untuk semua role",
+        "Tampilkan status, total dan outstanding"
+      ],
+      "note": ""
+    },
+    {
+      "model": "l3-dashboard",
+      "actor": "Pengguna (semua role)",
+      "routes": [
+        "GET /dashboard/summary"
+      ],
+      "trace": "",
+      "source": "backend/internal/reporting/adapter/postgres/store.go",
+      "function": "Summary",
+      "guard": "Sesi aktif; query agregat berhasil",
+      "effects": [
+        "Hitung approval, order aktif, zero stock, utang/piutang dan overdue",
+        "Kirim ringkasan JSON"
+      ],
+      "note": "Endpoint sama untuk semua role, termasuk nilai keuangan. Zero stock memakai default warehouse organisasi."
+    },
+    {
+      "model": "l3-report",
+      "actor": "Supervisor atau Super Admin",
+      "routes": [
+        "GET /reports/purchases",
+        "GET /reports/sales",
+        "GET /reports/inventory",
+        "GET /reports/payables",
+        "GET /reports/receivables",
+        "GET /audit-logs"
+      ],
+      "trace": "",
+      "source": "backend/internal/reporting/adapter/postgres/store.go",
+      "function": "Purchases / Sales / Inventory / Payables / Receivables / Audit",
+      "guard": "Role Supervisor/Super Admin; query berhasil",
+      "effects": [
+        "Query purchases, sales, inventory, AP/AR atau audit",
+        "Kirim hasil; tidak memutasi transaksi"
+      ],
+      "note": "Laporan finansial limit 100; inventory 500; audit 200 dengan filter entity/actor/action. Tidak ada route export/PDF atau pagination."
+    },
+    {
+      "model": "l3-health",
+      "actor": "Pemantau deployment",
+      "routes": [
+        "GET /healthz"
+      ],
+      "trace": "",
+      "source": "backend/internal/platform/httpserver/router.go",
+      "function": "NewRouter",
+      "guard": "HTTP server dapat merespons",
+      "effects": [
+        "Kembalikan status ok (200)"
+      ],
+      "note": "Healthz tidak mengecek database secara live; ini liveness, bukan readiness."
+    }
+  ],
+  "source_sha256": {
+    "backend/cmd/api/main.go": "d7e72145a48ace81449059d2ea9c454b4ddce9bbdfe2ed49aa0e88ca0c279222",
+    "backend/internal/auth/adapter/http/handler.go": "7dcbecca3aa7df2cb43c3e289a089519ebd5df23091735df804f265f66b4b307",
+    "backend/internal/auth/adapter/http/lifecycle.go": "7fca8c74877db61ef992bfe3bb076d1df0df9d15de8cb66e389332ce8ce310ad",
+    "backend/internal/auth/adapter/http/middleware.go": "b78d649c116183f72bd2021dfb28c0764b74a4646a64d32c66fa325f8140be72",
+    "backend/internal/auth/adapter/http/session.go": "95942d647d9a05634bb75906a694c41b0e690af20f9bac66fcaf7be9cf72fe7c",
+    "backend/internal/auth/adapter/http/users.go": "68f97b774e67c4ca27ca9efcb8a51dedf41a459880826b296cb398c85ef7f224",
+    "backend/internal/auth/adapter/postgres/authenticator.go": "3517fabb68750bc9d8babc9d0cbad55d957bce5d4657fee65a04bb3855545643",
+    "backend/internal/auth/adapter/postgres/bootstrap.go": "d7c4976e7172e200715481bc55b41df7f146ac02a036303a83920768be6511d7",
+    "backend/internal/auth/adapter/postgres/lifecycle.go": "3c9e096f45db3cc95eee7233aea02d9b52a2bee78ce0d1470e0f899bb77dfe3c",
+    "backend/internal/auth/adapter/postgres/login.go": "1aecff7649e437540032793ba24e1d6af42dc1d90e44f1fc5b888b6aaf025c2e",
+    "backend/internal/auth/adapter/postgres/session.go": "a90bb3ee3dce3d0e6c6e9ab4c8e772c2a20818ef6b74ac2af1c123dddb808d5c",
+    "backend/internal/auth/adapter/postgres/users.go": "0e41e1e531755aba4a1884eecc82f27922271d873e13485b62cd2e4df31e03b0",
+    "backend/internal/auth/application/bootstrap.go": "941808c9dbd8814677471ea4d30d5c8bc96f5ed77d307c9b8067dc817c2b0d8b",
+    "backend/internal/auth/application/lifecycle.go": "70ddc5457734e93b879301f97d1d7082a939e8ce64ce0a6f7ec918e16ac56f15",
+    "backend/internal/auth/application/login.go": "88e19aaf4cb2cebdc46d9e6e3c8f0d51fb3907dd1dee3035c304d80e258e27d8",
+    "backend/internal/auth/application/principal.go": "c5e254061a3c2210264a87a0233291a43206e6e0cffe3460281fb925a4bb077a",
+    "backend/internal/auth/application/session.go": "78171f9c03f00a20987f9987b772bd0c014e1277e046c8bd0a86724036e2353e",
+    "backend/internal/auth/application/users.go": "b5234b87a4ed777dc52dd43a183194ed9e20b910821250ceb10f38361bc67f27",
+    "backend/internal/auth/domain/action_token.go": "0db5b9daa0bffb7b77586e136598cdc93094ca4f5cdd5290bafaa4c30a74abd2",
+    "backend/internal/auth/domain/errors.go": "ec139402cc156b234fbcae554fa3e4736e4670a738b697b53478da728d7e22bd",
+    "backend/internal/auth/domain/password.go": "1a67aa6c7f719b9686846d739673839d08ca801c0a6927dc765e2391d212024f",
+    "backend/internal/auth/domain/role.go": "d2b3d993f7ffb8074c6b0f1eac32722e17360ee13de9f171f889a0d0fc904b69",
+    "backend/internal/auth/domain/session.go": "d75f0984915ea39c910391d9f2211bc7e19311b7b2cc5cf7771e964602eb25e0",
+    "backend/internal/auth/domain/user.go": "f6408dbb2d2b0f6d9949fd1024bf66b4e950bb7c2e0377abca1d6d491333ee63",
+    "backend/internal/finance/adapter/http/handler.go": "c80e5d070b4420df38ffedbfd1ef0f8dad9295b5722541dda93baa53c538d26c",
+    "backend/internal/finance/adapter/postgres/store.go": "83417b41d59df162dee22c20222887bc38991332448d839f05f99536bece3553",
+    "backend/internal/finance/application/service.go": "d8d262351d2fee098b155ca16bcf621a9bdb1466c3516f00cfdd0ae254f332d9",
+    "backend/internal/finance/domain/finance.go": "20114b397a188bccbb9c2ff29459f742ff712ddc283656e35f4bacebdb0d4a65",
+    "backend/internal/inventory/adapter/http/handler.go": "386c043c31f7a3de757def14ecd1ab64e27d33002f88c057fc5cccb5100f4bdb",
+    "backend/internal/inventory/adapter/postgres/store.go": "90d3bb7423529f55431d12827246f892b5370fa462fe05b6319043d9b5d4ad2f",
+    "backend/internal/inventory/application/service.go": "02362016d07c9bd32f8d5ab901b577b9142addb5a53c7c0714d430efd4f1b1e3",
+    "backend/internal/inventory/domain/adjustment.go": "e49d17db472b7462a44320026eb72d4238dd34415020da4969a7a649e2cafc90",
+    "backend/internal/inventory/domain/stock.go": "2528e7e13fbde5f6ad0391ba3c59b1058728f08a6a71762e13339307883ac62e",
+    "backend/internal/masterdata/adapter/http/handler.go": "21e461ae0754a8c30856cfd38d0f56fb6309b26f2fd5d9518ee63e236b2574c6",
+    "backend/internal/masterdata/adapter/http/settings.go": "f9f72651cdef8c4430228cad626c820d64406eaabf0956b789db8a571f8b8260",
+    "backend/internal/masterdata/adapter/postgres/settings.go": "8523bc3b3e3a361123b9989d39e35279fa04e4e6b438d6c964965cf1ef826b9c",
+    "backend/internal/masterdata/adapter/postgres/store.go": "4b2e05c002786ec80407053d2b87e70ea8a788bb3599fa4a5ab69d95bbc300d9",
+    "backend/internal/masterdata/application/service.go": "ae7d07d8012fb06077d83c4b41757fd3ae15cc73636c1c9e106a5bfabcec2a27",
+    "backend/internal/masterdata/application/settings.go": "dd94e9a4af20b9fd8c76ae0f5abec0f70b193eb305e5b8d0dce234df5afc5220",
+    "backend/internal/masterdata/domain/entity.go": "4fdccaf6781a739612d4d7a31d3f2c61bd198c1d6c941dde91a130f3cb004458",
+    "backend/internal/masterdata/domain/settings.go": "d37acf53cb91e9e509b1b689b6bcf84b681f51221fdd453d801d999b41f12833",
+    "backend/internal/platform/authorization/super_admin.go": "e1a2105c4c67fc31a337df1df5f370df5ce7ba3afeddcd26a29d800d437fe880",
+    "backend/internal/platform/config/config.go": "abba28673a93e9529c0496bc7e469cfd7631654219460b35231a1095cc55867d",
+    "backend/internal/platform/httpserver/router.go": "ddd191eb9846653200602416b95db627e6b6c9f89a753b6fa8d8a3d65181a2da",
+    "backend/internal/platform/idempotency/middleware.go": "39546e6785472756958b660138fae61ad52f384468d9e7ae881674c929b05c67",
+    "backend/internal/platform/idempotency/postgres.go": "b26e04fbd3a6eed40d6dcac0a9dfc9cf395f15c03fb281dfb9404cd3331a51c2",
+    "backend/internal/purchasing/adapter/http/handler.go": "2f910c7ff650497cb5f347304d7de91935968042ac8117b1a754cda69b0721e9",
+    "backend/internal/purchasing/adapter/postgres/store.go": "74020428d733562c080e8c606f5b162803b5d899acf506d5452ac9595ba63151",
+    "backend/internal/purchasing/application/service.go": "b13d41cdf3572804fbab2a20140d4bde0457f2de0968d9e30baeeac2db400043",
+    "backend/internal/purchasing/domain/purchase_request.go": "4e33b7ab72574459d2d7d9d6932387b612247bd3726e2e4db0371df16523e036",
+    "backend/internal/reporting/adapter/http/handler.go": "688135d09c7bb98b89cfb792fde91f3d3383ee367c8b0a761a545eceeb74a0a7",
+    "backend/internal/reporting/adapter/postgres/store.go": "b26725e95209195c7dfd2afcf6e425d7f51cd0e91dfd314a1d38848cedbc3b99",
+    "backend/internal/reporting/application/service.go": "e98af35d97b37a40ddbe9683f83a1180322861b13657e6db91b9b26312c47624",
+    "backend/internal/sales/adapter/http/handler.go": "c53f65f8caf2f13c37fa7b23700e2a7fafd929846e1da01a631a63ff26ba91d3",
+    "backend/internal/sales/adapter/postgres/store.go": "604ca20ca5c05cccf1033a92219944043222c5f9e4ad9bfd64d576798f249271",
+    "backend/internal/sales/application/service.go": "a80647ffc715fd8f65aae02e7dedcbc347c65970d253300aa7e29dafcb791aa9",
+    "backend/internal/sales/domain/sales_order.go": "c8b8a8f17d63937a612ad428fef458af4954bb1651ef82ab1219582f928ce693",
+    "backend/migrations/000001_identity.up.sql": "79934f606ed3d4dca6849e1f459ed82afd0cba929d5d3f66ed5346e2df00cebc",
+    "backend/migrations/000002_masterdata.up.sql": "bb236b6d19b16ea4210a4f93cd90eb8e0bdfd4ed9c852d3434c1660a525a9b71",
+    "backend/migrations/000003_settings.up.sql": "6708102e3205ca7180ccfc139690f75726a9b8160ccc1cb2577ec392e9d2c98a",
+    "backend/migrations/000004_auth_token_sharing.up.sql": "ca4ec647f2e2e6e48282260567b0ee93fe8a83a7acc2ab254e414e44c0f8432c",
+    "backend/migrations/000005_operations.up.sql": "cf6ffb45600dcee577898994e370ed8a1a3d3a6d8921007a0d2fb418832f5e32",
+    "backend/migrations/000006_finance.up.sql": "0bf92a89d28c2702d025d3df5dea84940de3ae8bf8b0b9c1d24c5c10625cf2d6",
+    "backend/migrations/000007_reporting_indexes.up.sql": "ab1da18690c0e7a847a7055922558a1d9cadc8ceaccac40d2525bdf7d6085139",
+    "backend/migrations/000008_baseline_integrity.up.sql": "13740128fffe48303176985e37064b49e12ff29e5064c91eb6cd608ce4a05246",
+    "backend/migrations/000009_purchase_request_purpose.up.sql": "7596ee29aa9c3fa223d2da48397a46c118ef8022c502d5a437d444d01cdfe123",
+    "backend/migrations/000010_three_roles.up.sql": "fc841d9cc168999757476ff573c07fd64e9ec1571f3db3dd452fe23c247d4a78",
+    "backend/migrations/000011_purchase_order_replacement.up.sql": "20c01bd1342aca0683ab0faacbb6b7364c7123d5ca08401a476653ab946081f1",
+    "backend/migrations/000012_sales_invoice_review.up.sql": "e0b012635939fe40b136a727f056060cff921720bd705ae257cf8b2c1b238bb1",
+    "frontend/app/activate/page.tsx": "2e1b8661bd15c0c9ddf4959aac6fa19e3875cebadc50751731388115c41d8da4",
+    "frontend/app/finance/page.tsx": "d8a5c96184efa6808d267a4010c0a10844d408b4b90e437f2eca4afcbd73eefe",
+    "frontend/app/inventory/[section]/page.tsx": "0224981660ae2ba3a0d8478c8177bcd9fc4e2ad0c963325d26f00b5b470f95b6",
+    "frontend/app/inventory/page.tsx": "31ea542a62fcbfc14d753a1ba770a572f6a354ff89033ef6748b28986641b2c6",
+    "frontend/app/login/page.tsx": "029d808bfc6929a04b3d2d48a5718be2e7d21a6cb569c792ddbd3749ed9ccdd8",
+    "frontend/app/master-data/page.tsx": "0cd4341ea945dd3431aa09d67d0708ff16a2273a13d25af4c81fabb580d67928",
+    "frontend/app/page.tsx": "7e77b0e92a9f89298c5c13e41712dd53b7bb69c2ab4a1686c8d47448df5f9106",
+    "frontend/app/purchasing/[section]/page.tsx": "03943a63eef2f5ced66d489a7887b64e58afdfdcca24e26818338c3751bcd208",
+    "frontend/app/purchasing/page.tsx": "6c3a535df4db4dc0bb8fcca2e56f9ab9229e2c2b0136144a7caafb7d1b1743c9",
+    "frontend/app/reset-password/page.tsx": "3b01536992301eb4b43c519df2de76c8519d0880494f73be2b95210ddcd3826e",
+    "frontend/app/sales/[section]/page.tsx": "8b2cbc17ef62091a550d4ecce6cf7ee75705597ec2e5ea1b41f0e157e1ceed7c",
+    "frontend/app/sales/page.tsx": "ea5e347c9557db106d58466de0b0eef471d84201ffaf92321b1b5dc8b4848c81",
+    "frontend/app/settings/page.tsx": "e773c8003bf1d1cfcdeec7be2d36fa14c7c0b76709f317541e459f296e3a733f",
+    "frontend/app/users/page.tsx": "82798a51c65ed25e174946192f5d74a2432718da80d8dcc2cd3f90f33cfbbc7a",
+    "frontend/components/app-shell.tsx": "d43eb70ec0144503193155fc3fe91453ae6554e6b46fa9240e25c0b2ffe94ae4",
+    "frontend/features/auth/login-form.tsx": "12d50bab728cb575e422d37fa06ae5e5adb5e36703b89e51cfd7ff72ad1f1b40",
+    "frontend/features/auth/session-context.tsx": "8f74aebc0247ce534895fbbbe6dfafaedf86f867a22bac6350884b14188e8a83",
+    "frontend/features/auth/token-password-form.tsx": "16e624be00a198f9850a9dc40d2f8cfb4a4f4761a1b3dcfb4e05d60a408ed58c",
+    "frontend/features/dashboard/dashboard-workspace.tsx": "1ddc21716c7d3f91b156e047e2461fe511ba850a649d471d33ecf7954f16fc9b",
+    "frontend/features/finance/finance-workspace.tsx": "707de5676619f7f5d5fd46b260b79d38730fe12679ec747c655a558c2cc72a06",
+    "frontend/features/inventory/inventory-adjustment-panel.tsx": "a20eae3914b43de1372811ff8484c6a0da7a0db94316a63c73c73a2ee7641829",
+    "frontend/features/inventory/inventory-workspace.tsx": "d75df15467c912f6ca0d4d9ce86b173910819954ab206b094981260bbcaf4d03",
+    "frontend/features/master-data/master-data-panel.tsx": "67a07721a74e689509958f07f992ada8807bac6a857092bde34ceac187ee299c",
+    "frontend/features/master-data/master-data-select.tsx": "fd11162545f88dee148b29417a9c036079368a7689ce670329512b775e80a07c",
+    "frontend/features/purchasing/goods-receipt-panel.tsx": "a6ccc0a1d938b1ed9d3982bc3d65bf89fa83471504de8753689cb8c4dca83a8b",
+    "frontend/features/purchasing/purchase-order-panel.tsx": "89b07993d0c1f2db440f96e0a32f1101426db5f52e980b81eae6f9c48e6fb54b",
+    "frontend/features/purchasing/purchase-request-panel.tsx": "a8650df13125441188a5134325d7ae50eb56db0878605932c4f3190ad48c851e",
+    "frontend/features/purchasing/purchasing-workspace.tsx": "1eb11c77f69c38348d828475052c93ba6350fc3c2d85383d434a949298a8f07e",
+    "frontend/features/sales/delivery-panel.tsx": "e5d5f8506f0f856b9398766bcbf7a43b85a98e5dde22b42c06cb335a502647a6",
+    "frontend/features/sales/sales-order-panel.tsx": "c629d8b680307f3c97802a34e2701bfad6f1a8af7eb93cf99ff31f503fe982b5",
+    "frontend/features/sales/sales-workspace.tsx": "daa42fbb5629ffce52a5250ea41a3d5cbdf47d4c802c9189240f24b61f737b87",
+    "frontend/features/settings/settings-form.tsx": "d03add2dbce9c31db23ac87c752699cb19409cd31ab5bf1b7a829d703d78b577",
+    "frontend/features/users/users-panel.tsx": "538a17631466e9923c643c2752a804ee58dd185fcc0b1895029eac1cec2a048a",
+    "frontend/lib/api.ts": "86c4693f9373067fb33aca3c789fd3b6dec2ece833a39d51d1316e1aae3532ac"
+  }
+}

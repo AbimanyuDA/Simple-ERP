@@ -1,0 +1,685 @@
+{
+  "rendered": 93,
+  "screenshot_samples": [
+    "l0-simple-erp",
+    "l1-p2p",
+    "l2-ap",
+    "l2-po-gr",
+    "l3-so-review",
+    "l3-ap-payment-post",
+    "role-staff",
+    "l2-pr",
+    "l2-so",
+    "l2-adjustment",
+    "l2-delivery",
+    "l2-ar",
+    "l3-kontrol-request",
+    "role-supervisor",
+    "role-super-admin",
+    "l2-p2p-correction",
+    "l2-purchase-correction",
+    "l3-pr-review",
+    "l3-ap-match"
+  ],
+  "passed": true,
+  "checks": [
+    "Chromium SVG load",
+    "text within SVG viewport",
+    "text-to-text collisions"
+  ],
+  "limits": "Rendering checks do not prove process semantics or detect every edge/label collision.",
+  "per_model": [
+    {
+      "model": "l3-bootstrap",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-login",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-refresh",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-logout",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-invite",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-token-share",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-token-revoke",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-activate-invitation",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-reset-request",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-reset-consume",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-user-status",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-session-revoke",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-master-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-master-status",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-settings",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-pr-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-pr-submit",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-pr-review",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-po-convert",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-po-issue",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-gr-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-gr-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-pr-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-pr-copy",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-po-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-gr-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-gr-reverse",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-edit",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-stock",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-submit",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-review",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-confirm",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-delivery-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-delivery-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-so-copy",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-delivery-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-delivery-reverse",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-create",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-submit",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-review",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-cancel",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-adj-reverse",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-invoice",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-match",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-resolve",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-invoice",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-invoice-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-payment",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-payment-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-invoice-void",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ap-payment-void",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-payment",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-payment-post",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-invoice-void",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-ar-payment-void",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-operational-read",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-admin-read",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-finance-read",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-dashboard",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-report",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-kontrol-request",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l3-health",
+      "level": 3,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-access",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-session",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-master-settings",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-pr",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-po-gr",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-so",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-delivery",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-adjustment",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-ap",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-ar",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-purchase-correction",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-sales-correction",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-inventory-correction",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-finance-correction",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-p2p-correction",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-reporting",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l2-platform",
+      "level": 2,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-access",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-p2p",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-o2c",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-inventory",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-finance",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-administration",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l1-reporting",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "l0-simple-erp",
+      "level": 0,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "role-staff",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "role-supervisor",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    },
+    {
+      "model": "role-super-admin",
+      "level": 1,
+      "passed": true,
+      "clipped": 0,
+      "text_collisions": 0
+    }
+  ],
+  "errors": []
+}

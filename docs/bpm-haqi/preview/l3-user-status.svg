@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2060" height="575" viewBox="0 0 2060 575">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#0f172a">
+<text x="25" y="30" font-size="20" text-anchor="start"><tspan x="25" dy="0">L3 | Aktivasi administratif dan deaktivasi pengguna</tspan></text>
+<text x="25" y="56" font-size="12" text-anchor="start"><tspan x="25" dy="0">AS-IS KODE 2026-10-21 | Lane dengan 'atau' berarti pilihan aktor | Detail kegagalan: dokumentasi model</tspan></text>
+<rect x="20" y="100.0" width="2020" height="220.0" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="100" y="180.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Super Admin</tspan></text>
+<rect x="20" y="320.0" width="2020" height="220.0" fill="#eff6ff" stroke="#cbd5e1"/>
+<text x="100" y="400.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Sistem Simple</tspan><tspan x="100" dy="16">ERP</tspan></text>
+<polyline points="238,190.0 331.5,190.0 331.5,190.0 425,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="603,190.0 626.5,190.0 626.5,410.0 650,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="828,410.0 851.5,410.0 851.5,410.0 875,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="929,410.0 1014.5,410.0 1014.5,410.0 1100,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="938" y="367.0" font-size="11" text-anchor="start"><tspan x="938" dy="0">Ya</tspan></text>
+<polyline points="1278,410.0 1301.5,410.0 1301.5,410.0 1325,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="1503,410.0 1526.5,410.0 1526.5,410.0 1550,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="929,410.0 947,410.0 947,508 1757,508 1757,410.0 1775,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="941" y1="417.0" x2="953" y2="403.0" stroke="#475569" stroke-width="1.5"/>
+<text x="1613" y="367.0" font-size="11" text-anchor="start"><tspan x="1613" dy="0">Tidak</tspan></text>
+<circle cx="219.0" cy="190.0" r="19.0" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="219.0" y="229.0" font-size="12" text-anchor="middle"><tspan x="219.0" dy="0">Kebutuhan aksi</tspan></text>
+<rect x="425" y="145.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="437" y="160.0" font-size="9" text-anchor="start"><tspan x="437" dy="0">U</tspan></text>
+<text x="514.0" y="177.0" font-size="12" text-anchor="middle"><tspan x="514.0" dy="0">Pilih activate atau</tspan><tspan x="514.0" dy="16">deactivate user</tspan></text>
+<rect x="650" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="662" y="380.0" font-size="9" text-anchor="start"><tspan x="662" dy="0">S</tspan></text>
+<text x="739.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="739.0" dy="0">Cek versi; cegah</tspan><tspan x="739.0" dy="16">deaktivasi diri/owner</tspan><tspan x="739.0" dy="16">terakhir</tspan></text>
+<path d="M902.0,383.0 L929,410.0 L902.0,437.0 L875,410.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="902.0" y="415.0" font-size="18" text-anchor="middle"><tspan x="902.0" dy="0">X</tspan></text>
+<text x="902.0" y="457.0" font-size="12" text-anchor="middle"><tspan x="902.0" dy="0">Syarat terpenuhi?</tspan></text>
+<rect x="1100" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1112" y="380.0" font-size="9" text-anchor="start"><tspan x="1112" dy="0">S</tspan></text>
+<text x="1189.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="1189.0" dy="0">Ubah status dan versi;</tspan><tspan x="1189.0" dy="16">saat deaktivasi cabut</tspan><tspan x="1189.0" dy="16">sesi dan token</tspan></text>
+<rect x="1325" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1337" y="380.0" font-size="9" text-anchor="start"><tspan x="1337" dy="0">S</tspan></text>
+<text x="1414.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="1414.0" dy="0">Audit SET_USER_STATUS;</tspan><tspan x="1414.0" dy="16">commit</tspan></text>
+<circle cx="1569.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1569.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="1569.0" dy="0">Aksi selesai; hasil</tspan><tspan x="1569.0" dy="16">diterima</tspan></text>
+<circle cx="1794.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1794.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="1794.0" dy="0">Ditolak / gagal; tidak</tspan><tspan x="1794.0" dy="16">commit</tspan></text>
+</g></svg>

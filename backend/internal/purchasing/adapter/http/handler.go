@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	authapp "github.com/simple-erp/backend/internal/auth/application"
+	"github.com/simple-erp/backend/internal/auth/domain"
 	"github.com/simple-erp/backend/internal/purchasing/application"
 	"net/http"
 )
@@ -81,6 +82,10 @@ func (h Handler) list(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": v})
 }
 func (h Handler) create(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Purpose string                  `json:"purpose"`
 		Lines   []application.LineInput `json:"lines"`
@@ -110,11 +115,19 @@ func (h Handler) prAction(w http.ResponseWriter, r *http.Request) {
 		e error
 	)
 	if action == "purchase-order" {
+		if !domain.CanCreate(p.Role) {
+			respond(w, 403, map[string]string{"message": "Akses ditolak."})
+			return
+		}
 		v, e = h.Service.ConvertToOrder(r.Context(), chi.URLParam(r, "id"), in.SupplierID, in.WarehouseID, p.UserID, middleware.GetReqID(r.Context()))
 	} else if action == "copy" {
+		if !domain.CanCreate(p.Role) {
+			respond(w, 403, map[string]string{"message": "Akses ditolak."})
+			return
+		}
 		v, e = h.Service.CopyRequest(r.Context(), chi.URLParam(r, "id"), p.UserID, middleware.GetReqID(r.Context()))
 	} else {
-		if (action == "approve" || action == "reject") && p.Role != "ADMIN" {
+		if (action == "approve" || action == "reject") && !domain.CanApprove(p.Role) || (action != "approve" && action != "reject" && !domain.CanCreate(p.Role)) {
 			respond(w, 403, map[string]string{"message": "Akses ditolak."})
 			return
 		}
@@ -127,6 +140,10 @@ func (h Handler) prAction(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) cancelOrder(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanApprove(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct{ Reason string }
 	if !decode(w, r, &in) {
 		return
@@ -139,6 +156,10 @@ func (h Handler) cancelOrder(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) cancelReceipt(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct{ Reason string }
 	if !decode(w, r, &in) {
 		return
@@ -151,6 +172,10 @@ func (h Handler) cancelReceipt(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) issue(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanApprove(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Version int `json:"version"`
 	}
@@ -165,6 +190,10 @@ func (h Handler) issue(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) receipt(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Lines []application.ReceiptLineInput `json:"lines"`
 	}
@@ -179,6 +208,10 @@ func (h Handler) receipt(w http.ResponseWriter, r *http.Request) {
 	respond(w, 201, v)
 }
 func (h Handler) postReceipt(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanApprove(principal(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		Version int `json:"version"`
 	}
@@ -193,7 +226,7 @@ func (h Handler) postReceipt(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, v)
 }
 func (h Handler) reverseReceipt(w http.ResponseWriter, r *http.Request) {
-	if principal(r).Role != "ADMIN" {
+	if !domain.CanApprove(principal(r).Role) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}

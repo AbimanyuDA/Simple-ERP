@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "bpmn_count": 93,
+  "by_level": {
+    "0": 1,
+    "1": 10,
+    "2": 17,
+    "3": 65
+  },
+  "endpoint_count": 89,
+  "covered_endpoint_count": 89,
+  "local_links_checked": 282,
+  "official_omg_xsd": true,
+  "checks": [
+    "XML/XSD",
+    "IDs",
+    "flow references",
+    "lane ownership",
+    "start/end reachability",
+    "DI completeness",
+    "node overlaps",
+    "edge crossing unrelated nodes",
+    "cross-file calledElement",
+    "hierarchy",
+    "API coverage",
+    "source SHA256",
+    "source function names",
+    "business state branches",
+    "local documentation links"
+  ],
+  "errors": [],
+  "limits": "Static documentation validation only; no live database or browser business workflow test."
+}

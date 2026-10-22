@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	authapp "github.com/simple-erp/backend/internal/auth/application"
+	authdomain "github.com/simple-erp/backend/internal/auth/domain"
 	mdapp "github.com/simple-erp/backend/internal/masterdata/application"
 	"github.com/simple-erp/backend/internal/masterdata/domain"
 	"net/http"
@@ -54,7 +55,7 @@ func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 		respond(w, 401, map[string]string{"message": "Sesi diperlukan."})
 		return
 	}
-	if p.Role != "ADMIN" {
+	if !authdomain.CanApprove(p.Role) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}
@@ -79,7 +80,7 @@ func (h Handler) status(w http.ResponseWriter, r *http.Request) {
 		respond(w, 401, map[string]string{"message": "Sesi diperlukan."})
 		return
 	}
-	if p.Role != "ADMIN" {
+	if !authdomain.CanApprove(p.Role) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/simple-erp/backend/internal/platform/authorization"
 	"github.com/simple-erp/backend/internal/sales/application"
 	"time"
 )
@@ -240,8 +241,14 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 		d.Status = "SUBMITTED"
 	case "approve":
 		trace = "SAL-SO-004"
-		if from != "SUBMITTED" || actor == d.CreatorID {
+		if from != "SUBMITTED" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		available, stockErr := salesOrderStockAvailable(ctx, tx, id, warehouse)
 		if stockErr != nil || !available {
@@ -250,8 +257,14 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 		d.Status = "APPROVED"
 	case "reject":
 		trace = "SAL-SO-004"
-		if from != "SUBMITTED" || actor == d.CreatorID || reason == "" {
+		if from != "SUBMITTED" || reason == "" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		d.Status = "REJECTED"
 	case "confirm":
@@ -263,7 +276,7 @@ func (s Store) TransitionOrder(ctx context.Context, id, action, actor, reason st
 	case "cancel":
 		trace = "ACT-SAL-SO-CANCEL"
 		var admin bool
-		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='SUPER_ADMIN')`, actor).Scan(&admin)
 		if e != nil || (from != "DRAFT" && from != "APPROVED") || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}

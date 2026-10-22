@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-master-settings" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-operational-read" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-master-create" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-master-status" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-admin-read" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-settings" id="Definitions_l2_master_settings" targetNamespace="https://simple-erp.local/bpm-haqi/l2-master-settings" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-operational-read" location="../level-3/l3-operational-read.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-master-create" location="../level-3/l3-master-create.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-master-status" location="../level-3/l3-master-status.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-admin-read" location="../level-3/l3-admin-read.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-settings" location="../level-3/l3-settings.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_master_settings" name="Pemeliharaan master dan konfigurasi" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_master_settings">
+      <bpmn:lane id="Lane_l2_master_settings_0" name="Pemilik kebutuhan (role pada detail)">
+        <bpmn:flowNodeRef>l2_master_settings_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_end0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_end1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_call2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_end2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_call3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_end3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_call4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_master_settings_end4</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_master_settings_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>l2_master_settings_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="l2_master_settings_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>l2_master_settings_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="l2_master_settings_branch" name="Kebutuhan apa?" default="l2_master_settings_Flow_10" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_master_settings_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_master_settings_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l2_master_settings_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_master_settings_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l2_master_settings_Flow_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l2_master_settings_call0" name="Baca master" calledElement="c0:Process_l3_operational_read">
+      <bpmn:incoming>l2_master_settings_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_master_settings_end0" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_master_settings_Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_master_settings_call1" name="Buat master" calledElement="c1:Process_l3_master_create">
+      <bpmn:incoming>l2_master_settings_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_master_settings_end1" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_master_settings_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_master_settings_call2" name="Ubah status master" calledElement="c2:Process_l3_master_status">
+      <bpmn:incoming>l2_master_settings_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_master_settings_end2" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_master_settings_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_master_settings_call3" name="Baca settings" calledElement="c3:Process_l3_admin_read">
+      <bpmn:incoming>l2_master_settings_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_master_settings_end3" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_master_settings_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_master_settings_call4" name="Ubah settings" calledElement="c4:Process_l3_settings">
+      <bpmn:incoming>l2_master_settings_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l2_master_settings_Flow_11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_master_settings_end4" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_master_settings_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_0" sourceRef="l2_master_settings_start" targetRef="l2_master_settings_choose"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_1" sourceRef="l2_master_settings_choose" targetRef="l2_master_settings_branch"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_2" sourceRef="l2_master_settings_branch" targetRef="l2_master_settings_call0" name="Baca master">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Baca master</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_3" sourceRef="l2_master_settings_call0" targetRef="l2_master_settings_end0"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_4" sourceRef="l2_master_settings_branch" targetRef="l2_master_settings_call1" name="Buat master">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Buat master</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_5" sourceRef="l2_master_settings_call1" targetRef="l2_master_settings_end1"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_6" sourceRef="l2_master_settings_branch" targetRef="l2_master_settings_call2" name="Ubah status master">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ubah status master</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_7" sourceRef="l2_master_settings_call2" targetRef="l2_master_settings_end2"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_8" sourceRef="l2_master_settings_branch" targetRef="l2_master_settings_call3" name="Baca settings">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Baca settings</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_9" sourceRef="l2_master_settings_call3" targetRef="l2_master_settings_end3"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_10" sourceRef="l2_master_settings_branch" targetRef="l2_master_settings_call4" name="Ubah settings"/>
+    <bpmn:sequenceFlow id="l2_master_settings_Flow_11" sourceRef="l2_master_settings_call4" targetRef="l2_master_settings_end4"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_master_settings">
+    <bpmn:participant id="Pool_l2_master_settings" name="Simple ERP" processRef="Process_l2_master_settings"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_master_settings">
+    <bpmndi:BPMNPlane id="Plane_l2_master_settings" bpmnElement="Collab_l2_master_settings">
+      <bpmndi:BPMNShape id="Pool_l2_master_settings_di" bpmnElement="Pool_l2_master_settings" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1280" height="855"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_master_settings_0_di" bpmnElement="Lane_l2_master_settings_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1250" height="855.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_start_di" bpmnElement="l2_master_settings_start">
+        <dc:Bounds x="200" y="508.5" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="551.5" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_choose_di" bpmnElement="l2_master_settings_choose">
+        <dc:Bounds x="310" y="482.5" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_branch_di" bpmnElement="l2_master_settings_branch">
+        <dc:Bounds x="550" y="500.5" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="559.5" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_call0_di" bpmnElement="l2_master_settings_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_end0_di" bpmnElement="l2_master_settings_end0">
+        <dc:Bounds x="1120" y="171" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="214" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_call1_di" bpmnElement="l2_master_settings_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_end1_di" bpmnElement="l2_master_settings_end1">
+        <dc:Bounds x="1120" y="326" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="369" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_call2_di" bpmnElement="l2_master_settings_call2">
+        <dc:Bounds x="850" y="455" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_end2_di" bpmnElement="l2_master_settings_end2">
+        <dc:Bounds x="1120" y="481" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="524" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_call3_di" bpmnElement="l2_master_settings_call3">
+        <dc:Bounds x="850" y="610" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_end3_di" bpmnElement="l2_master_settings_end3">
+        <dc:Bounds x="1120" y="636" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="679" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_call4_di" bpmnElement="l2_master_settings_call4">
+        <dc:Bounds x="850" y="765" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_master_settings_end4_di" bpmnElement="l2_master_settings_end4">
+        <dc:Bounds x="1120" y="791" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="834" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_0_di" bpmnElement="l2_master_settings_Flow_0">
+        <di:waypoint x="238" y="527.5"/>
+        <di:waypoint x="274.0" y="527.5"/>
+        <di:waypoint x="274.0" y="527.5"/>
+        <di:waypoint x="310" y="527.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_1_di" bpmnElement="l2_master_settings_Flow_1">
+        <di:waypoint x="488" y="527.5"/>
+        <di:waypoint x="519.0" y="527.5"/>
+        <di:waypoint x="519.0" y="527.5"/>
+        <di:waypoint x="550" y="527.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_2_di" bpmnElement="l2_master_settings_Flow_2">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_3_di" bpmnElement="l2_master_settings_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1120" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_4_di" bpmnElement="l2_master_settings_Flow_4">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_5_di" bpmnElement="l2_master_settings_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1120" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_6_di" bpmnElement="l2_master_settings_Flow_6">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="500.0"/>
+        <di:waypoint x="850" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="445.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_7_di" bpmnElement="l2_master_settings_Flow_7">
+        <di:waypoint x="1028" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1120" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_8_di" bpmnElement="l2_master_settings_Flow_8">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="655.0"/>
+        <di:waypoint x="850" y="655.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="600.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_9_di" bpmnElement="l2_master_settings_Flow_9">
+        <di:waypoint x="1028" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1120" y="655.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_10_di" bpmnElement="l2_master_settings_Flow_10">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="810.0"/>
+        <di:waypoint x="850" y="810.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="755.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_master_settings_Flow_11_di" bpmnElement="l2_master_settings_Flow_11">
+        <di:waypoint x="1028" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1120" y="810.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

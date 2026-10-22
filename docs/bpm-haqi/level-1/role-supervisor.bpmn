@@ -1,0 +1,844 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/role-supervisor" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-pr-review" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-so-review" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-adj-review" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-po-issue" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-gr-post" xmlns:c5="https://simple-erp.local/bpm-haqi/l3-po-cancel" xmlns:c6="https://simple-erp.local/bpm-haqi/l3-ap-match" xmlns:c7="https://simple-erp.local/bpm-haqi/l3-ap-payment-post" xmlns:c8="https://simple-erp.local/bpm-haqi/l3-ap-invoice-void" xmlns:c9="https://simple-erp.local/bpm-haqi/l3-ap-payment-void" xmlns:c10="https://simple-erp.local/bpm-haqi/l3-ar-invoice-post" xmlns:c11="https://simple-erp.local/bpm-haqi/l3-ar-payment-post" xmlns:c12="https://simple-erp.local/bpm-haqi/l2-ar" xmlns:c13="https://simple-erp.local/bpm-haqi/l2-finance-correction" xmlns:c14="https://simple-erp.local/bpm-haqi/l3-gr-reverse" xmlns:c15="https://simple-erp.local/bpm-haqi/l3-delivery-reverse" xmlns:c16="https://simple-erp.local/bpm-haqi/l3-adj-reverse" xmlns:c17="https://simple-erp.local/bpm-haqi/l3-master-create" xmlns:c18="https://simple-erp.local/bpm-haqi/l3-master-status" xmlns:c19="https://simple-erp.local/bpm-haqi/l3-report" id="Definitions_role_supervisor" targetNamespace="https://simple-erp.local/bpm-haqi/role-supervisor" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-pr-review" location="../level-3-p2p/l3-pr-review.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-so-review" location="../level-3/l3-so-review.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-adj-review" location="../level-3/l3-adj-review.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-po-issue" location="../level-3-p2p/l3-po-issue.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-gr-post" location="../level-3-p2p/l3-gr-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-po-cancel" location="../level-3-p2p/l3-po-cancel.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-match" location="../level-3-p2p/l3-ap-match.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-payment-post" location="../level-3-p2p/l3-ap-payment-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-invoice-void" location="../level-3-p2p/l3-ap-invoice-void.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-payment-void" location="../level-3-p2p/l3-ap-payment-void.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ar-invoice-post" location="../level-3/l3-ar-invoice-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ar-payment-post" location="../level-3/l3-ar-payment-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-ar" location="../level-2/l2-ar.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-finance-correction" location="../level-2/l2-finance-correction.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-gr-reverse" location="../level-3-p2p/l3-gr-reverse.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-delivery-reverse" location="../level-3/l3-delivery-reverse.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-adj-reverse" location="../level-3/l3-adj-reverse.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-master-create" location="../level-3/l3-master-create.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-master-status" location="../level-3/l3-master-status.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-report" location="../level-3/l3-report.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_role_supervisor" name="Perspektif role Supervisor" isExecutable="false">
+    <bpmn:documentation>Level 1; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Supervisor tidak membuat dokumen operasional maupun draft AP/AR, tetapi mereview atau mem-post dokumen Staff. Master data tetap dapat dipelihara Supervisor.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_role_supervisor">
+      <bpmn:lane id="Lane_role_supervisor_0" name="Supervisor atau Super Admin">
+        <bpmn:flowNodeRef>role_supervisor_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call9</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end9</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call10</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end10</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call11</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end11</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call12</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end12</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call13</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end13</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call14</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end14</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call15</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end15</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call16</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end16</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call17</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end17</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call18</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end18</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_call19</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>role_supervisor_end19</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="role_supervisor_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>role_supervisor_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="role_supervisor_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>role_supervisor_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="role_supervisor_branch" name="Kebutuhan apa?" default="role_supervisor_Flow_40" gatewayDirection="Diverging">
+      <bpmn:incoming>role_supervisor_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_14</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_16</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_18</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_20</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_22</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_24</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_26</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_28</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_30</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_32</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_34</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_36</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_38</bpmn:outgoing>
+      <bpmn:outgoing>role_supervisor_Flow_40</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="role_supervisor_call0" name="Review PR" calledElement="c0:Process_l3_pr_review">
+      <bpmn:incoming>role_supervisor_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end0" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call1" name="Review SO" calledElement="c1:Process_l3_so_review">
+      <bpmn:incoming>role_supervisor_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end1" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call2" name="Review adjustment" calledElement="c2:Process_l3_adj_review">
+      <bpmn:incoming>role_supervisor_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end2" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call3" name="Issue PO" calledElement="c3:Process_l3_po_issue">
+      <bpmn:incoming>role_supervisor_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end3" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call4" name="Post GR" calledElement="c4:Process_l3_gr_post">
+      <bpmn:incoming>role_supervisor_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end4" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call5" name="Cancel PO" calledElement="c5:Process_l3_po_cancel">
+      <bpmn:incoming>role_supervisor_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_13</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end5" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call6" name="Match invoice supplier" calledElement="c6:Process_l3_ap_match">
+      <bpmn:incoming>role_supervisor_Flow_14</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_15</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end6" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call7" name="Post payment supplier" calledElement="c7:Process_l3_ap_payment_post">
+      <bpmn:incoming>role_supervisor_Flow_16</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_17</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end7" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call8" name="Void invoice supplier" calledElement="c8:Process_l3_ap_invoice_void">
+      <bpmn:incoming>role_supervisor_Flow_18</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_19</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end8" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_19</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call9" name="Void payment supplier" calledElement="c9:Process_l3_ap_payment_void">
+      <bpmn:incoming>role_supervisor_Flow_20</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_21</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end9" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_21</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call10" name="Post invoice sales" calledElement="c10:Process_l3_ar_invoice_post">
+      <bpmn:incoming>role_supervisor_Flow_22</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_23</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end10" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_23</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call11" name="Post payment customer" calledElement="c11:Process_l3_ar_payment_post">
+      <bpmn:incoming>role_supervisor_Flow_24</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_25</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end11" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_25</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call12" name="Finance AR" calledElement="c12:Process_l2_ar">
+      <bpmn:incoming>role_supervisor_Flow_26</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_27</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end12" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_27</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call13" name="Koreksi Finance" calledElement="c13:Process_l2_finance_correction">
+      <bpmn:incoming>role_supervisor_Flow_28</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_29</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end13" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_29</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call14" name="Reverse GR" calledElement="c14:Process_l3_gr_reverse">
+      <bpmn:incoming>role_supervisor_Flow_30</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_31</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end14" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_31</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call15" name="Reverse delivery" calledElement="c15:Process_l3_delivery_reverse">
+      <bpmn:incoming>role_supervisor_Flow_32</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_33</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end15" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_33</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call16" name="Reverse adjustment" calledElement="c16:Process_l3_adj_reverse">
+      <bpmn:incoming>role_supervisor_Flow_34</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_35</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end16" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_35</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call17" name="Buat master" calledElement="c17:Process_l3_master_create">
+      <bpmn:incoming>role_supervisor_Flow_36</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_37</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end17" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_37</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call18" name="Status master" calledElement="c18:Process_l3_master_status">
+      <bpmn:incoming>role_supervisor_Flow_38</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_39</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end18" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_39</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="role_supervisor_call19" name="Laporan/audit" calledElement="c19:Process_l3_report">
+      <bpmn:incoming>role_supervisor_Flow_40</bpmn:incoming>
+      <bpmn:outgoing>role_supervisor_Flow_41</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="role_supervisor_end19" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>role_supervisor_Flow_41</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_0" sourceRef="role_supervisor_start" targetRef="role_supervisor_choose"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_1" sourceRef="role_supervisor_choose" targetRef="role_supervisor_branch"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_2" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call0" name="Review PR">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Review PR</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_3" sourceRef="role_supervisor_call0" targetRef="role_supervisor_end0"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_4" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call1" name="Review SO">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Review SO</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_5" sourceRef="role_supervisor_call1" targetRef="role_supervisor_end1"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_6" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call2" name="Review adjustment">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Review adjustment</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_7" sourceRef="role_supervisor_call2" targetRef="role_supervisor_end2"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_8" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call3" name="Issue PO">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Issue PO</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_9" sourceRef="role_supervisor_call3" targetRef="role_supervisor_end3"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_10" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call4" name="Post GR">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Post GR</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_11" sourceRef="role_supervisor_call4" targetRef="role_supervisor_end4"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_12" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call5" name="Cancel PO">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cancel PO</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_13" sourceRef="role_supervisor_call5" targetRef="role_supervisor_end5"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_14" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call6" name="Match invoice supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Match invoice supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_15" sourceRef="role_supervisor_call6" targetRef="role_supervisor_end6"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_16" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call7" name="Post payment supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Post payment supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_17" sourceRef="role_supervisor_call7" targetRef="role_supervisor_end7"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_18" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call8" name="Void invoice supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Void invoice supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_19" sourceRef="role_supervisor_call8" targetRef="role_supervisor_end8"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_20" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call9" name="Void payment supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Void payment supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_21" sourceRef="role_supervisor_call9" targetRef="role_supervisor_end9"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_22" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call10" name="Post invoice sales">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Post invoice sales</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_23" sourceRef="role_supervisor_call10" targetRef="role_supervisor_end10"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_24" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call11" name="Post payment customer">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Post payment customer</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_25" sourceRef="role_supervisor_call11" targetRef="role_supervisor_end11"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_26" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call12" name="Finance AR">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Finance AR</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_27" sourceRef="role_supervisor_call12" targetRef="role_supervisor_end12"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_28" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call13" name="Koreksi Finance">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Koreksi Finance</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_29" sourceRef="role_supervisor_call13" targetRef="role_supervisor_end13"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_30" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call14" name="Reverse GR">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Reverse GR</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_31" sourceRef="role_supervisor_call14" targetRef="role_supervisor_end14"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_32" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call15" name="Reverse delivery">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Reverse delivery</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_33" sourceRef="role_supervisor_call15" targetRef="role_supervisor_end15"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_34" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call16" name="Reverse adjustment">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Reverse adjustment</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_35" sourceRef="role_supervisor_call16" targetRef="role_supervisor_end16"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_36" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call17" name="Buat master">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Buat master</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_37" sourceRef="role_supervisor_call17" targetRef="role_supervisor_end17"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_38" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call18" name="Status master">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Status master</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_39" sourceRef="role_supervisor_call18" targetRef="role_supervisor_end18"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_40" sourceRef="role_supervisor_branch" targetRef="role_supervisor_call19" name="Laporan/audit"/>
+    <bpmn:sequenceFlow id="role_supervisor_Flow_41" sourceRef="role_supervisor_call19" targetRef="role_supervisor_end19"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_role_supervisor">
+    <bpmn:participant id="Pool_role_supervisor" name="Simple ERP" processRef="Process_role_supervisor"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_role_supervisor">
+    <bpmndi:BPMNPlane id="Plane_role_supervisor" bpmnElement="Collab_role_supervisor">
+      <bpmndi:BPMNShape id="Pool_role_supervisor_di" bpmnElement="Pool_role_supervisor" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1280" height="3180"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_role_supervisor_0_di" bpmnElement="Lane_role_supervisor_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1250" height="3180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_start_di" bpmnElement="role_supervisor_start">
+        <dc:Bounds x="200" y="1671.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="1714.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_choose_di" bpmnElement="role_supervisor_choose">
+        <dc:Bounds x="310" y="1645.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_branch_di" bpmnElement="role_supervisor_branch">
+        <dc:Bounds x="550" y="1663.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="1722.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call0_di" bpmnElement="role_supervisor_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end0_di" bpmnElement="role_supervisor_end0">
+        <dc:Bounds x="1120" y="171" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="214" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call1_di" bpmnElement="role_supervisor_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end1_di" bpmnElement="role_supervisor_end1">
+        <dc:Bounds x="1120" y="326" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="369" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call2_di" bpmnElement="role_supervisor_call2">
+        <dc:Bounds x="850" y="455" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end2_di" bpmnElement="role_supervisor_end2">
+        <dc:Bounds x="1120" y="481" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="524" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call3_di" bpmnElement="role_supervisor_call3">
+        <dc:Bounds x="850" y="610" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end3_di" bpmnElement="role_supervisor_end3">
+        <dc:Bounds x="1120" y="636" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="679" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call4_di" bpmnElement="role_supervisor_call4">
+        <dc:Bounds x="850" y="765" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end4_di" bpmnElement="role_supervisor_end4">
+        <dc:Bounds x="1120" y="791" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="834" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call5_di" bpmnElement="role_supervisor_call5">
+        <dc:Bounds x="850" y="920" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end5_di" bpmnElement="role_supervisor_end5">
+        <dc:Bounds x="1120" y="946" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="989" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call6_di" bpmnElement="role_supervisor_call6">
+        <dc:Bounds x="850" y="1075" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end6_di" bpmnElement="role_supervisor_end6">
+        <dc:Bounds x="1120" y="1101" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1144" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call7_di" bpmnElement="role_supervisor_call7">
+        <dc:Bounds x="850" y="1230" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end7_di" bpmnElement="role_supervisor_end7">
+        <dc:Bounds x="1120" y="1256" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1299" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call8_di" bpmnElement="role_supervisor_call8">
+        <dc:Bounds x="850" y="1385" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end8_di" bpmnElement="role_supervisor_end8">
+        <dc:Bounds x="1120" y="1411" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1454" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call9_di" bpmnElement="role_supervisor_call9">
+        <dc:Bounds x="850" y="1540" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end9_di" bpmnElement="role_supervisor_end9">
+        <dc:Bounds x="1120" y="1566" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1609" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call10_di" bpmnElement="role_supervisor_call10">
+        <dc:Bounds x="850" y="1695" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end10_di" bpmnElement="role_supervisor_end10">
+        <dc:Bounds x="1120" y="1721" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1764" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call11_di" bpmnElement="role_supervisor_call11">
+        <dc:Bounds x="850" y="1850" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end11_di" bpmnElement="role_supervisor_end11">
+        <dc:Bounds x="1120" y="1876" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1919" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call12_di" bpmnElement="role_supervisor_call12">
+        <dc:Bounds x="850" y="2005" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end12_di" bpmnElement="role_supervisor_end12">
+        <dc:Bounds x="1120" y="2031" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2074" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call13_di" bpmnElement="role_supervisor_call13">
+        <dc:Bounds x="850" y="2160" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end13_di" bpmnElement="role_supervisor_end13">
+        <dc:Bounds x="1120" y="2186" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2229" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call14_di" bpmnElement="role_supervisor_call14">
+        <dc:Bounds x="850" y="2315" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end14_di" bpmnElement="role_supervisor_end14">
+        <dc:Bounds x="1120" y="2341" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2384" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call15_di" bpmnElement="role_supervisor_call15">
+        <dc:Bounds x="850" y="2470" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end15_di" bpmnElement="role_supervisor_end15">
+        <dc:Bounds x="1120" y="2496" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2539" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call16_di" bpmnElement="role_supervisor_call16">
+        <dc:Bounds x="850" y="2625" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end16_di" bpmnElement="role_supervisor_end16">
+        <dc:Bounds x="1120" y="2651" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2694" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call17_di" bpmnElement="role_supervisor_call17">
+        <dc:Bounds x="850" y="2780" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end17_di" bpmnElement="role_supervisor_end17">
+        <dc:Bounds x="1120" y="2806" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="2849" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call18_di" bpmnElement="role_supervisor_call18">
+        <dc:Bounds x="850" y="2935" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end18_di" bpmnElement="role_supervisor_end18">
+        <dc:Bounds x="1120" y="2961" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="3004" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_call19_di" bpmnElement="role_supervisor_call19">
+        <dc:Bounds x="850" y="3090" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="role_supervisor_end19_di" bpmnElement="role_supervisor_end19">
+        <dc:Bounds x="1120" y="3116" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="3159" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_0_di" bpmnElement="role_supervisor_Flow_0">
+        <di:waypoint x="238" y="1690.0"/>
+        <di:waypoint x="274.0" y="1690.0"/>
+        <di:waypoint x="274.0" y="1690.0"/>
+        <di:waypoint x="310" y="1690.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_1_di" bpmnElement="role_supervisor_Flow_1">
+        <di:waypoint x="488" y="1690.0"/>
+        <di:waypoint x="519.0" y="1690.0"/>
+        <di:waypoint x="519.0" y="1690.0"/>
+        <di:waypoint x="550" y="1690.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_2_di" bpmnElement="role_supervisor_Flow_2">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_3_di" bpmnElement="role_supervisor_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1120" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_4_di" bpmnElement="role_supervisor_Flow_4">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_5_di" bpmnElement="role_supervisor_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1120" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_6_di" bpmnElement="role_supervisor_Flow_6">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="500.0"/>
+        <di:waypoint x="850" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="445.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_7_di" bpmnElement="role_supervisor_Flow_7">
+        <di:waypoint x="1028" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1120" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_8_di" bpmnElement="role_supervisor_Flow_8">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="655.0"/>
+        <di:waypoint x="850" y="655.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="600.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_9_di" bpmnElement="role_supervisor_Flow_9">
+        <di:waypoint x="1028" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1120" y="655.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_10_di" bpmnElement="role_supervisor_Flow_10">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="810.0"/>
+        <di:waypoint x="850" y="810.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="755.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_11_di" bpmnElement="role_supervisor_Flow_11">
+        <di:waypoint x="1028" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1120" y="810.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_12_di" bpmnElement="role_supervisor_Flow_12">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="965.0"/>
+        <di:waypoint x="850" y="965.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="910.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_13_di" bpmnElement="role_supervisor_Flow_13">
+        <di:waypoint x="1028" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1120" y="965.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_14_di" bpmnElement="role_supervisor_Flow_14">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1120.0"/>
+        <di:waypoint x="850" y="1120.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1065.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_15_di" bpmnElement="role_supervisor_Flow_15">
+        <di:waypoint x="1028" y="1120.0"/>
+        <di:waypoint x="1074.0" y="1120.0"/>
+        <di:waypoint x="1074.0" y="1120.0"/>
+        <di:waypoint x="1120" y="1120.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_16_di" bpmnElement="role_supervisor_Flow_16">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1275.0"/>
+        <di:waypoint x="850" y="1275.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1220.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_17_di" bpmnElement="role_supervisor_Flow_17">
+        <di:waypoint x="1028" y="1275.0"/>
+        <di:waypoint x="1074.0" y="1275.0"/>
+        <di:waypoint x="1074.0" y="1275.0"/>
+        <di:waypoint x="1120" y="1275.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_18_di" bpmnElement="role_supervisor_Flow_18">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1430.0"/>
+        <di:waypoint x="850" y="1430.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1375.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_19_di" bpmnElement="role_supervisor_Flow_19">
+        <di:waypoint x="1028" y="1430.0"/>
+        <di:waypoint x="1074.0" y="1430.0"/>
+        <di:waypoint x="1074.0" y="1430.0"/>
+        <di:waypoint x="1120" y="1430.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_20_di" bpmnElement="role_supervisor_Flow_20">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1585.0"/>
+        <di:waypoint x="850" y="1585.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1530.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_21_di" bpmnElement="role_supervisor_Flow_21">
+        <di:waypoint x="1028" y="1585.0"/>
+        <di:waypoint x="1074.0" y="1585.0"/>
+        <di:waypoint x="1074.0" y="1585.0"/>
+        <di:waypoint x="1120" y="1585.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_22_di" bpmnElement="role_supervisor_Flow_22">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1740.0"/>
+        <di:waypoint x="850" y="1740.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1685.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_23_di" bpmnElement="role_supervisor_Flow_23">
+        <di:waypoint x="1028" y="1740.0"/>
+        <di:waypoint x="1074.0" y="1740.0"/>
+        <di:waypoint x="1074.0" y="1740.0"/>
+        <di:waypoint x="1120" y="1740.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_24_di" bpmnElement="role_supervisor_Flow_24">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="1895.0"/>
+        <di:waypoint x="850" y="1895.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1840.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_25_di" bpmnElement="role_supervisor_Flow_25">
+        <di:waypoint x="1028" y="1895.0"/>
+        <di:waypoint x="1074.0" y="1895.0"/>
+        <di:waypoint x="1074.0" y="1895.0"/>
+        <di:waypoint x="1120" y="1895.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_26_di" bpmnElement="role_supervisor_Flow_26">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2050.0"/>
+        <di:waypoint x="850" y="2050.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1995.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_27_di" bpmnElement="role_supervisor_Flow_27">
+        <di:waypoint x="1028" y="2050.0"/>
+        <di:waypoint x="1074.0" y="2050.0"/>
+        <di:waypoint x="1074.0" y="2050.0"/>
+        <di:waypoint x="1120" y="2050.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_28_di" bpmnElement="role_supervisor_Flow_28">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2205.0"/>
+        <di:waypoint x="850" y="2205.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2150.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_29_di" bpmnElement="role_supervisor_Flow_29">
+        <di:waypoint x="1028" y="2205.0"/>
+        <di:waypoint x="1074.0" y="2205.0"/>
+        <di:waypoint x="1074.0" y="2205.0"/>
+        <di:waypoint x="1120" y="2205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_30_di" bpmnElement="role_supervisor_Flow_30">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2360.0"/>
+        <di:waypoint x="850" y="2360.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2305.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_31_di" bpmnElement="role_supervisor_Flow_31">
+        <di:waypoint x="1028" y="2360.0"/>
+        <di:waypoint x="1074.0" y="2360.0"/>
+        <di:waypoint x="1074.0" y="2360.0"/>
+        <di:waypoint x="1120" y="2360.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_32_di" bpmnElement="role_supervisor_Flow_32">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2515.0"/>
+        <di:waypoint x="850" y="2515.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2460.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_33_di" bpmnElement="role_supervisor_Flow_33">
+        <di:waypoint x="1028" y="2515.0"/>
+        <di:waypoint x="1074.0" y="2515.0"/>
+        <di:waypoint x="1074.0" y="2515.0"/>
+        <di:waypoint x="1120" y="2515.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_34_di" bpmnElement="role_supervisor_Flow_34">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2670.0"/>
+        <di:waypoint x="850" y="2670.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2615.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_35_di" bpmnElement="role_supervisor_Flow_35">
+        <di:waypoint x="1028" y="2670.0"/>
+        <di:waypoint x="1074.0" y="2670.0"/>
+        <di:waypoint x="1074.0" y="2670.0"/>
+        <di:waypoint x="1120" y="2670.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_36_di" bpmnElement="role_supervisor_Flow_36">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2825.0"/>
+        <di:waypoint x="850" y="2825.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2770.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_37_di" bpmnElement="role_supervisor_Flow_37">
+        <di:waypoint x="1028" y="2825.0"/>
+        <di:waypoint x="1074.0" y="2825.0"/>
+        <di:waypoint x="1074.0" y="2825.0"/>
+        <di:waypoint x="1120" y="2825.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_38_di" bpmnElement="role_supervisor_Flow_38">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="2980.0"/>
+        <di:waypoint x="850" y="2980.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="2925.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_39_di" bpmnElement="role_supervisor_Flow_39">
+        <di:waypoint x="1028" y="2980.0"/>
+        <di:waypoint x="1074.0" y="2980.0"/>
+        <di:waypoint x="1074.0" y="2980.0"/>
+        <di:waypoint x="1120" y="2980.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_40_di" bpmnElement="role_supervisor_Flow_40">
+        <di:waypoint x="604" y="1690.0"/>
+        <di:waypoint x="645" y="1690.0"/>
+        <di:waypoint x="645" y="3135.0"/>
+        <di:waypoint x="850" y="3135.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="3080.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="role_supervisor_Flow_41_di" bpmnElement="role_supervisor_Flow_41">
+        <di:waypoint x="1028" y="3135.0"/>
+        <di:waypoint x="1074.0" y="3135.0"/>
+        <di:waypoint x="1074.0" y="3135.0"/>
+        <di:waypoint x="1120" y="3135.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

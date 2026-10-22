@@ -45,6 +45,7 @@ type Document struct {
 	ID          string  `json:"id"`
 	DocumentNo  string  `json:"documentNo"`
 	Status      string  `json:"status"`
+	CreatorID   string  `json:"creatorId,omitempty"`
 	PartyID     string  `json:"partyId,omitempty"`
 	SourceID    string  `json:"sourceId,omitempty"`
 	Currency    string  `json:"currency,omitempty"`
@@ -64,6 +65,7 @@ type Store interface {
 	VoidSupplierPayment(context.Context, string, string, string, string) (Document, error)
 	ListSupplierPayments(context.Context) ([]Document, error)
 	CreateSalesInvoice(context.Context, SalesInvoiceInput, string, string) (Document, error)
+	PostSalesInvoice(context.Context, string, int, string, string) (Document, error)
 	VoidSalesInvoice(context.Context, string, string, string, string) (Document, error)
 	ListSalesInvoices(context.Context) ([]Document, error)
 	CreateCustomerPayment(context.Context, PaymentInput, string, string) (Document, error)
@@ -104,6 +106,9 @@ func (s Service) ListSupplierPayments(c context.Context) ([]Document, error) {
 }
 func (s Service) CreateSalesInvoice(c context.Context, in SalesInvoiceInput, actor, request string) (Document, error) {
 	return s.store.CreateSalesInvoice(c, in, actor, request)
+}
+func (s Service) PostSalesInvoice(c context.Context, id string, version int, actor, request string) (Document, error) {
+	return s.store.PostSalesInvoice(c, id, version, actor, request)
 }
 func (s Service) VoidSalesInvoice(c context.Context, id, reason, actor, request string) (Document, error) {
 	return s.store.VoidSalesInvoice(c, id, reason, actor, request)

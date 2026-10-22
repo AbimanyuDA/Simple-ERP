@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-type Principal struct{ UserID, Role, CSRFHash string }
+type Principal struct{ UserID, Email, DisplayName, Role, CSRFHash string }
 type principalKey struct{}
 
 func WithPrincipal(ctx context.Context, p Principal) context.Context {

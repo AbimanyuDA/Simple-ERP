@@ -1,0 +1,316 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l1-o2c" xmlns:c0="https://simple-erp.local/bpm-haqi/l2-so" xmlns:c1="https://simple-erp.local/bpm-haqi/l2-delivery" xmlns:c2="https://simple-erp.local/bpm-haqi/l2-ar" xmlns:c3="https://simple-erp.local/bpm-haqi/l2-sales-correction" id="Definitions_l1_o2c" targetNamespace="https://simple-erp.local/bpm-haqi/l1-o2c" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-so" location="../level-2/l2-so.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-delivery" location="../level-2/l2-delivery.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-ar" location="../level-2/l2-ar.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-sales-correction" location="../level-2/l2-sales-correction.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l1_o2c" name="Order to Cash - pesanan sampai pelunasan" isExecutable="false">
+    <bpmn:documentation>Level 1; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Alur bisnis lintas request dan role; bukan satu transaksi DB. Koreksi dokumen yang sudah ada adalah jalur alternatif. Detail role berada pada child L2/L3; koreksi Finance melalui l2-finance-correction.
+backend/internal/sales/adapter/postgres/store.go :: CreateOrder / TransitionOrder / PostDelivery
+backend/internal/finance/adapter/postgres/store.go :: PostCustomerPayment</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l1_o2c">
+      <bpmn:lane id="Lane_l1_o2c_0" name="Staff atau Super Admin">
+        <bpmn:flowNodeRef>l1_o2c_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_mode</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_stage0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_stage1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_o2c_1" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l1_o2c_gate0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_exit0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_gate1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_exit1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_gate2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_exit2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_o2c_2" name="Staff dan Supervisor">
+        <bpmn:flowNodeRef>l1_o2c_stage2</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_o2c_3" name="Pengguna (semua role)">
+        <bpmn:flowNodeRef>l1_o2c_correction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_o2c_corrected</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l1_o2c_start" name="Kebutuhan dokumen">
+      <bpmn:outgoing>l1_o2c_Flow_9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="l1_o2c_mode" name="Proses baru atau koreksi?" default="l1_o2c_Flow_11" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_o2c_Flow_9</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>l1_o2c_Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l1_o2c_stage0" name="Order, review dan konfirmasi" calledElement="c0:Process_l2_so">
+      <bpmn:incoming>l1_o2c_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_0</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_o2c_gate0" name="SO APPROVED dan confirmed?" default="l1_o2c_Flow_1" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_o2c_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_1</bpmn:outgoing>
+      <bpmn:outgoing>l1_o2c_Flow_2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_o2c_exit0" name="Belum lanjut; periksa hasil aksi">
+      <bpmn:incoming>l1_o2c_Flow_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_o2c_stage1" name="Delivery penuh" calledElement="c1:Process_l2_delivery">
+      <bpmn:incoming>l1_o2c_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_o2c_gate1" name="SO DELIVERED?" default="l1_o2c_Flow_4" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_o2c_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l1_o2c_Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_o2c_exit1" name="Belum lanjut; periksa hasil aksi">
+      <bpmn:incoming>l1_o2c_Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_o2c_stage2" name="Invoice dan pembayaran customer" calledElement="c2:Process_l2_ar">
+      <bpmn:incoming>l1_o2c_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_6</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_o2c_gate2" name="SO COMPLETED?" default="l1_o2c_Flow_7" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_o2c_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>l1_o2c_Flow_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_o2c_exit2" name="Belum lanjut; periksa hasil aksi">
+      <bpmn:incoming>l1_o2c_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l1_o2c_end" name="Tahap selesai">
+      <bpmn:incoming>l1_o2c_Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_o2c_correction" name="Koreksi dokumen yang ada" calledElement="c3:Process_l2_sales_correction">
+      <bpmn:incoming>l1_o2c_Flow_11</bpmn:incoming>
+      <bpmn:outgoing>l1_o2c_Flow_12</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l1_o2c_corrected" name="Hasil koreksi diterima">
+      <bpmn:incoming>l1_o2c_Flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_0" sourceRef="l1_o2c_stage0" targetRef="l1_o2c_gate0"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_1" sourceRef="l1_o2c_gate0" targetRef="l1_o2c_exit0" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_2" sourceRef="l1_o2c_gate0" targetRef="l1_o2c_stage1" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_3" sourceRef="l1_o2c_stage1" targetRef="l1_o2c_gate1"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_4" sourceRef="l1_o2c_gate1" targetRef="l1_o2c_exit1" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_5" sourceRef="l1_o2c_gate1" targetRef="l1_o2c_stage2" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_6" sourceRef="l1_o2c_stage2" targetRef="l1_o2c_gate2"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_7" sourceRef="l1_o2c_gate2" targetRef="l1_o2c_exit2" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_8" sourceRef="l1_o2c_gate2" targetRef="l1_o2c_end" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_9" sourceRef="l1_o2c_start" targetRef="l1_o2c_mode"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_10" sourceRef="l1_o2c_mode" targetRef="l1_o2c_stage0" name="Proses baru">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Proses baru</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_11" sourceRef="l1_o2c_mode" targetRef="l1_o2c_correction" name="Koreksi"/>
+    <bpmn:sequenceFlow id="l1_o2c_Flow_12" sourceRef="l1_o2c_correction" targetRef="l1_o2c_corrected"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l1_o2c">
+    <bpmn:participant id="Pool_l1_o2c" name="Simple ERP" processRef="Process_l1_o2c"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l1_o2c">
+    <bpmndi:BPMNPlane id="Plane_l1_o2c" bpmnElement="Collab_l1_o2c">
+      <bpmndi:BPMNShape id="Pool_l1_o2c_di" bpmnElement="Pool_l1_o2c" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="3370" height="880"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_o2c_0_di" bpmnElement="Lane_l1_o2c_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_o2c_1_di" bpmnElement="Lane_l1_o2c_1" isHorizontal="true">
+        <dc:Bounds x="50" y="320.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_o2c_2_di" bpmnElement="Lane_l1_o2c_2" isHorizontal="true">
+        <dc:Bounds x="50" y="540.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_o2c_3_di" bpmnElement="Lane_l1_o2c_3" isHorizontal="true">
+        <dc:Bounds x="50" y="760.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_start_di" bpmnElement="l1_o2c_start">
+        <dc:Bounds x="200" y="171.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="214.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_mode_di" bpmnElement="l1_o2c_mode">
+        <dc:Bounds x="425" y="163.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="370" y="222.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_stage0_di" bpmnElement="l1_o2c_stage0">
+        <dc:Bounds x="650" y="145.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_gate0_di" bpmnElement="l1_o2c_gate0">
+        <dc:Bounds x="875" y="383.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="442.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_exit0_di" bpmnElement="l1_o2c_exit0">
+        <dc:Bounds x="1100" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1045" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_stage1_di" bpmnElement="l1_o2c_stage1">
+        <dc:Bounds x="1325" y="145.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_gate1_di" bpmnElement="l1_o2c_gate1">
+        <dc:Bounds x="1550" y="383.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1495" y="442.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_exit1_di" bpmnElement="l1_o2c_exit1">
+        <dc:Bounds x="1775" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1720" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_stage2_di" bpmnElement="l1_o2c_stage2">
+        <dc:Bounds x="2000" y="585.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_gate2_di" bpmnElement="l1_o2c_gate2">
+        <dc:Bounds x="2225" y="383.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2170" y="442.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_exit2_di" bpmnElement="l1_o2c_exit2">
+        <dc:Bounds x="2450" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2395" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_end_di" bpmnElement="l1_o2c_end">
+        <dc:Bounds x="2675" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2620" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_correction_di" bpmnElement="l1_o2c_correction">
+        <dc:Bounds x="2900" y="805.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_o2c_corrected_di" bpmnElement="l1_o2c_corrected">
+        <dc:Bounds x="3125" y="831.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3070" y="874.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_0_di" bpmnElement="l1_o2c_Flow_0">
+        <di:waypoint x="828" y="190.0"/>
+        <di:waypoint x="851.5" y="190.0"/>
+        <di:waypoint x="851.5" y="410.0"/>
+        <di:waypoint x="875" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_1_di" bpmnElement="l1_o2c_Flow_1">
+        <di:waypoint x="929" y="410.0"/>
+        <di:waypoint x="1014.5" y="410.0"/>
+        <di:waypoint x="1014.5" y="410.0"/>
+        <di:waypoint x="1100" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="930" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_2_di" bpmnElement="l1_o2c_Flow_2">
+        <di:waypoint x="929" y="410.0"/>
+        <di:waypoint x="947" y="410.0"/>
+        <di:waypoint x="947" y="508"/>
+        <di:waypoint x="1307" y="508"/>
+        <di:waypoint x="1307" y="190.0"/>
+        <di:waypoint x="1325" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1155" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_3_di" bpmnElement="l1_o2c_Flow_3">
+        <di:waypoint x="1503" y="190.0"/>
+        <di:waypoint x="1526.5" y="190.0"/>
+        <di:waypoint x="1526.5" y="410.0"/>
+        <di:waypoint x="1550" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_4_di" bpmnElement="l1_o2c_Flow_4">
+        <di:waypoint x="1604" y="410.0"/>
+        <di:waypoint x="1689.5" y="410.0"/>
+        <di:waypoint x="1689.5" y="410.0"/>
+        <di:waypoint x="1775" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_5_di" bpmnElement="l1_o2c_Flow_5">
+        <di:waypoint x="1604" y="410.0"/>
+        <di:waypoint x="1622" y="410.0"/>
+        <di:waypoint x="1622" y="499"/>
+        <di:waypoint x="1982" y="499"/>
+        <di:waypoint x="1982" y="630.0"/>
+        <di:waypoint x="2000" y="630.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1830" y="575.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_6_di" bpmnElement="l1_o2c_Flow_6">
+        <di:waypoint x="2178" y="630.0"/>
+        <di:waypoint x="2201.5" y="630.0"/>
+        <di:waypoint x="2201.5" y="410.0"/>
+        <di:waypoint x="2225" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_7_di" bpmnElement="l1_o2c_Flow_7">
+        <di:waypoint x="2279" y="410.0"/>
+        <di:waypoint x="2364.5" y="410.0"/>
+        <di:waypoint x="2364.5" y="410.0"/>
+        <di:waypoint x="2450" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2280" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_8_di" bpmnElement="l1_o2c_Flow_8">
+        <di:waypoint x="2279" y="410.0"/>
+        <di:waypoint x="2297" y="410.0"/>
+        <di:waypoint x="2297" y="490"/>
+        <di:waypoint x="2657" y="490"/>
+        <di:waypoint x="2657" y="410.0"/>
+        <di:waypoint x="2675" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2505" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_9_di" bpmnElement="l1_o2c_Flow_9">
+        <di:waypoint x="238" y="190.0"/>
+        <di:waypoint x="331.5" y="190.0"/>
+        <di:waypoint x="331.5" y="190.0"/>
+        <di:waypoint x="425" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_10_di" bpmnElement="l1_o2c_Flow_10">
+        <di:waypoint x="479" y="190.0"/>
+        <di:waypoint x="564.5" y="190.0"/>
+        <di:waypoint x="564.5" y="190.0"/>
+        <di:waypoint x="650" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="480" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_11_di" bpmnElement="l1_o2c_Flow_11">
+        <di:waypoint x="479" y="190.0"/>
+        <di:waypoint x="497" y="190.0"/>
+        <di:waypoint x="497" y="297"/>
+        <di:waypoint x="2882" y="297"/>
+        <di:waypoint x="2882" y="850.0"/>
+        <di:waypoint x="2900" y="850.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2730" y="795.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_o2c_Flow_12_di" bpmnElement="l1_o2c_Flow_12">
+        <di:waypoint x="3078" y="850.0"/>
+        <di:waypoint x="3101.5" y="850.0"/>
+        <di:waypoint x="3101.5" y="850.0"/>
+        <di:waypoint x="3125" y="850.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

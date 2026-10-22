@@ -7,12 +7,18 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	authapp "github.com/simple-erp/backend/internal/auth/application"
+	authdomain "github.com/simple-erp/backend/internal/auth/domain"
 	"github.com/simple-erp/backend/internal/finance/application"
 )
 
 type Handler struct{ Service application.Service }
 
 func (h Handler) Register(r chi.Router) {
+	h.RegisterSupplier(r)
+	h.RegisterSales(r)
+}
+
+func (h Handler) RegisterSupplier(r chi.Router) {
 	r.Get("/supplier-invoices", h.listSupplierInvoices)
 	r.Post("/supplier-invoices", h.createSupplierInvoice)
 	r.Post("/supplier-invoices/{id}/match", h.matchSupplierInvoice)
@@ -22,8 +28,12 @@ func (h Handler) Register(r chi.Router) {
 	r.Post("/supplier-payments", h.createSupplierPayment)
 	r.Post("/supplier-payments/{id}/post", h.postSupplierPayment)
 	r.Post("/supplier-payments/{id}/void", h.voidSupplierPayment)
+}
+
+func (h Handler) RegisterSales(r chi.Router) {
 	r.Get("/sales-invoices", h.listSalesInvoices)
 	r.Post("/sales-orders/{id}/sales-invoice", h.createSalesInvoice)
+	r.Post("/sales-invoices/{id}/post", h.postSalesInvoice)
 	r.Post("/sales-invoices/{id}/void", h.voidSalesInvoice)
 	r.Get("/customer-payments", h.listCustomerPayments)
 	r.Post("/customer-payments", h.createCustomerPayment)
@@ -34,6 +44,24 @@ func (h Handler) Register(r chi.Router) {
 func actor(r *http.Request) string {
 	principal, _ := authapp.PrincipalFrom(r.Context())
 	return principal.UserID
+}
+func role(r *http.Request) string {
+	principal, _ := authapp.PrincipalFrom(r.Context())
+	return principal.Role
+}
+func requireCreate(w http.ResponseWriter, r *http.Request) bool {
+	if authdomain.CanCreate(role(r)) {
+		return true
+	}
+	respond(w, http.StatusForbidden, map[string]string{"message": "Akses ditolak."})
+	return false
+}
+func requireApprove(w http.ResponseWriter, r *http.Request) bool {
+	if authdomain.CanApprove(role(r)) {
+		return true
+	}
+	respond(w, http.StatusForbidden, map[string]string{"message": "Akses ditolak."})
+	return false
 }
 func requestID(r *http.Request) string { return middleware.GetReqID(r.Context()) }
 func decode(w http.ResponseWriter, r *http.Request, target any) bool {
@@ -85,6 +113,9 @@ func (h Handler) listSupplierInvoices(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": documents})
 }
 func (h Handler) createSupplierInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireCreate(w, r) {
+		return
+	}
 	var input application.SupplierInvoiceInput
 	if !decode(w, r, &input) {
 		return
@@ -93,10 +124,16 @@ func (h Handler) createSupplierInvoice(w http.ResponseWriter, r *http.Request) {
 	result(w, document, err, 201)
 }
 func (h Handler) matchSupplierInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	document, err := h.Service.MatchSupplierInvoice(r.Context(), chi.URLParam(r, "id"), actor(r), requestID(r))
 	result(w, document, err, 200)
 }
 func (h Handler) resolveSupplierInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireCreate(w, r) {
+		return
+	}
 	var input struct {
 		Lines []application.InvoiceLineInput `json:"lines"`
 	}
@@ -107,6 +144,9 @@ func (h Handler) resolveSupplierInvoice(w http.ResponseWriter, r *http.Request) 
 	result(w, document, err, 200)
 }
 func (h Handler) voidSupplierInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := reason(w, r)
 	if !ok {
 		return
@@ -123,6 +163,9 @@ func (h Handler) listSupplierPayments(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": documents})
 }
 func (h Handler) createSupplierPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireCreate(w, r) {
+		return
+	}
 	var input application.PaymentInput
 	if !decode(w, r, &input) {
 		return
@@ -131,6 +174,9 @@ func (h Handler) createSupplierPayment(w http.ResponseWriter, r *http.Request) {
 	result(w, document, err, 201)
 }
 func (h Handler) postSupplierPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := version(w, r)
 	if !ok {
 		return
@@ -139,6 +185,9 @@ func (h Handler) postSupplierPayment(w http.ResponseWriter, r *http.Request) {
 	result(w, document, err, 200)
 }
 func (h Handler) voidSupplierPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := reason(w, r)
 	if !ok {
 		return
@@ -155,6 +204,9 @@ func (h Handler) listSalesInvoices(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": documents})
 }
 func (h Handler) createSalesInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireCreate(w, r) {
+		return
+	}
 	var input application.SalesInvoiceInput
 	if !decode(w, r, &input) {
 		return
@@ -163,7 +215,21 @@ func (h Handler) createSalesInvoice(w http.ResponseWriter, r *http.Request) {
 	document, err := h.Service.CreateSalesInvoice(r.Context(), input, actor(r), requestID(r))
 	result(w, document, err, 201)
 }
+func (h Handler) postSalesInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
+	value, ok := version(w, r)
+	if !ok {
+		return
+	}
+	document, err := h.Service.PostSalesInvoice(r.Context(), chi.URLParam(r, "id"), value, actor(r), requestID(r))
+	result(w, document, err, 200)
+}
 func (h Handler) voidSalesInvoice(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := reason(w, r)
 	if !ok {
 		return
@@ -180,6 +246,9 @@ func (h Handler) listCustomerPayments(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": documents})
 }
 func (h Handler) createCustomerPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireCreate(w, r) {
+		return
+	}
 	var input application.PaymentInput
 	if !decode(w, r, &input) {
 		return
@@ -188,6 +257,9 @@ func (h Handler) createCustomerPayment(w http.ResponseWriter, r *http.Request) {
 	result(w, document, err, 201)
 }
 func (h Handler) postCustomerPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := version(w, r)
 	if !ok {
 		return
@@ -196,6 +268,9 @@ func (h Handler) postCustomerPayment(w http.ResponseWriter, r *http.Request) {
 	result(w, document, err, 200)
 }
 func (h Handler) voidCustomerPayment(w http.ResponseWriter, r *http.Request) {
+	if !requireApprove(w, r) {
+		return
+	}
 	value, ok := reason(w, r)
 	if !ok {
 		return

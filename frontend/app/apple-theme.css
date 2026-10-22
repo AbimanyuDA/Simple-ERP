@@ -1,0 +1,76 @@
+.operation-form,
+.operation-result,
+.audit-search,
+.data-workspace .operation-result {
+  background: var(--surface-subtle);
+}
+
+.operation-form input,
+.operation-card input,
+.operation-form select,
+.operation-card select,
+.finance-forms input,
+.void-reason input,
+.audit-search input {
+  border-color: var(--field-line);
+}
+
+.operation-card,
+.operation-result,
+.finance-forms form,
+.report-panel,
+.settings-card {
+  border-color: var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.operation-grid,
+.finance-forms {
+  gap: 12px;
+}
+
+.row-actions button,
+.quiet-link {
+  border-color: var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+}
+
+.row-actions .button {
+  background: var(--blue);
+}
+
+.status-chip {
+  background: #e8f2ff;
+  color: #0066cc;
+  border-radius: 7px;
+}
+
+.finance-guidance {
+  background: #fff8e7;
+  border-bottom-color: #f1dfae;
+  color: #6e5312;
+}
+
+.positive { color: #008a3e; }
+.negative { color: #b42318; }
+
+.report-panel,
+.data-workspace {
+  box-shadow: none;
+}
+
+.attention-grid {
+  gap: 0;
+  background: var(--line);
+}
+
+.attention-grid article {
+  padding: 22px;
+}
+
+.dashboard-actions .button,
+.quiet-link {
+  font-weight: 600;
+}

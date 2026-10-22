@@ -1,0 +1,238 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-p2p-correction" xmlns:c0="https://simple-erp.local/bpm-haqi/l2-purchase-correction" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-ap-resolve" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-ap-match" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-ap-payment-void" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-ap-invoice-void" id="Definitions_l2_p2p_correction" targetNamespace="https://simple-erp.local/bpm-haqi/l2-p2p-correction" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-purchase-correction" location="l2-purchase-correction.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-resolve" location="../level-3-p2p/l3-ap-resolve.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-match" location="../level-3-p2p/l3-ap-match.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-payment-void" location="../level-3-p2p/l3-ap-payment-void.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-invoice-void" location="../level-3-p2p/l3-ap-invoice-void.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_p2p_correction" name="Koreksi khusus Procure to Pay" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Katalog alternatif, bukan urutan wajib. Reversal GR perlu invoice non-VOID sudah tidak ada; invoice beralokasi dari payment POSTED memerlukan void payment lebih dahulu. Role final tetap mengikuti guard L3/API.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_p2p_correction">
+      <bpmn:lane id="Lane_l2_p2p_correction_0" name="Staff atau Supervisor sesuai aksi">
+        <bpmn:flowNodeRef>l2_p2p_correction_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_end</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_call2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_call3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_p2p_correction_call4</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_p2p_correction_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>l2_p2p_correction_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="l2_p2p_correction_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>l2_p2p_correction_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="l2_p2p_correction_branch" name="Kebutuhan apa?" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_p2p_correction_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_p2p_correction_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l2_p2p_correction_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_p2p_correction_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l2_p2p_correction_Flow_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="l2_p2p_correction_merge" name="Gabung pilihan" gatewayDirection="Converging">
+      <bpmn:incoming>l2_p2p_correction_Flow_3</bpmn:incoming>
+      <bpmn:incoming>l2_p2p_correction_Flow_5</bpmn:incoming>
+      <bpmn:incoming>l2_p2p_correction_Flow_7</bpmn:incoming>
+      <bpmn:incoming>l2_p2p_correction_Flow_9</bpmn:incoming>
+      <bpmn:incoming>l2_p2p_correction_Flow_11</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_12</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_p2p_correction_end" name="Satu koreksi diproses">
+      <bpmn:incoming>l2_p2p_correction_Flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_p2p_correction_call0" name="Koreksi PR, PO, atau GR" calledElement="c0:Process_l2_purchase_correction">
+      <bpmn:incoming>l2_p2p_correction_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="l2_p2p_correction_call1" name="Resolve mismatch invoice" calledElement="c1:Process_l3_ap_resolve">
+      <bpmn:incoming>l2_p2p_correction_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="l2_p2p_correction_call2" name="Match ulang invoice" calledElement="c2:Process_l3_ap_match">
+      <bpmn:incoming>l2_p2p_correction_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="l2_p2p_correction_call3" name="Void payment supplier" calledElement="c3:Process_l3_ap_payment_void">
+      <bpmn:incoming>l2_p2p_correction_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="l2_p2p_correction_call4" name="Void invoice supplier" calledElement="c4:Process_l3_ap_invoice_void">
+      <bpmn:incoming>l2_p2p_correction_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l2_p2p_correction_Flow_11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_0" sourceRef="l2_p2p_correction_start" targetRef="l2_p2p_correction_choose"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_1" sourceRef="l2_p2p_correction_choose" targetRef="l2_p2p_correction_branch"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_2" sourceRef="l2_p2p_correction_branch" targetRef="l2_p2p_correction_call0" name="Koreksi PR, PO, atau GR">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Koreksi PR, PO, atau GR</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_3" sourceRef="l2_p2p_correction_call0" targetRef="l2_p2p_correction_merge"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_4" sourceRef="l2_p2p_correction_branch" targetRef="l2_p2p_correction_call1" name="Resolve mismatch invoice">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Resolve mismatch invoice</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_5" sourceRef="l2_p2p_correction_call1" targetRef="l2_p2p_correction_merge"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_6" sourceRef="l2_p2p_correction_branch" targetRef="l2_p2p_correction_call2" name="Match ulang invoice">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Match ulang invoice</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_7" sourceRef="l2_p2p_correction_call2" targetRef="l2_p2p_correction_merge"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_8" sourceRef="l2_p2p_correction_branch" targetRef="l2_p2p_correction_call3" name="Void payment supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Void payment supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_9" sourceRef="l2_p2p_correction_call3" targetRef="l2_p2p_correction_merge"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_10" sourceRef="l2_p2p_correction_branch" targetRef="l2_p2p_correction_call4" name="Void invoice supplier">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Void invoice supplier</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_11" sourceRef="l2_p2p_correction_call4" targetRef="l2_p2p_correction_merge"/>
+    <bpmn:sequenceFlow id="l2_p2p_correction_Flow_12" sourceRef="l2_p2p_correction_merge" targetRef="l2_p2p_correction_end"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_p2p_correction">
+    <bpmn:participant id="Pool_l2_p2p_correction" name="Simple ERP" processRef="Process_l2_p2p_correction"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_p2p_correction">
+    <bpmndi:BPMNPlane id="Plane_l2_p2p_correction" bpmnElement="Collab_l2_p2p_correction">
+      <bpmndi:BPMNShape id="Pool_l2_p2p_correction_di" bpmnElement="Pool_l2_p2p_correction" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1440" height="855"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_p2p_correction_0_di" bpmnElement="Lane_l2_p2p_correction_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1410" height="855.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_start_di" bpmnElement="l2_p2p_correction_start">
+        <dc:Bounds x="200" y="508.5" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="551.5" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_choose_di" bpmnElement="l2_p2p_correction_choose">
+        <dc:Bounds x="310" y="482.5" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_branch_di" bpmnElement="l2_p2p_correction_branch">
+        <dc:Bounds x="550" y="500.5" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="559.5" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_merge_di" bpmnElement="l2_p2p_correction_merge">
+        <dc:Bounds x="1160" y="500.5" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1105" y="559.5" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_end_di" bpmnElement="l2_p2p_correction_end">
+        <dc:Bounds x="1320" y="508.5" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1265" y="551.5" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_call0_di" bpmnElement="l2_p2p_correction_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_call1_di" bpmnElement="l2_p2p_correction_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_call2_di" bpmnElement="l2_p2p_correction_call2">
+        <dc:Bounds x="850" y="455" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_call3_di" bpmnElement="l2_p2p_correction_call3">
+        <dc:Bounds x="850" y="610" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_p2p_correction_call4_di" bpmnElement="l2_p2p_correction_call4">
+        <dc:Bounds x="850" y="765" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_0_di" bpmnElement="l2_p2p_correction_Flow_0">
+        <di:waypoint x="238" y="527.5"/>
+        <di:waypoint x="274.0" y="527.5"/>
+        <di:waypoint x="274.0" y="527.5"/>
+        <di:waypoint x="310" y="527.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_1_di" bpmnElement="l2_p2p_correction_Flow_1">
+        <di:waypoint x="488" y="527.5"/>
+        <di:waypoint x="519.0" y="527.5"/>
+        <di:waypoint x="519.0" y="527.5"/>
+        <di:waypoint x="550" y="527.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_2_di" bpmnElement="l2_p2p_correction_Flow_2">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_3_di" bpmnElement="l2_p2p_correction_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1083" y="190.0"/>
+        <di:waypoint x="1187" y="500.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_4_di" bpmnElement="l2_p2p_correction_Flow_4">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_5_di" bpmnElement="l2_p2p_correction_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1083" y="345.0"/>
+        <di:waypoint x="1172" y="512.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_6_di" bpmnElement="l2_p2p_correction_Flow_6">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="500.0"/>
+        <di:waypoint x="850" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="445.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_7_di" bpmnElement="l2_p2p_correction_Flow_7">
+        <di:waypoint x="1028" y="500.0"/>
+        <di:waypoint x="1083" y="500.0"/>
+        <di:waypoint x="1160" y="527.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_8_di" bpmnElement="l2_p2p_correction_Flow_8">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="655.0"/>
+        <di:waypoint x="850" y="655.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="600.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_9_di" bpmnElement="l2_p2p_correction_Flow_9">
+        <di:waypoint x="1028" y="655.0"/>
+        <di:waypoint x="1083" y="655.0"/>
+        <di:waypoint x="1172" y="542.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_10_di" bpmnElement="l2_p2p_correction_Flow_10">
+        <di:waypoint x="604" y="527.5"/>
+        <di:waypoint x="645" y="527.5"/>
+        <di:waypoint x="645" y="810.0"/>
+        <di:waypoint x="850" y="810.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="755.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_11_di" bpmnElement="l2_p2p_correction_Flow_11">
+        <di:waypoint x="1028" y="810.0"/>
+        <di:waypoint x="1083" y="810.0"/>
+        <di:waypoint x="1187" y="554.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_p2p_correction_Flow_12_di" bpmnElement="l2_p2p_correction_Flow_12">
+        <di:waypoint x="1214" y="527.5"/>
+        <di:waypoint x="1267.0" y="527.5"/>
+        <di:waypoint x="1267.0" y="527.5"/>
+        <di:waypoint x="1320" y="527.5"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

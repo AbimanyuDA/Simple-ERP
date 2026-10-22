@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-delivery" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-delivery-create" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-delivery-post" id="Definitions_l2_delivery" targetNamespace="https://simple-erp.local/bpm-haqi/l2-delivery" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-delivery-create" location="../level-3/l3-delivery-create.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-delivery-post" location="../level-3/l3-delivery-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_delivery" name="Pengiriman barang dan pencatatan stok keluar" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Ulangi untuk sisa bila SO PARTIALLY_DELIVERED. Invoice hanya setelah SO DELIVERED.
+backend/internal/sales/adapter/postgres/store.go :: CreateDelivery / PostDelivery</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_delivery">
+      <bpmn:lane id="Lane_l2_delivery_0" name="Staff atau Super Admin">
+        <bpmn:flowNodeRef>l2_delivery_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_stage0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_stage1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l2_delivery_1" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l2_delivery_gate0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_exit0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_gate1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_exit1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_delivery_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_delivery_start" name="Kebutuhan dokumen">
+      <bpmn:outgoing>l2_delivery_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="l2_delivery_stage0" name="Buat delivery untuk SO confirmed" calledElement="c0:Process_l3_delivery_create">
+      <bpmn:incoming>l2_delivery_Flow_0</bpmn:incoming>
+      <bpmn:incoming>l2_delivery_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l2_delivery_Flow_1</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_delivery_gate0" name="Delivery DRAFT?" default="l2_delivery_Flow_2" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_delivery_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_delivery_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_delivery_Flow_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_delivery_exit0" name="Belum lanjut; periksa hasil aksi">
+      <bpmn:incoming>l2_delivery_Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_delivery_stage1" name="Post delivery" calledElement="c1:Process_l3_delivery_post">
+      <bpmn:incoming>l2_delivery_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>l2_delivery_Flow_4</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_delivery_gate1" name="Hasil posting delivery dan SO?" default="l2_delivery_Flow_7" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_delivery_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_delivery_Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>l2_delivery_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_delivery_Flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_delivery_exit1" name="Belum lanjut; periksa hasil aksi">
+      <bpmn:incoming>l2_delivery_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l2_delivery_end" name="Tahap selesai">
+      <bpmn:incoming>l2_delivery_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_0" sourceRef="l2_delivery_start" targetRef="l2_delivery_stage0"/>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_1" sourceRef="l2_delivery_stage0" targetRef="l2_delivery_gate0"/>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_2" sourceRef="l2_delivery_gate0" targetRef="l2_delivery_exit0" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_3" sourceRef="l2_delivery_gate0" targetRef="l2_delivery_stage1" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_4" sourceRef="l2_delivery_stage1" targetRef="l2_delivery_gate1"/>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_5" sourceRef="l2_delivery_gate1" targetRef="l2_delivery_end" name="SO DELIVERED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">SO DELIVERED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_6" sourceRef="l2_delivery_gate1" targetRef="l2_delivery_stage0" name="SO PARTIALLY_DELIVERED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">SO PARTIALLY_DELIVERED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_delivery_Flow_7" sourceRef="l2_delivery_gate1" targetRef="l2_delivery_exit1" name="Delivery tidak POSTED"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_delivery">
+    <bpmn:participant id="Pool_l2_delivery" name="Simple ERP" processRef="Process_l2_delivery"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_delivery">
+    <bpmndi:BPMNPlane id="Plane_l2_delivery" bpmnElement="Collab_l2_delivery">
+      <bpmndi:BPMNShape id="Pool_l2_delivery_di" bpmnElement="Pool_l2_delivery" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1510" height="690"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_delivery_0_di" bpmnElement="Lane_l2_delivery_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1480" height="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_delivery_1_di" bpmnElement="Lane_l2_delivery_1" isHorizontal="true">
+        <dc:Bounds x="50" y="445.0" width="1480" height="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_start_di" bpmnElement="l2_delivery_start">
+        <dc:Bounds x="85" y="181.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="224.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_stage0_di" bpmnElement="l2_delivery_stage0">
+        <dc:Bounds x="200" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_gate0_di" bpmnElement="l2_delivery_gate0">
+        <dc:Bounds x="445" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="390" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_exit0_di" bpmnElement="l2_delivery_exit0">
+        <dc:Bounds x="595" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_stage1_di" bpmnElement="l2_delivery_stage1">
+        <dc:Bounds x="750" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_gate1_di" bpmnElement="l2_delivery_gate1">
+        <dc:Bounds x="995" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="940" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_exit1_di" bpmnElement="l2_delivery_exit1">
+        <dc:Bounds x="1145" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1090" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_delivery_end_di" bpmnElement="l2_delivery_end">
+        <dc:Bounds x="1240" y="481.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1185" y="524.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_0_di" bpmnElement="l2_delivery_Flow_0">
+        <di:waypoint x="123" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="200" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_1_di" bpmnElement="l2_delivery_Flow_1">
+        <di:waypoint x="378" y="200.0"/>
+        <di:waypoint x="411.5" y="200.0"/>
+        <di:waypoint x="411.5" y="500.0"/>
+        <di:waypoint x="445" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_2_di" bpmnElement="l2_delivery_Flow_2">
+        <di:waypoint x="499" y="500.0"/>
+        <di:waypoint x="547.0" y="500.0"/>
+        <di:waypoint x="547.0" y="615.0"/>
+        <di:waypoint x="595" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="529" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_3_di" bpmnElement="l2_delivery_Flow_3">
+        <di:waypoint x="499" y="500.0"/>
+        <di:waypoint x="624.5" y="500.0"/>
+        <di:waypoint x="624.5" y="200.0"/>
+        <di:waypoint x="750" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="549.5" y="117.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_4_di" bpmnElement="l2_delivery_Flow_4">
+        <di:waypoint x="928" y="200.0"/>
+        <di:waypoint x="961.5" y="200.0"/>
+        <di:waypoint x="961.5" y="500.0"/>
+        <di:waypoint x="995" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_5_di" bpmnElement="l2_delivery_Flow_5">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1144.5" y="500.0"/>
+        <di:waypoint x="1144.5" y="500.0"/>
+        <di:waypoint x="1240" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1079" y="463.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_6_di" bpmnElement="l2_delivery_Flow_6">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1069" y="500.0"/>
+        <di:waypoint x="1069" y="725"/>
+        <di:waypoint x="180" y="725"/>
+        <di:waypoint x="180" y="200.0"/>
+        <di:waypoint x="200" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="874" y="685" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_delivery_Flow_7_di" bpmnElement="l2_delivery_Flow_7">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1097.0" y="500.0"/>
+        <di:waypoint x="1097.0" y="615.0"/>
+        <di:waypoint x="1145" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1079" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

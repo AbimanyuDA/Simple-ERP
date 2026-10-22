@@ -1,0 +1,318 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-po-gr" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-po-convert" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-po-issue" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-gr-create" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-gr-post" id="Definitions_l2_po_gr" targetNamespace="https://simple-erp.local/bpm-haqi/l2-po-gr" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-po-convert" location="../level-3-p2p/l3-po-convert.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-po-issue" location="../level-3-p2p/l3-po-issue.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-gr-create" location="../level-3-p2p/l3-gr-create.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-gr-post" location="../level-3-p2p/l3-gr-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_po_gr" name="Purchase Order dan penerimaan barang" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Satu iterasi penerimaan. Jika PO PARTIALLY_RECEIVED, buat dan post GR berikutnya; hanya PO RECEIVED dapat dibuatkan invoice.
+backend/internal/purchasing/adapter/postgres/store.go :: ConvertToOrder / IssueOrder / CreateReceipt / PostReceipt</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_po_gr">
+      <bpmn:lane id="Lane_l2_po_gr_0" name="Staff atau Super Admin">
+        <bpmn:flowNodeRef>l2_po_gr_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_stage0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_stage2</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l2_po_gr_1" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l2_po_gr_gate0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_exit0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_gate1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_exit1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_gate2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_exit2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_gate3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_exit3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l2_po_gr_2" name="Supervisor atau Super Admin">
+        <bpmn:flowNodeRef>l2_po_gr_stage1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_po_gr_stage3</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_po_gr_start" name="Kebutuhan dokumen">
+      <bpmn:outgoing>l2_po_gr_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="l2_po_gr_stage0" name="Konversi PR APPROVED" calledElement="c0:Process_l3_po_convert">
+      <bpmn:incoming>l2_po_gr_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_1</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_po_gr_gate0" name="PO DRAFT berhasil?" default="l2_po_gr_Flow_2" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_po_gr_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_po_gr_Flow_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_po_gr_exit0" name="PO belum dibuat">
+      <bpmn:incoming>l2_po_gr_Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_po_gr_stage1" name="Supervisor issue PO" calledElement="c1:Process_l3_po_issue">
+      <bpmn:incoming>l2_po_gr_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_4</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_po_gr_gate1" name="PO ISSUED?" default="l2_po_gr_Flow_5" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_po_gr_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>l2_po_gr_Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_po_gr_exit1" name="PO belum issued">
+      <bpmn:incoming>l2_po_gr_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_po_gr_stage2" name="Catat penerimaan" calledElement="c2:Process_l3_gr_create">
+      <bpmn:incoming>l2_po_gr_Flow_6</bpmn:incoming>
+      <bpmn:incoming>l2_po_gr_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_po_gr_gate2" name="GR DRAFT berhasil?" default="l2_po_gr_Flow_8" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_po_gr_Flow_7</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l2_po_gr_Flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_po_gr_exit2" name="GR belum dicatat">
+      <bpmn:incoming>l2_po_gr_Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_po_gr_stage3" name="Supervisor post penerimaan" calledElement="c3:Process_l3_gr_post">
+      <bpmn:incoming>l2_po_gr_Flow_9</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_10</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_po_gr_gate3" name="Hasil posting GR dan PO?" default="l2_po_gr_Flow_13" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_po_gr_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l2_po_gr_Flow_11</bpmn:outgoing>
+      <bpmn:outgoing>l2_po_gr_Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>l2_po_gr_Flow_13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_po_gr_exit3" name="GR belum posted">
+      <bpmn:incoming>l2_po_gr_Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l2_po_gr_end" name="Tahap selesai">
+      <bpmn:incoming>l2_po_gr_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_0" sourceRef="l2_po_gr_start" targetRef="l2_po_gr_stage0"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_1" sourceRef="l2_po_gr_stage0" targetRef="l2_po_gr_gate0"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_2" sourceRef="l2_po_gr_gate0" targetRef="l2_po_gr_exit0" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_3" sourceRef="l2_po_gr_gate0" targetRef="l2_po_gr_stage1" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_4" sourceRef="l2_po_gr_stage1" targetRef="l2_po_gr_gate1"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_5" sourceRef="l2_po_gr_gate1" targetRef="l2_po_gr_exit1" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_6" sourceRef="l2_po_gr_gate1" targetRef="l2_po_gr_stage2" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_7" sourceRef="l2_po_gr_stage2" targetRef="l2_po_gr_gate2"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_8" sourceRef="l2_po_gr_gate2" targetRef="l2_po_gr_exit2" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_9" sourceRef="l2_po_gr_gate2" targetRef="l2_po_gr_stage3" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_10" sourceRef="l2_po_gr_stage3" targetRef="l2_po_gr_gate3"/>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_11" sourceRef="l2_po_gr_gate3" targetRef="l2_po_gr_end" name="PO RECEIVED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">PO RECEIVED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_12" sourceRef="l2_po_gr_gate3" targetRef="l2_po_gr_stage2" name="PO PARTIALLY_RECEIVED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">PO PARTIALLY_RECEIVED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_po_gr_Flow_13" sourceRef="l2_po_gr_gate3" targetRef="l2_po_gr_exit3" name="GR tidak POSTED"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_po_gr">
+    <bpmn:participant id="Pool_l2_po_gr" name="Simple ERP" processRef="Process_l2_po_gr"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_po_gr">
+    <bpmndi:BPMNPlane id="Plane_l2_po_gr" bpmnElement="Collab_l2_po_gr">
+      <bpmndi:BPMNShape id="Pool_l2_po_gr_di" bpmnElement="Pool_l2_po_gr" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="2610" height="990"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_po_gr_0_di" bpmnElement="Lane_l2_po_gr_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_po_gr_1_di" bpmnElement="Lane_l2_po_gr_1" isHorizontal="true">
+        <dc:Bounds x="50" y="430.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_po_gr_2_di" bpmnElement="Lane_l2_po_gr_2" isHorizontal="true">
+        <dc:Bounds x="50" y="760.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_start_di" bpmnElement="l2_po_gr_start">
+        <dc:Bounds x="85" y="181.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="224.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_stage0_di" bpmnElement="l2_po_gr_stage0">
+        <dc:Bounds x="200" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_gate0_di" bpmnElement="l2_po_gr_gate0">
+        <dc:Bounds x="445" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="390" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_exit0_di" bpmnElement="l2_po_gr_exit0">
+        <dc:Bounds x="595" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_stage1_di" bpmnElement="l2_po_gr_stage1">
+        <dc:Bounds x="750" y="755.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_gate1_di" bpmnElement="l2_po_gr_gate1">
+        <dc:Bounds x="995" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="940" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_exit1_di" bpmnElement="l2_po_gr_exit1">
+        <dc:Bounds x="1145" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1090" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_stage2_di" bpmnElement="l2_po_gr_stage2">
+        <dc:Bounds x="1300" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_gate2_di" bpmnElement="l2_po_gr_gate2">
+        <dc:Bounds x="1545" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1490" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_exit2_di" bpmnElement="l2_po_gr_exit2">
+        <dc:Bounds x="1695" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1640" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_stage3_di" bpmnElement="l2_po_gr_stage3">
+        <dc:Bounds x="1850" y="755.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_gate3_di" bpmnElement="l2_po_gr_gate3">
+        <dc:Bounds x="2095" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2040" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_exit3_di" bpmnElement="l2_po_gr_exit3">
+        <dc:Bounds x="2245" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2190" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_po_gr_end_di" bpmnElement="l2_po_gr_end">
+        <dc:Bounds x="2340" y="481.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2285" y="524.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_0_di" bpmnElement="l2_po_gr_Flow_0">
+        <di:waypoint x="123" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="200" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_1_di" bpmnElement="l2_po_gr_Flow_1">
+        <di:waypoint x="378" y="200.0"/>
+        <di:waypoint x="411.5" y="200.0"/>
+        <di:waypoint x="411.5" y="500.0"/>
+        <di:waypoint x="445" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_2_di" bpmnElement="l2_po_gr_Flow_2">
+        <di:waypoint x="485.5" y="513.5"/>
+        <di:waypoint x="540.25" y="513.5"/>
+        <di:waypoint x="540.25" y="615.0"/>
+        <di:waypoint x="595" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="529" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_3_di" bpmnElement="l2_po_gr_Flow_3">
+        <di:waypoint x="499" y="500.0"/>
+        <di:waypoint x="534" y="500.0"/>
+        <di:waypoint x="534" y="800.0"/>
+        <di:waypoint x="750" y="800.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="549.5" y="717.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_4_di" bpmnElement="l2_po_gr_Flow_4">
+        <di:waypoint x="928" y="800.0"/>
+        <di:waypoint x="961.5" y="800.0"/>
+        <di:waypoint x="961.5" y="500.0"/>
+        <di:waypoint x="995" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_5_di" bpmnElement="l2_po_gr_Flow_5">
+        <di:waypoint x="1035.5" y="513.5"/>
+        <di:waypoint x="1090.25" y="513.5"/>
+        <di:waypoint x="1090.25" y="615.0"/>
+        <di:waypoint x="1145" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1079" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_6_di" bpmnElement="l2_po_gr_Flow_6">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1174.5" y="500.0"/>
+        <di:waypoint x="1174.5" y="200.0"/>
+        <di:waypoint x="1300" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1099.5" y="117.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_7_di" bpmnElement="l2_po_gr_Flow_7">
+        <di:waypoint x="1478" y="200.0"/>
+        <di:waypoint x="1511.5" y="200.0"/>
+        <di:waypoint x="1511.5" y="500.0"/>
+        <di:waypoint x="1545" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_8_di" bpmnElement="l2_po_gr_Flow_8">
+        <di:waypoint x="1585.5" y="513.5"/>
+        <di:waypoint x="1640.25" y="513.5"/>
+        <di:waypoint x="1640.25" y="615.0"/>
+        <di:waypoint x="1695" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1629" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_9_di" bpmnElement="l2_po_gr_Flow_9">
+        <di:waypoint x="1599" y="500.0"/>
+        <di:waypoint x="1634" y="500.0"/>
+        <di:waypoint x="1634" y="800.0"/>
+        <di:waypoint x="1850" y="800.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1649.5" y="717.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_10_di" bpmnElement="l2_po_gr_Flow_10">
+        <di:waypoint x="2028" y="800.0"/>
+        <di:waypoint x="2061.5" y="800.0"/>
+        <di:waypoint x="2061.5" y="500.0"/>
+        <di:waypoint x="2095" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_11_di" bpmnElement="l2_po_gr_Flow_11">
+        <di:waypoint x="2149" y="500.0"/>
+        <di:waypoint x="2244.5" y="500.0"/>
+        <di:waypoint x="2244.5" y="500.0"/>
+        <di:waypoint x="2340" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2179" y="463.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_12_di" bpmnElement="l2_po_gr_Flow_12">
+        <di:waypoint x="2149" y="500.0"/>
+        <di:waypoint x="2169" y="500.0"/>
+        <di:waypoint x="2169" y="1025"/>
+        <di:waypoint x="1280" y="1025"/>
+        <di:waypoint x="1280" y="200.0"/>
+        <di:waypoint x="1300" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1974" y="985" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_po_gr_Flow_13_di" bpmnElement="l2_po_gr_Flow_13">
+        <di:waypoint x="2135.5" y="513.5"/>
+        <di:waypoint x="2190.25" y="513.5"/>
+        <di:waypoint x="2190.25" y="615.0"/>
+        <di:waypoint x="2245" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2179" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

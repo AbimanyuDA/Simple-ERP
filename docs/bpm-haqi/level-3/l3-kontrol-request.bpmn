@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l3-kontrol-request" id="Definitions_l3_kontrol_request" targetNamespace="https://simple-erp.local/bpm-haqi/l3-kontrol-request" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:process id="Process_l3_kontrol_request" name="Kontrol request, otorisasi dan idempotency" isExecutable="false">
+    <bpmn:documentation>Level 3; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Berlaku untuk route terproteksi. Idempotency hanya group purchasing, sales, inventory, finance, reporting. Auth/admin/master/settings di luar middleware idempotency. Role checks handler berada setelah middleware idempotency pada group operasi.
+backend/cmd/api/main.go :: main
+backend/internal/platform/idempotency/middleware.go :: Middleware
+backend/internal/auth/adapter/http/middleware.go :: RequireAuth / RequireRole</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l3_kontrol_request">
+      <bpmn:lane id="Lane_l3_kontrol_request_0" name="Pengguna (semua role)">
+        <bpmn:flowNodeRef>l3_kontrol_request_start</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l3_kontrol_request_1" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l3_kontrol_request_auth</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_authok</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_denied</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_idem</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_replay</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_old</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_conflict</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_keyerror</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_handler</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_result</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l3_kontrol_request_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l3_kontrol_request_start" name="Request HTTP">
+      <bpmn:outgoing>l3_kontrol_request_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="l3_kontrol_request_auth" name="Cek cookie, user ACTIVE, rate limit, CSRF/origin, dan tipe route">
+      <bpmn:incoming>l3_kontrol_request_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="l3_kontrol_request_authok" name="Hasil akses dan tipe route?" default="l3_kontrol_request_Flow_2" gatewayDirection="Diverging">
+      <bpmn:incoming>l3_kontrol_request_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l3_kontrol_request_Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>l3_kontrol_request_Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l3_kontrol_request_denied" name="401 / 403 / 429">
+      <bpmn:incoming>l3_kontrol_request_Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="l3_kontrol_request_idem" name="Validasi key; claim hash method/path/body">
+      <bpmn:incoming>l3_kontrol_request_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="l3_kontrol_request_replay" name="Hasil klaim key?" default="l3_kontrol_request_Flow_9" gatewayDirection="Diverging">
+      <bpmn:incoming>l3_kontrol_request_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l3_kontrol_request_Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>l3_kontrol_request_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l3_kontrol_request_Flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l3_kontrol_request_old" name="Replay respons tersimpan">
+      <bpmn:incoming>l3_kontrol_request_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l3_kontrol_request_conflict" name="409: key berbeda atau masih diproses">
+      <bpmn:incoming>l3_kontrol_request_Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l3_kontrol_request_keyerror" name="400 / 500: key atau claim gagal">
+      <bpmn:incoming>l3_kontrol_request_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="l3_kontrol_request_handler" name="Handler cek role; validasi input; jalankan use case">
+      <bpmn:incoming>l3_kontrol_request_Flow_4</bpmn:incoming>
+      <bpmn:incoming>l3_kontrol_request_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="l3_kontrol_request_result" name="Simpan respons &lt;500; release key jika 5xx; kirim respons">
+      <bpmn:incoming>l3_kontrol_request_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l3_kontrol_request_Flow_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="l3_kontrol_request_end" name="Request selesai">
+      <bpmn:incoming>l3_kontrol_request_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_0" sourceRef="l3_kontrol_request_start" targetRef="l3_kontrol_request_auth"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_1" sourceRef="l3_kontrol_request_auth" targetRef="l3_kontrol_request_authok"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_2" sourceRef="l3_kontrol_request_authok" targetRef="l3_kontrol_request_denied" name="Akses ditolak"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_3" sourceRef="l3_kontrol_request_authok" targetRef="l3_kontrol_request_idem" name="Mutasi group operasi">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Mutasi group operasi</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_4" sourceRef="l3_kontrol_request_authok" targetRef="l3_kontrol_request_handler" name="Route lain">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Route lain</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_5" sourceRef="l3_kontrol_request_idem" targetRef="l3_kontrol_request_replay"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_6" sourceRef="l3_kontrol_request_replay" targetRef="l3_kontrol_request_handler" name="Key baru">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Key baru</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_7" sourceRef="l3_kontrol_request_replay" targetRef="l3_kontrol_request_old" name="Hash sama; respons ada">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Hash sama; respons ada</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_8" sourceRef="l3_kontrol_request_replay" targetRef="l3_kontrol_request_conflict" name="Konflik / in progress">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Konflik / in progress</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_9" sourceRef="l3_kontrol_request_replay" targetRef="l3_kontrol_request_keyerror" name="Key / claim gagal"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_10" sourceRef="l3_kontrol_request_handler" targetRef="l3_kontrol_request_result"/>
+    <bpmn:sequenceFlow id="l3_kontrol_request_Flow_11" sourceRef="l3_kontrol_request_result" targetRef="l3_kontrol_request_end"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l3_kontrol_request">
+    <bpmn:participant id="Pool_l3_kontrol_request" name="Simple ERP" processRef="Process_l3_kontrol_request"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l3_kontrol_request">
+    <bpmndi:BPMNPlane id="Plane_l3_kontrol_request" bpmnElement="Collab_l3_kontrol_request">
+      <bpmndi:BPMNShape id="Pool_l3_kontrol_request_di" bpmnElement="Pool_l3_kontrol_request" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="2920" height="440"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l3_kontrol_request_0_di" bpmnElement="Lane_l3_kontrol_request_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="2890" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l3_kontrol_request_1_di" bpmnElement="Lane_l3_kontrol_request_1" isHorizontal="true">
+        <dc:Bounds x="50" y="320.0" width="2890" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_start_di" bpmnElement="l3_kontrol_request_start">
+        <dc:Bounds x="200" y="171.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="214.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_auth_di" bpmnElement="l3_kontrol_request_auth">
+        <dc:Bounds x="425" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_authok_di" bpmnElement="l3_kontrol_request_authok">
+        <dc:Bounds x="650" y="383.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="595" y="442.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_denied_di" bpmnElement="l3_kontrol_request_denied">
+        <dc:Bounds x="875" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_idem_di" bpmnElement="l3_kontrol_request_idem">
+        <dc:Bounds x="1100" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_replay_di" bpmnElement="l3_kontrol_request_replay">
+        <dc:Bounds x="1325" y="383.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="442.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_old_di" bpmnElement="l3_kontrol_request_old">
+        <dc:Bounds x="1550" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1495" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_conflict_di" bpmnElement="l3_kontrol_request_conflict">
+        <dc:Bounds x="1775" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1720" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_keyerror_di" bpmnElement="l3_kontrol_request_keyerror">
+        <dc:Bounds x="2000" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1945" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_handler_di" bpmnElement="l3_kontrol_request_handler">
+        <dc:Bounds x="2225" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_result_di" bpmnElement="l3_kontrol_request_result">
+        <dc:Bounds x="2450" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l3_kontrol_request_end_di" bpmnElement="l3_kontrol_request_end">
+        <dc:Bounds x="2675" y="391.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2620" y="434.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_0_di" bpmnElement="l3_kontrol_request_Flow_0">
+        <di:waypoint x="238" y="190.0"/>
+        <di:waypoint x="331.5" y="190.0"/>
+        <di:waypoint x="331.5" y="410.0"/>
+        <di:waypoint x="425" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_1_di" bpmnElement="l3_kontrol_request_Flow_1">
+        <di:waypoint x="603" y="410.0"/>
+        <di:waypoint x="626.5" y="410.0"/>
+        <di:waypoint x="626.5" y="410.0"/>
+        <di:waypoint x="650" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_2_di" bpmnElement="l3_kontrol_request_Flow_2">
+        <di:waypoint x="704" y="410.0"/>
+        <di:waypoint x="789.5" y="410.0"/>
+        <di:waypoint x="789.5" y="410.0"/>
+        <di:waypoint x="875" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="705" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_3_di" bpmnElement="l3_kontrol_request_Flow_3">
+        <di:waypoint x="704" y="410.0"/>
+        <di:waypoint x="722" y="410.0"/>
+        <di:waypoint x="722" y="517"/>
+        <di:waypoint x="1082" y="517"/>
+        <di:waypoint x="1082" y="410.0"/>
+        <di:waypoint x="1100" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="930" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_4_di" bpmnElement="l3_kontrol_request_Flow_4">
+        <di:waypoint x="704" y="410.0"/>
+        <di:waypoint x="722" y="410.0"/>
+        <di:waypoint x="722" y="490"/>
+        <di:waypoint x="2207" y="490"/>
+        <di:waypoint x="2207" y="410.0"/>
+        <di:waypoint x="2225" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2037" y="500" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_5_di" bpmnElement="l3_kontrol_request_Flow_5">
+        <di:waypoint x="1278" y="410.0"/>
+        <di:waypoint x="1301.5" y="410.0"/>
+        <di:waypoint x="1301.5" y="410.0"/>
+        <di:waypoint x="1325" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_6_di" bpmnElement="l3_kontrol_request_Flow_6">
+        <di:waypoint x="1379" y="410.0"/>
+        <di:waypoint x="1397" y="410.0"/>
+        <di:waypoint x="1397" y="508"/>
+        <di:waypoint x="2207" y="508"/>
+        <di:waypoint x="2207" y="410.0"/>
+        <di:waypoint x="2225" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2037" y="518" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_7_di" bpmnElement="l3_kontrol_request_Flow_7">
+        <di:waypoint x="1379" y="410.0"/>
+        <di:waypoint x="1464.5" y="410.0"/>
+        <di:waypoint x="1464.5" y="410.0"/>
+        <di:waypoint x="1550" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1380" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_8_di" bpmnElement="l3_kontrol_request_Flow_8">
+        <di:waypoint x="1379" y="410.0"/>
+        <di:waypoint x="1397" y="410.0"/>
+        <di:waypoint x="1397" y="490"/>
+        <di:waypoint x="1757" y="490"/>
+        <di:waypoint x="1757" y="410.0"/>
+        <di:waypoint x="1775" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_9_di" bpmnElement="l3_kontrol_request_Flow_9">
+        <di:waypoint x="1379" y="410.0"/>
+        <di:waypoint x="1397" y="410.0"/>
+        <di:waypoint x="1397" y="499"/>
+        <di:waypoint x="1982" y="499"/>
+        <di:waypoint x="1982" y="410.0"/>
+        <di:waypoint x="2000" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1830" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_10_di" bpmnElement="l3_kontrol_request_Flow_10">
+        <di:waypoint x="2403" y="410.0"/>
+        <di:waypoint x="2426.5" y="410.0"/>
+        <di:waypoint x="2426.5" y="410.0"/>
+        <di:waypoint x="2450" y="410.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l3_kontrol_request_Flow_11_di" bpmnElement="l3_kontrol_request_Flow_11">
+        <di:waypoint x="2628" y="410.0"/>
+        <di:waypoint x="2651.5" y="410.0"/>
+        <di:waypoint x="2651.5" y="410.0"/>
+        <di:waypoint x="2675" y="410.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

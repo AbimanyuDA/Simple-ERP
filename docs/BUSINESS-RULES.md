@@ -1,5 +1,7 @@
 # Actors, Domains, and Business Rules
 
+Historical Phase-1 design baseline. The actor table and two-role matrix below predate the three-role implementation; for current as-is RBAC and P2P use [RBAC audit](RBAC-AUDIT.md) and [P2P review](bpm-haqi/P2P-REVIEW.md). Do not use the old `ADMIN`/`OPERATOR` matrix as runtime evidence.
+
 ## 1. Actors
 
 | Actor | Participant type | Responsibilities | Explicit limits |
@@ -110,7 +112,7 @@ Maker-checker is mandatory for the MVP. An Admin who created a Purchase Request,
 | BR-O2C-004 | Approval/rejection requires `SUBMITTED`; rejection reason is mandatory. |
 | BR-O2C-005 | Delivery quantity cannot exceed approved undelivered quantity or current available stock. Partial delivery is allowed. |
 | BR-O2C-006 | Posting delivery revalidates current stock, then atomically writes delivery status, negative stock movement, stock projection, order progress, and audit trail. Negative on-hand stock is prohibited. |
-| BR-O2C-007 | One non-VOID consolidated sales invoice is generated after all approved quantities are delivered and bills delivered quantity only; a replacement may be generated only after the prior invoice is VOID and must reference it. |
+| BR-O2C-007 | One non-VOID consolidated sales invoice DRAFT is generated after all approved quantities are delivered and bills delivered quantity only. A different Supervisor posts it; an active Super Admin may self-post. A replacement may be generated only after the prior invoice is VOID and must reference it. |
 | BR-O2C-008 | Customer payment cannot exceed invoice outstanding amount. Partial payments are allowed. |
 | BR-O2C-009 | Sales order completes when all approved quantities are delivered and all related invoices are fully paid. |
 | BR-O2C-010 | A rejected Sales Order is terminal. Copy creates a new DRAFT with a new ID/number and `copied_from_id`; it never reopens or mutates the rejected source. |

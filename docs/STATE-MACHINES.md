@@ -1,6 +1,6 @@
 # Business Document State Machines
 
-State transitions below are normative. Only the listed command may change state; direct status update endpoints are forbidden.
+This is the original Phase-1 state-machine baseline, not proof of the current deployed runtime. Current P2P changes and role mapping are tracked in [P2P review](bpm-haqi/P2P-REVIEW.md); only the listed command may change state, and direct status update endpoints are forbidden.
 
 ## Purchase Request
 
@@ -11,6 +11,7 @@ stateDiagram-v2
     SUBMITTED --> APPROVED: approve
     SUBMITTED --> REJECTED: reject
     APPROVED --> CONVERTED_TO_PO: convert
+    CONVERTED_TO_PO --> APPROVED: linked PO cancelled before posted GR
     CONVERTED_TO_PO --> COMPLETED: linked PO closed
     DRAFT --> CANCELLED: cancel [ACT-PUR-PR-CANCEL]
 ```
@@ -22,6 +23,7 @@ stateDiagram-v2
 | SUBMITTED | reject | REJECTED | Admin |
 | APPROVED | convert | CONVERTED_TO_PO | Admin/Operator |
 | CONVERTED_TO_PO | close source | COMPLETED | System |
+| CONVERTED_TO_PO | linked PO cancel (`ACT-PUR-PO-CANCEL`) | APPROVED | Supervisor/Super Admin; no GR posted; allows replacement PO |
 | DRAFT | cancel (`ACT-PUR-PR-CANCEL`) | CANCELLED | Creator/Admin; reason required |
 
 `REJECTED` is terminal. `Copy to draft` (`ACT-PUR-PR-COPY`) creates a new Purchase Request with a new identity and `copied_from_id`; it is not a transition of the rejected document. Approve/reject also requires `reviewed_by != created_by`.
@@ -41,7 +43,7 @@ stateDiagram-v2
     ISSUED --> CANCELLED: cancel before receipt [ACT-PUR-PO-CANCEL]
 ```
 
-Cancellation after any receipt is prohibited; reversal and close is required.
+Cancellation is prohibited after a posted receipt. Cancelling a DRAFT or ISSUED PO with no posted receipt also reopens its source PR to APPROVED atomically. Cancelled POs remain historical; migration `000011` permits one non-cancelled replacement PO per PR.
 
 A supplier-payment void that makes the consolidated invoice outstanding again reopens `CLOSED → RECEIVED` and its Purchase Request `COMPLETED → CONVERTED_TO_PO` in the same transaction. This is a deterministic consequence of `ACT-FIN-SPAY-VOID`, not manual close/reopen.
 
@@ -88,15 +90,15 @@ A customer-payment void that makes the consolidated invoice outstanding again re
 
 ## Sales Invoice
 
-`[*] → POSTED → PARTIALLY_PAID → PAID`; `POSTED → VOID` through reversal (`ACT-FIN-CINV-VOID`). Payment void can move `PAID|PARTIALLY_PAID → PARTIALLY_PAID|POSTED` based on recalculated outstanding.
+`[*] → DRAFT → POSTED → PARTIALLY_PAID → PAID`; `DRAFT|POSTED → VOID` through a reasoned correction (`ACT-FIN-CINV-VOID`). Staff creates the draft; a different Supervisor posts it. An active Super Admin may self-post. Payment void can move `PAID|PARTIALLY_PAID → PARTIALLY_PAID|POSTED` based on recalculated outstanding.
 
-`VOID` requires Admin, mandatory reason, reversal reference, and audit trail. No second approver is required. An invoice with an active payment allocation cannot be voided; its payments must be voided first. A replacement invoice may then reference the VOID invoice.
+`VOID` requires Supervisor or Super Admin, a reason, and an audit trail. An invoice with a posted payment allocation cannot be voided; its payments must be voided first. A replacement invoice may then reference the VOID invoice.
 
 ## Customer Payment
 
 `DRAFT → POSTED → VOID` (`ACT-FIN-CPAY-VOID`). Posting updates allocations and invoice outstanding amount atomically.
 
-`VOID` requires Admin, mandatory reason, reversal allocation, and audit trail. No second approver is required.
+Staff creates the payment draft; a different Supervisor posts it, while an active Super Admin may self-post. `VOID` requires Supervisor or Super Admin, a reason, reversal allocation, and an audit trail.
 
 ## Inventory Adjustment
 
@@ -111,9 +113,11 @@ stateDiagram-v2
     POSTED --> COMPLETED: finalize
     COMPLETED --> REVERSED: reverse with inverse movement [ACT-INV-ADJ-REVERSE]
     DRAFT --> CANCELLED: cancel [ACT-INV-ADJ-CANCEL]
+    APPROVED --> CANCELLED: stale snapshot; cancel and recount [ACT-INV-ADJ-CANCEL]
 ```
 
 Approval and posting may be one API transaction from the user's perspective, but remain distinct domain transitions and audit entries so `APPROVED` is never bypassed.
+If stock changes after approval, posting is rejected. The creator may cancel the approved adjustment with a reason, recount into a new draft, and obtain approval again; no stale snapshot is silently refreshed.
 
 ## Stock Movement
 

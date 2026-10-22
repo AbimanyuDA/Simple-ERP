@@ -9,6 +9,8 @@ test("navigation follows the selected module and remembers a collapsed sidebar",
   await page.getByLabel("Kata sandi").fill(adminPassword);
   await page.getByRole("button", { name: "Masuk" }).click();
   await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByLabel("Akun yang sedang masuk")).toContainText(adminEmail);
+  await expect(page.getByLabel("Akun yang sedang masuk")).toContainText("Super Admin");
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/simple-erp-mark.png");
 
   await page.getByRole("link", { name: "Purchasing" }).click();

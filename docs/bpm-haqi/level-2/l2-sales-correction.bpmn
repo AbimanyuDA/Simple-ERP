@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-sales-correction" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-so-edit" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-so-stock" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-so-cancel" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-so-copy" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-delivery-cancel" xmlns:c5="https://simple-erp.local/bpm-haqi/l3-delivery-reverse" id="Definitions_l2_sales_correction" targetNamespace="https://simple-erp.local/bpm-haqi/l2-sales-correction" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-so-edit" location="../level-3/l3-so-edit.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-so-stock" location="../level-3/l3-so-stock.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-so-cancel" location="../level-3/l3-so-cancel.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-so-copy" location="../level-3/l3-so-copy.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-delivery-cancel" location="../level-3/l3-delivery-cancel.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-delivery-reverse" location="../level-3/l3-delivery-reverse.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_sales_correction" name="Revisi, pembatalan dan koreksi Sales" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_sales_correction">
+      <bpmn:lane id="Lane_l2_sales_correction_0" name="Pemilik kebutuhan (role pada detail)">
+        <bpmn:flowNodeRef>l2_sales_correction_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_call5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_sales_correction_end5</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_sales_correction_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>l2_sales_correction_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="l2_sales_correction_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>l2_sales_correction_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="l2_sales_correction_branch" name="Kebutuhan apa?" default="l2_sales_correction_Flow_12" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_sales_correction_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_sales_correction_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l2_sales_correction_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_sales_correction_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l2_sales_correction_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>l2_sales_correction_Flow_12</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l2_sales_correction_call0" name="Edit SO draft" calledElement="c0:Process_l3_so_edit">
+      <bpmn:incoming>l2_sales_correction_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end0" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_sales_correction_call1" name="Cek stok manual" calledElement="c1:Process_l3_so_stock">
+      <bpmn:incoming>l2_sales_correction_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end1" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_sales_correction_call2" name="Cancel SO" calledElement="c2:Process_l3_so_cancel">
+      <bpmn:incoming>l2_sales_correction_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end2" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_sales_correction_call3" name="Copy SO ditolak" calledElement="c3:Process_l3_so_copy">
+      <bpmn:incoming>l2_sales_correction_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end3" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_sales_correction_call4" name="Cancel delivery draft" calledElement="c4:Process_l3_delivery_cancel">
+      <bpmn:incoming>l2_sales_correction_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end4" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_sales_correction_call5" name="Reverse delivery" calledElement="c5:Process_l3_delivery_reverse">
+      <bpmn:incoming>l2_sales_correction_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>l2_sales_correction_Flow_13</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_sales_correction_end5" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_sales_correction_Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_0" sourceRef="l2_sales_correction_start" targetRef="l2_sales_correction_choose"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_1" sourceRef="l2_sales_correction_choose" targetRef="l2_sales_correction_branch"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_2" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call0" name="Edit SO draft">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Edit SO draft</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_3" sourceRef="l2_sales_correction_call0" targetRef="l2_sales_correction_end0"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_4" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call1" name="Cek stok manual">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cek stok manual</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_5" sourceRef="l2_sales_correction_call1" targetRef="l2_sales_correction_end1"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_6" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call2" name="Cancel SO">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cancel SO</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_7" sourceRef="l2_sales_correction_call2" targetRef="l2_sales_correction_end2"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_8" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call3" name="Copy SO ditolak">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Copy SO ditolak</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_9" sourceRef="l2_sales_correction_call3" targetRef="l2_sales_correction_end3"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_10" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call4" name="Cancel delivery draft">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cancel delivery draft</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_11" sourceRef="l2_sales_correction_call4" targetRef="l2_sales_correction_end4"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_12" sourceRef="l2_sales_correction_branch" targetRef="l2_sales_correction_call5" name="Reverse delivery"/>
+    <bpmn:sequenceFlow id="l2_sales_correction_Flow_13" sourceRef="l2_sales_correction_call5" targetRef="l2_sales_correction_end5"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_sales_correction">
+    <bpmn:participant id="Pool_l2_sales_correction" name="Simple ERP" processRef="Process_l2_sales_correction"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_sales_correction">
+    <bpmndi:BPMNPlane id="Plane_l2_sales_correction" bpmnElement="Collab_l2_sales_correction">
+      <bpmndi:BPMNShape id="Pool_l2_sales_correction_di" bpmnElement="Pool_l2_sales_correction" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1280" height="1010"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_sales_correction_0_di" bpmnElement="Lane_l2_sales_correction_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1250" height="1010.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_start_di" bpmnElement="l2_sales_correction_start">
+        <dc:Bounds x="200" y="586.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="629.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_choose_di" bpmnElement="l2_sales_correction_choose">
+        <dc:Bounds x="310" y="560.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_branch_di" bpmnElement="l2_sales_correction_branch">
+        <dc:Bounds x="550" y="578.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="637.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call0_di" bpmnElement="l2_sales_correction_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end0_di" bpmnElement="l2_sales_correction_end0">
+        <dc:Bounds x="1120" y="171" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="214" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call1_di" bpmnElement="l2_sales_correction_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end1_di" bpmnElement="l2_sales_correction_end1">
+        <dc:Bounds x="1120" y="326" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="369" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call2_di" bpmnElement="l2_sales_correction_call2">
+        <dc:Bounds x="850" y="455" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end2_di" bpmnElement="l2_sales_correction_end2">
+        <dc:Bounds x="1120" y="481" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="524" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call3_di" bpmnElement="l2_sales_correction_call3">
+        <dc:Bounds x="850" y="610" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end3_di" bpmnElement="l2_sales_correction_end3">
+        <dc:Bounds x="1120" y="636" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="679" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call4_di" bpmnElement="l2_sales_correction_call4">
+        <dc:Bounds x="850" y="765" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end4_di" bpmnElement="l2_sales_correction_end4">
+        <dc:Bounds x="1120" y="791" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="834" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_call5_di" bpmnElement="l2_sales_correction_call5">
+        <dc:Bounds x="850" y="920" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_sales_correction_end5_di" bpmnElement="l2_sales_correction_end5">
+        <dc:Bounds x="1120" y="946" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="989" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_0_di" bpmnElement="l2_sales_correction_Flow_0">
+        <di:waypoint x="238" y="605.0"/>
+        <di:waypoint x="274.0" y="605.0"/>
+        <di:waypoint x="274.0" y="605.0"/>
+        <di:waypoint x="310" y="605.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_1_di" bpmnElement="l2_sales_correction_Flow_1">
+        <di:waypoint x="488" y="605.0"/>
+        <di:waypoint x="519.0" y="605.0"/>
+        <di:waypoint x="519.0" y="605.0"/>
+        <di:waypoint x="550" y="605.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_2_di" bpmnElement="l2_sales_correction_Flow_2">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_3_di" bpmnElement="l2_sales_correction_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1120" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_4_di" bpmnElement="l2_sales_correction_Flow_4">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_5_di" bpmnElement="l2_sales_correction_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1120" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_6_di" bpmnElement="l2_sales_correction_Flow_6">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="500.0"/>
+        <di:waypoint x="850" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="445.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_7_di" bpmnElement="l2_sales_correction_Flow_7">
+        <di:waypoint x="1028" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1120" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_8_di" bpmnElement="l2_sales_correction_Flow_8">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="655.0"/>
+        <di:waypoint x="850" y="655.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="600.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_9_di" bpmnElement="l2_sales_correction_Flow_9">
+        <di:waypoint x="1028" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1120" y="655.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_10_di" bpmnElement="l2_sales_correction_Flow_10">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="810.0"/>
+        <di:waypoint x="850" y="810.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="755.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_11_di" bpmnElement="l2_sales_correction_Flow_11">
+        <di:waypoint x="1028" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1120" y="810.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_12_di" bpmnElement="l2_sales_correction_Flow_12">
+        <di:waypoint x="604" y="605.0"/>
+        <di:waypoint x="645" y="605.0"/>
+        <di:waypoint x="645" y="965.0"/>
+        <di:waypoint x="850" y="965.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="910.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_sales_correction_Flow_13_di" bpmnElement="l2_sales_correction_Flow_13">
+        <di:waypoint x="1028" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1120" y="965.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

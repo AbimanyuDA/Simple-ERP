@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2125" height="835" viewBox="0 0 2125 835">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#0f172a">
+<text x="25" y="30" font-size="20" text-anchor="start"><tspan x="25" dy="0">L3 | Match invoice supplier</tspan></text>
+<text x="25" y="56" font-size="12" text-anchor="start"><tspan x="25" dy="0">AS-IS KODE 2026-10-21 | Lane dengan 'atau' berarti pilihan aktor | Detail kegagalan: dokumentasi model</tspan></text>
+<rect x="20" y="100.0" width="2085" height="350.0" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="100" y="180.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Supervisor atau</tspan><tspan x="100" dy="16">Super Admin</tspan></text>
+<rect x="20" y="450.0" width="2085" height="350.0" fill="#eff6ff" stroke="#cbd5e1"/>
+<text x="100" y="530.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Sistem Simple</tspan><tspan x="100" dy="16">ERP</tspan></text>
+<polyline points="238,190.0 331.5,190.0 331.5,190.0 425,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="603,190.0 626.5,190.0 626.5,600.0 650,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="828,600.0 851.5,600.0 851.5,600.0 875,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="1553,600.0 1589.0,600.0 1589.0,600.0 1625,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="929,600.0 947,600.0 947,775 1857,775 1857,600.0 1875,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="941" y1="607.0" x2="953" y2="593.0" stroke="#475569" stroke-width="1.5"/>
+<text x="1713" y="557.0" font-size="11" text-anchor="start"><tspan x="1713" dy="0">Tidak</tspan></text>
+<polyline points="929,600.0 1027.0,600.0 1027.0,510.0 1125,510.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="963" y="467.0" font-size="11" text-anchor="start"><tspan x="963" dy="0">Cocok</tspan></text>
+<polyline points="929,600.0 1027.0,600.0 1027.0,690.0 1125,690.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="963" y="647.0" font-size="11" text-anchor="start"><tspan x="963" dy="0">Mismatch</tspan></text>
+<polyline points="1303,510.0 1339.0,510.0 1339.0,600.0 1375,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="1303,690.0 1339.0,690.0 1339.0,600.0 1375,600.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<circle cx="219.0" cy="190.0" r="19.0" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="219.0" y="229.0" font-size="12" text-anchor="middle"><tspan x="219.0" dy="0">Kebutuhan aksi</tspan></text>
+<rect x="425" y="145.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="437" y="160.0" font-size="9" text-anchor="start"><tspan x="437" dy="0">U</tspan></text>
+<text x="514.0" y="177.0" font-size="12" text-anchor="middle"><tspan x="514.0" dy="0">Pilih Match</tspan></text>
+<rect x="650" y="536.0" width="178" height="128" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="662" y="551.0" font-size="9" text-anchor="start"><tspan x="662" dy="0">S</tspan></text>
+<text x="739.0" y="568.0" font-size="12" text-anchor="middle"><tspan x="739.0" dy="0">Lock invoice</tspan><tspan x="739.0" dy="16">MATCH_PENDING;</tspan><tspan x="739.0" dy="16">Supervisor bukan</tspan><tspan x="739.0" dy="16">creator; Super Admin</tspan><tspan x="739.0" dy="16">boleh self-match; baca</tspan><tspan x="739.0" dy="16">line PO dan invoice</tspan></text>
+<path d="M902.0,573.0 L929,600.0 L902.0,627.0 L875,600.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="902.0" y="605.0" font-size="18" text-anchor="middle"><tspan x="902.0" dy="0">X</tspan></text>
+<text x="902.0" y="647.0" font-size="12" text-anchor="middle"><tspan x="902.0" dy="0">Hasil ExactMatch?</tspan></text>
+<rect x="1125" y="465.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1137" y="480.0" font-size="9" text-anchor="start"><tspan x="1137" dy="0">S</tspan></text>
+<text x="1214.0" y="497.0" font-size="12" text-anchor="middle"><tspan x="1214.0" dy="0">Set invoice POSTED</tspan></text>
+<rect x="1125" y="645.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1137" y="660.0" font-size="9" text-anchor="start"><tspan x="1137" dy="0">S</tspan></text>
+<text x="1214.0" y="677.0" font-size="12" text-anchor="middle"><tspan x="1214.0" dy="0">Set invoice</tspan><tspan x="1214.0" dy="16">MATCH_EXCEPTION</tspan></text>
+<rect x="1375" y="555.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1387" y="570.0" font-size="9" text-anchor="start"><tspan x="1387" dy="0">S</tspan></text>
+<text x="1464.0" y="587.0" font-size="12" text-anchor="middle"><tspan x="1464.0" dy="0">Simpan mismatch_reason</tspan><tspan x="1464.0" dy="16">dan versi; audit PUR-</tspan><tspan x="1464.0" dy="16">INV-002; commit</tspan></text>
+<circle cx="1644.0" cy="600.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1644.0" y="639.0" font-size="12" text-anchor="middle"><tspan x="1644.0" dy="0">Aksi selesai; hasil</tspan><tspan x="1644.0" dy="16">diterima</tspan></text>
+<circle cx="1894.0" cy="600.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1894.0" y="639.0" font-size="12" text-anchor="middle"><tspan x="1894.0" dy="0">Ditolak / gagal; tidak</tspan><tspan x="1894.0" dy="16">commit</tspan></text>
+</g></svg>

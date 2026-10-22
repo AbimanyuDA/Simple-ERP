@@ -6,6 +6,8 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
 	authdomain "github.com/simple-erp/backend/internal/auth/domain"
+	financepg "github.com/simple-erp/backend/internal/finance/adapter/postgres"
+	financeapp "github.com/simple-erp/backend/internal/finance/application"
 	inventorypg "github.com/simple-erp/backend/internal/inventory/adapter/postgres"
 	inventoryapp "github.com/simple-erp/backend/internal/inventory/application"
 	"github.com/simple-erp/backend/internal/platform/idempotency"
@@ -17,16 +19,18 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 const (
-	adminID     = "00000000-0000-0000-0000-000000000001"
-	operatorID  = "00000000-0000-0000-0000-000000000002"
-	unitID      = "00000000-0000-0000-0000-000000000010"
-	productID   = "00000000-0000-0000-0000-000000000011"
-	supplierID  = "00000000-0000-0000-0000-000000000012"
-	customerID  = "00000000-0000-0000-0000-000000000013"
-	warehouseID = "00000000-0000-0000-0000-000000000014"
+	adminID      = "00000000-0000-0000-0000-000000000001"
+	operatorID   = "00000000-0000-0000-0000-000000000002"
+	supervisorID = "00000000-0000-0000-0000-000000000003"
+	unitID       = "00000000-0000-0000-0000-000000000010"
+	productID    = "00000000-0000-0000-0000-000000000011"
+	supplierID   = "00000000-0000-0000-0000-000000000012"
+	customerID   = "00000000-0000-0000-0000-000000000013"
+	warehouseID  = "00000000-0000-0000-0000-000000000014"
 )
 
 func operationsPool(t *testing.T) *pgxpool.Pool {
@@ -54,7 +58,7 @@ func operationsPool(t *testing.T) *pgxpool.Pool {
 		sql  string
 		args []any
 	}{
-		{`INSERT INTO users(id,email,display_name,password_hash,role,status)VALUES($1,'admin@example.test','Admin',$3,'ADMIN','ACTIVE'),($2,'operator@example.test','Operator',$3,'OPERATOR','ACTIVE')`, []any{adminID, operatorID, mustTestHash(t)}},
+		{`INSERT INTO users(id,email,display_name,password_hash,role,status)VALUES($1,'admin@example.test','Admin',$4,'SUPER_ADMIN','ACTIVE'),($2,'operator@example.test','Operator',$4,'STAFF','ACTIVE'),($3,'supervisor@example.test','Supervisor',$4,'SUPERVISOR','ACTIVE')`, []any{adminID, operatorID, supervisorID, mustTestHash(t)}},
 		{`INSERT INTO units(id,code,name)VALUES($1,'PCS','Pieces')`, []any{unitID}},
 		{`INSERT INTO products(id,sku,name,unit_id)VALUES($1,'SKU-1','Product',$2)`, []any{productID, unitID}},
 		{`INSERT INTO suppliers(id,code,name)VALUES($1,'SUP-1','Supplier')`, []any{supplierID}},
@@ -92,14 +96,17 @@ func TestP2PPartialReceiptPostsImmutableSourceLinkedLedger(t *testing.T) {
 	if _, e = s.TransitionRequest(ctx, pr.ID, "approve", operatorID, "", 2, "r3"); e == nil {
 		t.Fatal("maker-checker not enforced")
 	}
-	if _, e = s.TransitionRequest(ctx, pr.ID, "approve", adminID, "", 2, "r4"); e != nil {
+	if _, e = s.TransitionRequest(ctx, pr.ID, "approve", supervisorID, "", 2, "r4"); e != nil {
 		t.Fatal(e)
 	}
 	po, e := s.ConvertToOrder(ctx, pr.ID, supplierID, warehouseID, operatorID, "r5")
 	if e != nil {
 		t.Fatal(e)
 	}
-	po, e = s.IssueOrder(ctx, po.ID, po.Version, operatorID, "r6")
+	if _, e = s.IssueOrder(ctx, po.ID, po.Version, operatorID, "r6-self"); e == nil {
+		t.Fatal("PO creator issued own order")
+	}
+	po, e = s.IssueOrder(ctx, po.ID, po.Version, supervisorID, "r6")
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -115,7 +122,10 @@ func TestP2PPartialReceiptPostsImmutableSourceLinkedLedger(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if _, e = s.PostReceipt(ctx, gr.ID, gr.Version, operatorID, "r8"); e != nil {
+	if _, e = s.PostReceipt(ctx, gr.ID, gr.Version, operatorID, "r8-self"); e == nil {
+		t.Fatal("GR creator posted own receipt")
+	}
+	if _, e = s.PostReceipt(ctx, gr.ID, gr.Version, supervisorID, "r8"); e != nil {
 		t.Fatal(e)
 	}
 	var balance, ledger float64
@@ -136,6 +146,108 @@ func TestP2PPartialReceiptPostsImmutableSourceLinkedLedger(t *testing.T) {
 	if _, e = p.Exec(ctx, `UPDATE stock_movements SET quantity=99 WHERE source_id=$1`, gr.ID); e == nil {
 		t.Fatal("ledger mutation accepted")
 	}
+	second, e := s.CreateReceipt(ctx, po.ID, []purchaseapp.ReceiptLineInput{{PurchaseOrderLineID: lineID, ProductID: productID, Quantity: 6}}, operatorID, "r9")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = s.PostReceipt(ctx, second.ID, second.Version, supervisorID, "r10"); e != nil {
+		t.Fatal(e)
+	}
+	assertState(t, p, "purchase_orders", po.ID, "RECEIVED")
+	finance := financeapp.NewService(financepg.Store{Pool: p})
+	date := time.Now().UTC().Format("2006-01-02")
+	invoice, e := finance.CreateSupplierInvoice(ctx, financeapp.SupplierInvoiceInput{
+		PurchaseOrderID: po.ID, SupplierInvoiceNumber: "SUP-INV-001", InvoiceDate: date, DueDate: date, Currency: "IDR",
+		Lines: []financeapp.InvoiceLineInput{{ReferenceID: lineID, Quantity: 10, UnitPrice: 100}},
+	}, operatorID, "r11")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = finance.MatchSupplierInvoice(ctx, invoice.ID, operatorID, "r12-self"); e == nil {
+		t.Fatal("invoice creator matched own invoice")
+	}
+	if invoice, e = finance.MatchSupplierInvoice(ctx, invoice.ID, supervisorID, "r12"); e != nil || invoice.Status != "POSTED" {
+		t.Fatalf("match=%#v err=%v", invoice, e)
+	}
+	for i, amount := range []float64{400, 600} {
+		payment, createErr := finance.CreateSupplierPayment(ctx, financeapp.PaymentInput{
+			PartyID: supplierID, PaymentDate: date, Method: "BANK_TRANSFER", Currency: "IDR", Amount: amount,
+			Allocations: []financeapp.AllocationInput{{InvoiceID: invoice.ID, Amount: amount}},
+		}, operatorID, "payment-create")
+		if createErr != nil {
+			t.Fatal(createErr)
+		}
+		if _, e = finance.PostSupplierPayment(ctx, payment.ID, payment.Version, operatorID, "payment-self"); e == nil {
+			t.Fatal("payment creator posted own payment")
+		}
+		if _, e = finance.PostSupplierPayment(ctx, payment.ID, payment.Version, supervisorID, "payment-post"); e != nil {
+			t.Fatal(e)
+		}
+		if i == 0 {
+			assertState(t, p, "purchase_orders", po.ID, "RECEIVED")
+		}
+	}
+	assertState(t, p, "supplier_invoices", invoice.ID, "PAID")
+	assertState(t, p, "purchase_orders", po.ID, "CLOSED")
+	assertState(t, p, "purchase_requests", pr.ID, "COMPLETED")
+}
+
+func TestSuperAdminCanSelfApproveP2P(t *testing.T) {
+	p := operationsPool(t)
+	defer p.Close()
+	ctx := context.Background()
+	purchasing := purchaseapp.NewService(purchasepg.Store{Pool: p})
+	finance := financeapp.NewService(financepg.Store{Pool: p})
+	pr, err := purchasing.CreateRequest(ctx, adminID, "Super Admin emergency P2P", []purchaseapp.LineInput{{ProductID: productID, Quantity: 1, UnitPrice: 100}}, "self-pr-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pr, err = purchasing.TransitionRequest(ctx, pr.ID, "submit", adminID, "", pr.Version, "self-pr-submit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pr, err = purchasing.TransitionRequest(ctx, pr.ID, "approve", adminID, "", pr.Version, "self-pr-approve")
+	if err != nil {
+		t.Fatal(err)
+	}
+	po, err := purchasing.ConvertToOrder(ctx, pr.ID, supplierID, warehouseID, adminID, "self-po-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	po, err = purchasing.IssueOrder(ctx, po.ID, po.Version, adminID, "self-po-issue")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var lineID string
+	if err = p.QueryRow(ctx, `SELECT id FROM purchase_order_lines WHERE purchase_order_id=$1`, po.ID).Scan(&lineID); err != nil {
+		t.Fatal(err)
+	}
+	gr, err := purchasing.CreateReceipt(ctx, po.ID, []purchaseapp.ReceiptLineInput{{PurchaseOrderLineID: lineID, ProductID: productID, Quantity: 1}}, adminID, "self-gr-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = purchasing.PostReceipt(ctx, gr.ID, gr.Version, adminID, "self-gr-post"); err != nil {
+		t.Fatal(err)
+	}
+	date := time.Now().UTC().Format("2006-01-02")
+	invoice, err := finance.CreateSupplierInvoice(ctx, financeapp.SupplierInvoiceInput{PurchaseOrderID: po.ID, SupplierInvoiceNumber: "SELF-INV-001", InvoiceDate: date, DueDate: date, Currency: "IDR", Lines: []financeapp.InvoiceLineInput{{ReferenceID: lineID, Quantity: 1, UnitPrice: 100}}}, adminID, "self-invoice-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, adminID, "self-invoice-match")
+	if err != nil || invoice.Status != "POSTED" {
+		t.Fatalf("self-match=%#v err=%v", invoice, err)
+	}
+	payment, err := finance.CreateSupplierPayment(ctx, financeapp.PaymentInput{PartyID: supplierID, PaymentDate: date, Method: "BANK_TRANSFER", Currency: "IDR", Amount: 100, Allocations: []financeapp.AllocationInput{{InvoiceID: invoice.ID, Amount: 100}}}, adminID, "self-payment-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = finance.PostSupplierPayment(ctx, payment.ID, payment.Version, adminID, "self-payment-post"); err != nil {
+		t.Fatal(err)
+	}
+	assertState(t, p, "supplier_invoices", invoice.ID, "PAID")
+	assertState(t, p, "purchase_orders", po.ID, "CLOSED")
+	assertState(t, p, "purchase_requests", pr.ID, "COMPLETED")
 }
 
 func TestInventoryApprovalRejectsChangedSnapshot(t *testing.T) {
@@ -157,6 +269,58 @@ func TestInventoryApprovalRejectsChangedSnapshot(t *testing.T) {
 		t.Fatal("inventory adjustment approved after stock snapshot changed")
 	}
 	assertState(t, p, "inventory_adjustments", adjustment.ID, "SUBMITTED")
+}
+
+func TestApprovedInventoryAdjustmentCanRecoverFromStaleSnapshot(t *testing.T) {
+	p := operationsPool(t)
+	defer p.Close()
+	ctx := context.Background()
+	s := inventoryapp.NewService(inventorypg.Store{Pool: p})
+	adjustment, err := s.CreateAdjustment(ctx, warehouseID, operatorID, []inventoryapp.AdjustmentLine{{ProductID: productID, CountedQuantity: 2}}, "inventory-recovery-create")
+	if err != nil {
+		t.Fatal(err)
+	}
+	adjustment, err = s.Transition(ctx, adjustment.ID, "submit", operatorID, "", adjustment.Version, "inventory-recovery-submit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	adjustment, err = s.Transition(ctx, adjustment.ID, "approve", adminID, "", adjustment.Version, "inventory-recovery-approve")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = p.Exec(ctx, `INSERT INTO stock_balances(warehouse_id,product_id,quantity)VALUES($1,$2,1)`, warehouseID, productID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Post(ctx, adjustment.ID, adjustment.Version, operatorID, "inventory-recovery-stale-post"); err == nil {
+		t.Fatal("stale adjustment was posted")
+	}
+	if _, err = s.Transition(ctx, adjustment.ID, "cancel", supervisorID, "not creator", adjustment.Version, "inventory-recovery-other-cancel"); err == nil {
+		t.Fatal("non-creator cancelled approved adjustment")
+	}
+	adjustment, err = s.Transition(ctx, adjustment.ID, "cancel", operatorID, "stock changed, recount required", adjustment.Version, "inventory-recovery-cancel")
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertState(t, p, "inventory_adjustments", adjustment.ID, "CANCELLED")
+	replacement, err := s.CreateAdjustment(ctx, warehouseID, operatorID, []inventoryapp.AdjustmentLine{{ProductID: productID, CountedQuantity: 2}}, "inventory-recovery-recount")
+	if err != nil {
+		t.Fatal(err)
+	}
+	replacement, err = s.Transition(ctx, replacement.ID, "submit", operatorID, "", replacement.Version, "inventory-recovery-resubmit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	replacement, err = s.Transition(ctx, replacement.ID, "approve", adminID, "", replacement.Version, "inventory-recovery-reapprove")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Post(ctx, replacement.ID, replacement.Version, operatorID, "inventory-recovery-post"); err != nil {
+		t.Fatal(err)
+	}
+	var balance float64
+	if err = p.QueryRow(ctx, `SELECT quantity FROM stock_balances WHERE warehouse_id=$1 AND product_id=$2`, warehouseID, productID).Scan(&balance); err != nil || balance != 2 {
+		t.Fatalf("stock balance=%v, err=%v", balance, err)
+	}
 }
 
 func TestCopyRejectedDocumentsRequiresActiveMasters(t *testing.T) {
@@ -220,7 +384,7 @@ func TestPostingDraftReceiptCannotReviveCancelledOrder(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if po, e = s.IssueOrder(ctx, po.ID, po.Version, operatorID, "cancel-po-5"); e != nil {
+	if po, e = s.IssueOrder(ctx, po.ID, po.Version, supervisorID, "cancel-po-5"); e != nil {
 		t.Fatal(e)
 	}
 	var lineID string
@@ -234,7 +398,7 @@ func TestPostingDraftReceiptCannotReviveCancelledOrder(t *testing.T) {
 	if _, e = s.CancelOrder(ctx, po.ID, "cancel before posting", operatorID, "cancel-po-7"); e != nil {
 		t.Fatal(e)
 	}
-	if _, e = s.PostReceipt(ctx, gr.ID, gr.Version, operatorID, "cancel-po-8"); e == nil {
+	if _, e = s.PostReceipt(ctx, gr.ID, gr.Version, supervisorID, "cancel-po-8"); e == nil {
 		t.Fatal("draft receipt posted after purchase order cancellation")
 	}
 
@@ -251,6 +415,20 @@ func TestPostingDraftReceiptCannotReviveCancelledOrder(t *testing.T) {
 	}
 	if poStatus != "CANCELLED" || grStatus != "DRAFT" || movements != 0 {
 		t.Fatalf("po=%s receipt=%s movements=%d", poStatus, grStatus, movements)
+	}
+	var prStatus string
+	if e = p.QueryRow(ctx, `SELECT status FROM purchase_requests WHERE id=$1`, pr.ID).Scan(&prStatus); e != nil {
+		t.Fatal(e)
+	}
+	if prStatus != "APPROVED" {
+		t.Fatalf("cancelled PO should reopen PR for replacement, got %s", prStatus)
+	}
+	replacement, e := s.ConvertToOrder(ctx, pr.ID, supplierID, warehouseID, operatorID, "cancel-po-9")
+	if e != nil || replacement.ID == po.ID {
+		t.Fatalf("replacement PO failed: po=%+v error=%v", replacement, e)
+	}
+	if _, e = s.ConvertToOrder(ctx, pr.ID, supplierID, warehouseID, operatorID, "cancel-po-10"); e == nil {
+		t.Fatal("second active PO created for one PR")
 	}
 }
 func TestDraftOrderRevisionUsesOptimisticLockingAndAudit(t *testing.T) {

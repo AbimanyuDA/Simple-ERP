@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/simple-erp/backend/internal/finance/application"
 	"github.com/simple-erp/backend/internal/finance/domain"
+	"github.com/simple-erp/backend/internal/platform/authorization"
 )
 
 var ErrConflict = errors.New("invalid finance state, match, allocation, or version")
@@ -35,7 +36,7 @@ func scanDocuments(rows pgx.Rows) ([]application.Document, error) {
 	documents := []application.Document{}
 	for rows.Next() {
 		var document application.Document
-		if err := rows.Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version); err != nil {
+		if err := rows.Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &document.CreatorID); err != nil {
 			return nil, err
 		}
 		documents = append(documents, document)
@@ -75,7 +76,7 @@ func salesReplacementValid(ctx context.Context, tx pgx.Tx, salesOrderID, request
 }
 
 func (s Store) ListSupplierInvoices(ctx context.Context) ([]application.Document, error) {
-	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,supplier_id,purchase_order_id,currency,total,outstanding,version FROM supplier_invoices ORDER BY created_at DESC`)
+	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,supplier_id,purchase_order_id,currency,total,outstanding,version,created_by FROM supplier_invoices ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +142,16 @@ func (s Store) MatchSupplierInvoice(ctx context.Context, id, actor, request stri
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var document application.Document
-	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,supplier_id,purchase_order_id,currency,total,outstanding,version FROM supplier_invoices WHERE id=$1 FOR UPDATE`, id).
-		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version); err != nil || document.Status != "MATCH_PENDING" {
+	var creatorID string
+	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,supplier_id,purchase_order_id,currency,total,outstanding,version,created_by FROM supplier_invoices WHERE id=$1 FOR UPDATE`, id).
+		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &creatorID); err != nil || document.Status != "MATCH_PENDING" {
 		return document, ErrConflict
+	}
+	if creatorID == actor {
+		allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+		if roleErr != nil || !allowed {
+			return document, ErrConflict
+		}
 	}
 	expectedRows, err := tx.Query(ctx, `SELECT id,quantity,unit_price FROM purchase_order_lines WHERE purchase_order_id=$1 ORDER BY id`, document.SourceID)
 	if err != nil {
@@ -287,7 +295,7 @@ func allocationTotal(allocations []application.AllocationInput) (int64, error) {
 }
 
 func (s Store) ListSupplierPayments(ctx context.Context) ([]application.Document, error) {
-	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,supplier_id,''::text,currency,amount,0::numeric,version FROM supplier_payments ORDER BY created_at DESC`)
+	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,supplier_id,''::text,currency,amount,0::numeric,version,created_by FROM supplier_payments ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -342,10 +350,16 @@ func (s Store) PostSupplierPayment(ctx context.Context, id string, version int, 
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var document application.Document
-	var paymentDate string
-	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,supplier_id,''::text,currency,amount,0::numeric,version,payment_date::text FROM supplier_payments WHERE id=$1 FOR UPDATE`, id).
-		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate); err != nil || document.Status != "DRAFT" || document.Version != version {
+	var paymentDate, creatorID string
+	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,supplier_id,''::text,currency,amount,0::numeric,version,payment_date::text,created_by FROM supplier_payments WHERE id=$1 FOR UPDATE`, id).
+		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate, &creatorID); err != nil || document.Status != "DRAFT" || document.Version != version {
 		return document, ErrConflict
+	}
+	if creatorID == actor {
+		allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+		if roleErr != nil || !allowed {
+			return document, ErrConflict
+		}
 	}
 	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.purchase_order_id,i.supplier_id
 		FROM supplier_payment_allocations a JOIN supplier_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 ORDER BY a.invoice_id FOR UPDATE OF i`, id)
@@ -515,7 +529,7 @@ func (s Store) VoidSupplierPayment(ctx context.Context, id, reason, actor, reque
 }
 
 func (s Store) ListSalesInvoices(ctx context.Context) ([]application.Document, error) {
-	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,customer_id,sales_order_id,currency,total,outstanding,version FROM sales_invoices ORDER BY created_at DESC`)
+	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,customer_id,sales_order_id,currency,total,outstanding,version,created_by FROM sales_invoices ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -552,7 +566,7 @@ func (s Store) CreateSalesInvoice(ctx context.Context, input application.SalesIn
 		return application.Document{}, err
 	}
 	_, err = tx.Exec(ctx, `INSERT INTO sales_invoices(id,document_no,sales_order_id,customer_id,replaces_invoice_id,status,invoice_date,due_date,currency,total,outstanding,created_by)
-		VALUES($1,$2,$3,$4,NULLIF($5,'')::uuid,'POSTED',$6,$7,$8,$9,$9,$10)`, id, no, input.SalesOrderID, customerID, input.ReplacesInvoiceID, input.InvoiceDate, input.DueDate, input.Currency, total, actor)
+		VALUES($1,$2,$3,$4,NULLIF($5,'')::uuid,'DRAFT',$6,$7,$8,$9,$9,$10)`, id, no, input.SalesOrderID, customerID, input.ReplacesInvoiceID, input.InvoiceDate, input.DueDate, input.Currency, total, actor)
 	if err != nil {
 		return application.Document{}, ErrConflict
 	}
@@ -560,13 +574,50 @@ func (s Store) CreateSalesInvoice(ctx context.Context, input application.SalesIn
 		SELECT $1,id,delivered_quantity,unit_price,delivered_quantity*unit_price FROM sales_order_lines WHERE sales_order_id=$2`, id, input.SalesOrderID); err != nil {
 		return application.Document{}, err
 	}
-	if err = audit(ctx, tx, actor, "CREATE_SALES_INVOICE", "SAL-INV-001", "SALES_INVOICE", id, "", "POSTED", "", request); err != nil {
+	if err = audit(ctx, tx, actor, "CREATE_SALES_INVOICE", "SAL-INV-001", "SALES_INVOICE", id, "", "DRAFT", "", request); err != nil {
 		return application.Document{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
 		return application.Document{}, err
 	}
-	return application.Document{ID: id, DocumentNo: no, Status: "POSTED", PartyID: customerID, SourceID: input.SalesOrderID, Currency: input.Currency, Total: total, Outstanding: total, Version: 1}, nil
+	return application.Document{ID: id, DocumentNo: no, Status: "DRAFT", CreatorID: actor, PartyID: customerID, SourceID: input.SalesOrderID, Currency: input.Currency, Total: total, Outstanding: total, Version: 1}, nil
+}
+
+func (s Store) PostSalesInvoice(ctx context.Context, id string, version int, actor, request string) (application.Document, error) {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return application.Document{}, err
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	var document application.Document
+	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,customer_id,sales_order_id,currency,total,outstanding,version,created_by
+		FROM sales_invoices WHERE id=$1 FOR UPDATE`, id).Scan(&document.ID, &document.DocumentNo, &document.Status,
+		&document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding,
+		&document.Version, &document.CreatorID); err != nil || document.Status != "DRAFT" || document.Version != version {
+		return document, ErrConflict
+	}
+	if document.CreatorID == actor {
+		allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+		if roleErr != nil || !allowed {
+			return document, ErrConflict
+		}
+	}
+	var orderStatus string
+	if err = tx.QueryRow(ctx, `SELECT status FROM sales_orders WHERE id=$1`, document.SourceID).Scan(&orderStatus); err != nil || orderStatus != "DELIVERED" {
+		return document, ErrConflict
+	}
+	if _, err = tx.Exec(ctx, `UPDATE sales_invoices SET status='POSTED',version=version+1,updated_at=now() WHERE id=$1`, id); err != nil {
+		return document, err
+	}
+	if err = audit(ctx, tx, actor, "POST_SALES_INVOICE", "SAL-INV-001", "SALES_INVOICE", id, "DRAFT", "POSTED", "", request); err != nil {
+		return document, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return document, err
+	}
+	document.Status = "POSTED"
+	document.Version++
+	return document, nil
 }
 
 func (s Store) VoidSalesInvoice(ctx context.Context, id, reason, actor, request string) (application.Document, error) {
@@ -579,24 +630,32 @@ func (s Store) VoidSalesInvoice(ctx context.Context, id, reason, actor, request 
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var document application.Document
-	err = tx.QueryRow(ctx, `UPDATE sales_invoices i SET status='VOID',void_reason=$2,voided_by=$3,voided_at=now(),version=version+1,updated_at=now()
-		WHERE i.id=$1 AND i.status='POSTED' AND NOT EXISTS(SELECT 1 FROM customer_payment_allocations a JOIN customer_payments p ON p.id=a.payment_id WHERE a.invoice_id=i.id AND p.status='POSTED')
-		RETURNING id,document_no,status,customer_id,sales_order_id,currency,total,outstanding,version`, id, reason, actor).
-		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version)
-	if err != nil {
+	var priorStatus string
+	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,customer_id,sales_order_id,currency,total,outstanding,version
+		FROM sales_invoices WHERE id=$1 FOR UPDATE`, id).Scan(&document.ID, &document.DocumentNo, &priorStatus,
+		&document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version); err != nil || (priorStatus != "DRAFT" && priorStatus != "POSTED") {
 		return document, ErrConflict
 	}
-	if err = audit(ctx, tx, actor, "VOID_SALES_INVOICE", "ACT-FIN-CINV-VOID", "SALES_INVOICE", id, "POSTED", "VOID", reason, request); err != nil {
+	var hasPostedPayment bool
+	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM customer_payment_allocations a JOIN customer_payments p ON p.id=a.payment_id WHERE a.invoice_id=$1 AND p.status='POSTED')`, id).Scan(&hasPostedPayment); err != nil || hasPostedPayment {
+		return document, ErrConflict
+	}
+	if _, err = tx.Exec(ctx, `UPDATE sales_invoices SET status='VOID',void_reason=$2,voided_by=$3,voided_at=now(),version=version+1,updated_at=now() WHERE id=$1`, id, reason, actor); err != nil {
+		return document, err
+	}
+	if err = audit(ctx, tx, actor, "VOID_SALES_INVOICE", "ACT-FIN-CINV-VOID", "SALES_INVOICE", id, priorStatus, "VOID", reason, request); err != nil {
 		return document, err
 	}
 	if err = tx.Commit(ctx); err != nil {
 		return document, err
 	}
+	document.Status = "VOID"
+	document.Version++
 	return document, nil
 }
 
 func (s Store) ListCustomerPayments(ctx context.Context) ([]application.Document, error) {
-	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,customer_id,''::text,currency,amount,0::numeric,version FROM customer_payments ORDER BY created_at DESC`)
+	rows, err := s.Pool.Query(ctx, `SELECT id,document_no,status,customer_id,''::text,currency,amount,0::numeric,version,created_by FROM customer_payments ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -629,7 +688,7 @@ func (s Store) CreateCustomerPayment(ctx context.Context, input application.Paym
 	}
 	for _, allocation := range input.Allocations {
 		tag, execErr := tx.Exec(ctx, `INSERT INTO customer_payment_allocations(payment_id,invoice_id,amount)
-			SELECT $1,id,$3 FROM sales_invoices WHERE id=$2 AND customer_id=$4`, id, allocation.InvoiceID, allocation.Amount, input.PartyID)
+			SELECT $1,id,$3 FROM sales_invoices WHERE id=$2 AND customer_id=$4 AND status IN ('POSTED','PARTIALLY_PAID')`, id, allocation.InvoiceID, allocation.Amount, input.PartyID)
 		if execErr != nil || tag.RowsAffected() != 1 {
 			return application.Document{}, ErrConflict
 		}
@@ -651,9 +710,15 @@ func (s Store) PostCustomerPayment(ctx context.Context, id string, version int, 
 	defer func() { _ = tx.Rollback(ctx) }()
 	var document application.Document
 	var paymentDate string
-	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,customer_id,''::text,currency,amount,0::numeric,version,payment_date::text FROM customer_payments WHERE id=$1 FOR UPDATE`, id).
-		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate); err != nil || document.Status != "DRAFT" || document.Version != version {
+	if err = tx.QueryRow(ctx, `SELECT id,document_no,status,customer_id,''::text,currency,amount,0::numeric,version,payment_date::text,created_by FROM customer_payments WHERE id=$1 FOR UPDATE`, id).
+		Scan(&document.ID, &document.DocumentNo, &document.Status, &document.PartyID, &document.SourceID, &document.Currency, &document.Total, &document.Outstanding, &document.Version, &paymentDate, &document.CreatorID); err != nil || document.Status != "DRAFT" || document.Version != version {
 		return document, ErrConflict
+	}
+	if document.CreatorID == actor {
+		allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+		if roleErr != nil || !allowed {
+			return document, ErrConflict
+		}
 	}
 	rows, err := tx.Query(ctx, `SELECT a.invoice_id,a.amount,i.status,i.total,i.outstanding,i.currency,i.invoice_date::text,i.sales_order_id,i.customer_id FROM customer_payment_allocations a JOIN sales_invoices i ON i.id=a.invoice_id WHERE a.payment_id=$1 ORDER BY a.invoice_id FOR UPDATE OF i`, id)
 	if err != nil {

@@ -41,7 +41,7 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	order, err = purchasing.IssueOrder(ctx, order.ID, order.Version, operatorID, "fin-p2p-5")
+	order, err = purchasing.IssueOrder(ctx, order.ID, order.Version, supervisorID, "fin-p2p-5")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,17 +56,17 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = purchasing.PostReceipt(ctx, receipt.ID, receipt.Version, operatorID, "fin-p2p-7"); err != nil {
+	if _, err = purchasing.PostReceipt(ctx, receipt.ID, receipt.Version, supervisorID, "fin-p2p-7"); err != nil {
 		t.Fatal(err)
 	}
 
 	mismatchInput := supplierInvoice(order.ID, "INV-1", 9, 100, "")
 	mismatchInput.Lines[0].ReferenceID = orderLineID
-	invoice, err := finance.CreateSupplierInvoice(ctx, mismatchInput, adminID, "fin-p2p-8")
+	invoice, err := finance.CreateSupplierInvoice(ctx, mismatchInput, operatorID, "fin-p2p-8")
 	if err != nil {
 		t.Fatal(err)
 	}
-	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, adminID, "fin-p2p-9")
+	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, supervisorID, "fin-p2p-9")
 	if err != nil || invoice.Status != "MATCH_EXCEPTION" {
 		t.Fatalf("invoice=%#v err=%v", invoice, err)
 	}
@@ -74,11 +74,11 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	if err != nil || summary.Payables != 0 {
 		t.Fatalf("match-exception invoice leaked into payables: summary=%#v err=%v", summary, err)
 	}
-	invoice, err = finance.ResolveSupplierInvoice(ctx, invoice.ID, []financeapp.InvoiceLineInput{{ReferenceID: orderLineID, Quantity: 10, UnitPrice: 100}}, adminID, "fin-p2p-10")
+	invoice, err = finance.ResolveSupplierInvoice(ctx, invoice.ID, []financeapp.InvoiceLineInput{{ReferenceID: orderLineID, Quantity: 10, UnitPrice: 100}}, operatorID, "fin-p2p-10")
 	if err != nil {
 		t.Fatal(err)
 	}
-	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, adminID, "fin-p2p-11")
+	invoice, err = finance.MatchSupplierInvoice(ctx, invoice.ID, supervisorID, "fin-p2p-11")
 	if err != nil || invoice.Status != "POSTED" {
 		t.Fatalf("invoice=%#v err=%v", invoice, err)
 	}
@@ -90,19 +90,19 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 		t.Fatal("receipt reversal accepted with active invoice")
 	}
 
-	payment1, err := finance.CreateSupplierPayment(ctx, payment(supplierID, invoice.ID, 400), adminID, "fin-p2p-12")
+	payment1, err := finance.CreateSupplierPayment(ctx, payment(supplierID, invoice.ID, 400), operatorID, "fin-p2p-12")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = finance.PostSupplierPayment(ctx, payment1.ID, payment1.Version, adminID, "fin-p2p-13"); err != nil {
+	if _, err = finance.PostSupplierPayment(ctx, payment1.ID, payment1.Version, supervisorID, "fin-p2p-13"); err != nil {
 		t.Fatal(err)
 	}
 	assertInvoice(t, pool, "supplier_invoices", invoice.ID, "PARTIALLY_PAID", 600)
-	payment2, err := finance.CreateSupplierPayment(ctx, payment(supplierID, invoice.ID, 600), adminID, "fin-p2p-14")
+	payment2, err := finance.CreateSupplierPayment(ctx, payment(supplierID, invoice.ID, 600), operatorID, "fin-p2p-14")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = finance.PostSupplierPayment(ctx, payment2.ID, payment2.Version, adminID, "fin-p2p-15"); err != nil {
+	if _, err = finance.PostSupplierPayment(ctx, payment2.ID, payment2.Version, supervisorID, "fin-p2p-15"); err != nil {
 		t.Fatal(err)
 	}
 	assertState(t, pool, "purchase_orders", order.ID, "CLOSED")
@@ -129,11 +129,11 @@ func TestP2PConsolidatedInvoiceExactMatchPartialPaymentCloseAndVoid(t *testing.T
 	}
 	replacementInput := supplierInvoice(order.ID, "INV-2", 10, 100, invoice.ID)
 	replacementInput.Lines[0].ReferenceID = orderLineID
-	replacement, err := finance.CreateSupplierInvoice(ctx, replacementInput, adminID, "fin-p2p-20")
+	replacement, err := finance.CreateSupplierInvoice(ctx, replacementInput, operatorID, "fin-p2p-20")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if replacement, err = finance.MatchSupplierInvoice(ctx, replacement.ID, adminID, "fin-p2p-21"); err != nil || replacement.Status != "POSTED" {
+	if replacement, err = finance.MatchSupplierInvoice(ctx, replacement.ID, supervisorID, "fin-p2p-21"); err != nil || replacement.Status != "POSTED" {
 		t.Fatalf("replacement=%#v err=%v", replacement, err)
 	}
 }
@@ -174,25 +174,41 @@ func TestO2CConsolidatedInvoicePartialPaymentCompletionAndVoid(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = sales.PostDelivery(ctx, delivery.ID, delivery.Version, operatorID, "fin-o2c-5"); err != nil {
+	if _, err = sales.PostDelivery(ctx, delivery.ID, delivery.Version, adminID, "fin-o2c-5"); err != nil {
 		t.Fatal(err)
 	}
-	invoice, err := finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), adminID, "fin-o2c-6")
+	invoice, err := finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), operatorID, "fin-o2c-6")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if invoice.Status != "DRAFT" {
+		t.Fatalf("new sales invoice must be draft, got %s", invoice.Status)
+	}
+	if _, err = finance.PostSalesInvoice(ctx, invoice.ID, invoice.Version, operatorID, "fin-o2c-self-post"); err == nil {
+		t.Fatal("staff self-posted sales invoice")
+	}
+	if _, err = finance.CreateCustomerPayment(ctx, payment(customerID, invoice.ID, 500), operatorID, "fin-o2c-before-post"); err == nil {
+		t.Fatal("payment draft accepted against unposted invoice")
+	}
+	invoice, err = finance.PostSalesInvoice(ctx, invoice.ID, invoice.Version, adminID, "fin-o2c-post-invoice")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err = sales.ReverseDelivery(ctx, delivery.ID, "should be blocked", adminID, "fin-o2c-guard"); err == nil {
 		t.Fatal("delivery reversal accepted with active invoice")
 	}
-	payment1, err := finance.CreateCustomerPayment(ctx, payment(customerID, invoice.ID, 500), adminID, "fin-o2c-7")
+	payment1, err := finance.CreateCustomerPayment(ctx, payment(customerID, invoice.ID, 500), operatorID, "fin-o2c-7")
 	if err != nil {
 		t.Fatal(err)
+	}
+	if _, err = finance.PostCustomerPayment(ctx, payment1.ID, payment1.Version, operatorID, "fin-o2c-self-payment"); err == nil {
+		t.Fatal("staff self-posted customer payment")
 	}
 	if _, err = finance.PostCustomerPayment(ctx, payment1.ID, payment1.Version, adminID, "fin-o2c-8"); err != nil {
 		t.Fatal(err)
 	}
 	assertInvoice(t, pool, "sales_invoices", invoice.ID, "PARTIALLY_PAID", 1500)
-	payment2, err := finance.CreateCustomerPayment(ctx, payment(customerID, invoice.ID, 1500), adminID, "fin-o2c-9")
+	payment2, err := finance.CreateCustomerPayment(ctx, payment(customerID, invoice.ID, 1500), operatorID, "fin-o2c-9")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,10 +230,10 @@ func TestO2CConsolidatedInvoicePartialPaymentCompletionAndVoid(t *testing.T) {
 	if _, err = finance.VoidSalesInvoice(ctx, invoice.ID, "replace invoice", adminID, "fin-o2c-14"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), adminID, "fin-o2c-missing-link"); err == nil {
+	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, ""), operatorID, "fin-o2c-missing-link"); err == nil {
 		t.Fatal("sales replacement accepted without replacesInvoiceId")
 	}
-	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, invoice.ID), adminID, "fin-o2c-15"); err != nil {
+	if _, err = finance.CreateSalesInvoice(ctx, salesInvoice(order.ID, invoice.ID), operatorID, "fin-o2c-15"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -237,6 +253,7 @@ func assertState(t *testing.T, pool *pgxpool.Pool, table, id, expected string) {
 	query := map[string]string{
 		"purchase_orders":       `SELECT status FROM purchase_orders WHERE id=$1`,
 		"purchase_requests":     `SELECT status FROM purchase_requests WHERE id=$1`,
+		"supplier_invoices":     `SELECT status FROM supplier_invoices WHERE id=$1`,
 		"sales_orders":          `SELECT status FROM sales_orders WHERE id=$1`,
 		"inventory_adjustments": `SELECT status FROM inventory_adjustments WHERE id=$1`,
 	}[table]

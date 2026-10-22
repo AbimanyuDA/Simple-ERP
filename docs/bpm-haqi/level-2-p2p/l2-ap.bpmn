@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-ap" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-ap-invoice" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-ap-match" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-ap-payment" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-ap-payment-post" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-ap-resolve" id="Definitions_l2_ap" targetNamespace="https://simple-erp.local/bpm-haqi/l2-ap" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-invoice" location="../level-3-p2p/l3-ap-invoice.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-match" location="../level-3-p2p/l3-ap-match.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-payment" location="../level-3-p2p/l3-ap-payment.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-payment-post" location="../level-3-p2p/l3-ap-payment-post.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-ap-resolve" location="../level-3-p2p/l3-ap-resolve.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_ap" name="Invoice supplier sampai pelunasan" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+MATCH_EXCEPTION: Staff resolve lalu Supervisor match ulang. Pembayaran parsial diulang; PO/PR ditutup hanya jika semua invoice non-VOID PAID. Supervisor tidak boleh match/post dokumen sendiri; Super Admin boleh bypass.
+backend/internal/finance/adapter/postgres/store.go :: CreateSupplierInvoice / MatchSupplierInvoice / PostSupplierPayment</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_ap">
+      <bpmn:lane id="Lane_l2_ap_0" name="Staff atau Super Admin">
+        <bpmn:flowNodeRef>l2_ap_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_stage0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_stage2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_resolve</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l2_ap_1" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l2_ap_gate0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_exit0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_gate1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_exit1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_gate2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_exit2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_gate3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_exit3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_end</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_resolved</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l2_ap_2" name="Supervisor atau Super Admin">
+        <bpmn:flowNodeRef>l2_ap_stage1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_ap_stage3</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_ap_start" name="Kebutuhan dokumen">
+      <bpmn:outgoing>l2_ap_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="l2_ap_stage0" name="Staff catat invoice setelah PO RECEIVED" calledElement="c0:Process_l3_ap_invoice">
+      <bpmn:incoming>l2_ap_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_1</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_ap_gate0" name="Invoice MATCH_PENDING?" default="l2_ap_Flow_2" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_ap_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_ap_exit0" name="Invoice belum dicatat">
+      <bpmn:incoming>l2_ap_Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_ap_stage1" name="Match invoice" calledElement="c1:Process_l3_ap_match">
+      <bpmn:incoming>l2_ap_Flow_3</bpmn:incoming>
+      <bpmn:incoming>l2_ap_Flow_16</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_4</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_ap_gate1" name="Hasil match invoice?" default="l2_ap_Flow_14" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_ap_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_13</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_ap_exit1" name="Match belum selesai">
+      <bpmn:incoming>l2_ap_Flow_14</bpmn:incoming>
+      <bpmn:incoming>l2_ap_Flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_ap_stage2" name="Staff catat pembayaran supplier" calledElement="c2:Process_l3_ap_payment">
+      <bpmn:incoming>l2_ap_Flow_10</bpmn:incoming>
+      <bpmn:incoming>l2_ap_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_ap_gate2" name="Payment DRAFT?" default="l2_ap_Flow_6" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_ap_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_ap_exit2" name="Payment belum dicatat">
+      <bpmn:incoming>l2_ap_Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_ap_stage3" name="Post pembayaran" calledElement="c3:Process_l3_ap_payment_post">
+      <bpmn:incoming>l2_ap_Flow_7</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_8</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_ap_gate3" name="Hasil posting payment supplier?" default="l2_ap_Flow_11" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_ap_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_9</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l2_ap_exit3" name="Payment belum posted">
+      <bpmn:incoming>l2_ap_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l2_ap_end" name="Tahap selesai">
+      <bpmn:incoming>l2_ap_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_ap_resolve" name="Staff perbaiki MATCH_EXCEPTION" calledElement="c4:Process_l3_ap_resolve">
+      <bpmn:incoming>l2_ap_Flow_13</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_15</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l2_ap_resolved" name="Hasil perbaikan invoice?" default="l2_ap_Flow_17" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_ap_Flow_15</bpmn:incoming>
+      <bpmn:outgoing>l2_ap_Flow_16</bpmn:outgoing>
+      <bpmn:outgoing>l2_ap_Flow_17</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="l2_ap_Flow_0" sourceRef="l2_ap_start" targetRef="l2_ap_stage0"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_1" sourceRef="l2_ap_stage0" targetRef="l2_ap_gate0"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_2" sourceRef="l2_ap_gate0" targetRef="l2_ap_exit0" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_3" sourceRef="l2_ap_gate0" targetRef="l2_ap_stage1" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_4" sourceRef="l2_ap_stage1" targetRef="l2_ap_gate1"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_5" sourceRef="l2_ap_stage2" targetRef="l2_ap_gate2"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_6" sourceRef="l2_ap_gate2" targetRef="l2_ap_exit2" name="Tidak"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_7" sourceRef="l2_ap_gate2" targetRef="l2_ap_stage3" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_8" sourceRef="l2_ap_stage3" targetRef="l2_ap_gate3"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_9" sourceRef="l2_ap_gate3" targetRef="l2_ap_end" name="PO CLOSED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">PO CLOSED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_10" sourceRef="l2_ap_gate3" targetRef="l2_ap_stage2" name="PO RECEIVED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">PO RECEIVED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_11" sourceRef="l2_ap_gate3" targetRef="l2_ap_exit3" name="Payment gagal"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_12" sourceRef="l2_ap_gate1" targetRef="l2_ap_stage2" name="POSTED">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">POSTED</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_13" sourceRef="l2_ap_gate1" targetRef="l2_ap_resolve" name="Mismatch">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Mismatch</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_14" sourceRef="l2_ap_gate1" targetRef="l2_ap_exit1" name="Request match gagal"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_15" sourceRef="l2_ap_resolve" targetRef="l2_ap_resolved"/>
+    <bpmn:sequenceFlow id="l2_ap_Flow_16" sourceRef="l2_ap_resolved" targetRef="l2_ap_stage1" name="MATCH_PENDING">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">MATCH_PENDING</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_ap_Flow_17" sourceRef="l2_ap_resolved" targetRef="l2_ap_exit1" name="Perbaikan gagal"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_ap">
+    <bpmn:participant id="Pool_l2_ap" name="Simple ERP" processRef="Process_l2_ap"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_ap">
+    <bpmndi:BPMNPlane id="Plane_l2_ap" bpmnElement="Collab_l2_ap">
+      <bpmndi:BPMNShape id="Pool_l2_ap_di" bpmnElement="Pool_l2_ap" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="2610" height="990"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_ap_0_di" bpmnElement="Lane_l2_ap_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_ap_1_di" bpmnElement="Lane_l2_ap_1" isHorizontal="true">
+        <dc:Bounds x="50" y="430.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_ap_2_di" bpmnElement="Lane_l2_ap_2" isHorizontal="true">
+        <dc:Bounds x="50" y="760.0" width="2580" height="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_start_di" bpmnElement="l2_ap_start">
+        <dc:Bounds x="85" y="181.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="224.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_stage0_di" bpmnElement="l2_ap_stage0">
+        <dc:Bounds x="200" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_gate0_di" bpmnElement="l2_ap_gate0">
+        <dc:Bounds x="445" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="390" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_exit0_di" bpmnElement="l2_ap_exit0">
+        <dc:Bounds x="595" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_stage1_di" bpmnElement="l2_ap_stage1">
+        <dc:Bounds x="750" y="755.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_gate1_di" bpmnElement="l2_ap_gate1">
+        <dc:Bounds x="995" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="940" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_exit1_di" bpmnElement="l2_ap_exit1">
+        <dc:Bounds x="1145" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1090" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_stage2_di" bpmnElement="l2_ap_stage2">
+        <dc:Bounds x="1300" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_gate2_di" bpmnElement="l2_ap_gate2">
+        <dc:Bounds x="1545" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1490" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_exit2_di" bpmnElement="l2_ap_exit2">
+        <dc:Bounds x="1695" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1640" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_stage3_di" bpmnElement="l2_ap_stage3">
+        <dc:Bounds x="1850" y="755.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_gate3_di" bpmnElement="l2_ap_gate3">
+        <dc:Bounds x="2095" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2040" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_exit3_di" bpmnElement="l2_ap_exit3">
+        <dc:Bounds x="2245" y="596.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2190" y="639.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_end_di" bpmnElement="l2_ap_end">
+        <dc:Bounds x="2340" y="481.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2285" y="524.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_resolve_di" bpmnElement="l2_ap_resolve">
+        <dc:Bounds x="1075" y="155.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_ap_resolved_di" bpmnElement="l2_ap_resolved">
+        <dc:Bounds x="1280" y="473.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1225" y="532.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_0_di" bpmnElement="l2_ap_Flow_0">
+        <di:waypoint x="123" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="161.5" y="200.0"/>
+        <di:waypoint x="200" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_1_di" bpmnElement="l2_ap_Flow_1">
+        <di:waypoint x="378" y="200.0"/>
+        <di:waypoint x="411.5" y="200.0"/>
+        <di:waypoint x="411.5" y="500.0"/>
+        <di:waypoint x="445" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_2_di" bpmnElement="l2_ap_Flow_2">
+        <di:waypoint x="485.5" y="513.5"/>
+        <di:waypoint x="540.25" y="513.5"/>
+        <di:waypoint x="540.25" y="615.0"/>
+        <di:waypoint x="595" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="529" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_3_di" bpmnElement="l2_ap_Flow_3">
+        <di:waypoint x="499" y="500.0"/>
+        <di:waypoint x="534" y="500.0"/>
+        <di:waypoint x="534" y="800.0"/>
+        <di:waypoint x="750" y="800.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="549.5" y="717.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_4_di" bpmnElement="l2_ap_Flow_4">
+        <di:waypoint x="928" y="800.0"/>
+        <di:waypoint x="961.5" y="800.0"/>
+        <di:waypoint x="961.5" y="500.0"/>
+        <di:waypoint x="995" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_5_di" bpmnElement="l2_ap_Flow_5">
+        <di:waypoint x="1478" y="200.0"/>
+        <di:waypoint x="1511.5" y="200.0"/>
+        <di:waypoint x="1511.5" y="500.0"/>
+        <di:waypoint x="1545" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_6_di" bpmnElement="l2_ap_Flow_6">
+        <di:waypoint x="1585.5" y="513.5"/>
+        <di:waypoint x="1640.25" y="513.5"/>
+        <di:waypoint x="1640.25" y="615.0"/>
+        <di:waypoint x="1695" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1629" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_7_di" bpmnElement="l2_ap_Flow_7">
+        <di:waypoint x="1599" y="500.0"/>
+        <di:waypoint x="1634" y="500.0"/>
+        <di:waypoint x="1634" y="800.0"/>
+        <di:waypoint x="1850" y="800.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1649.5" y="717.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_8_di" bpmnElement="l2_ap_Flow_8">
+        <di:waypoint x="2028" y="800.0"/>
+        <di:waypoint x="2061.5" y="800.0"/>
+        <di:waypoint x="2061.5" y="500.0"/>
+        <di:waypoint x="2095" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_9_di" bpmnElement="l2_ap_Flow_9">
+        <di:waypoint x="2149" y="500.0"/>
+        <di:waypoint x="2244.5" y="500.0"/>
+        <di:waypoint x="2244.5" y="500.0"/>
+        <di:waypoint x="2340" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2179" y="463.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_10_di" bpmnElement="l2_ap_Flow_10">
+        <di:waypoint x="2149" y="500.0"/>
+        <di:waypoint x="2169" y="500.0"/>
+        <di:waypoint x="2169" y="1037"/>
+        <di:waypoint x="1280" y="1037"/>
+        <di:waypoint x="1280" y="200.0"/>
+        <di:waypoint x="1300" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1974" y="985" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_11_di" bpmnElement="l2_ap_Flow_11">
+        <di:waypoint x="2135.5" y="513.5"/>
+        <di:waypoint x="2190.25" y="513.5"/>
+        <di:waypoint x="2190.25" y="615.0"/>
+        <di:waypoint x="2245" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2179" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_12_di" bpmnElement="l2_ap_Flow_12">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1058" y="500.0"/>
+        <di:waypoint x="1058" y="300"/>
+        <di:waypoint x="1280" y="300"/>
+        <di:waypoint x="1280" y="200.0"/>
+        <di:waypoint x="1300" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1090" y="265" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_13_di" bpmnElement="l2_ap_Flow_13">
+        <di:waypoint x="1049" y="500.0"/>
+        <di:waypoint x="1062.0" y="500.0"/>
+        <di:waypoint x="1062.0" y="200.0"/>
+        <di:waypoint x="1075" y="200.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1070" y="365" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_14_di" bpmnElement="l2_ap_Flow_14">
+        <di:waypoint x="1035.5" y="513.5"/>
+        <di:waypoint x="1090.25" y="513.5"/>
+        <di:waypoint x="1090.25" y="615.0"/>
+        <di:waypoint x="1145" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1079" y="580.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_15_di" bpmnElement="l2_ap_Flow_15">
+        <di:waypoint x="1253" y="200.0"/>
+        <di:waypoint x="1266.5" y="200.0"/>
+        <di:waypoint x="1266.5" y="500.0"/>
+        <di:waypoint x="1280" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_16_di" bpmnElement="l2_ap_Flow_16">
+        <di:waypoint x="1334" y="500.0"/>
+        <di:waypoint x="1354" y="500.0"/>
+        <di:waypoint x="1354" y="1037"/>
+        <di:waypoint x="730" y="1037"/>
+        <di:waypoint x="730" y="800.0"/>
+        <di:waypoint x="750" y="800.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1159" y="985" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_ap_Flow_17_di" bpmnElement="l2_ap_Flow_17">
+        <di:waypoint x="1320.5" y="513.5"/>
+        <di:waypoint x="1340.5" y="513.5"/>
+        <di:waypoint x="1340.5" y="1049"/>
+        <di:waypoint x="1125" y="1049"/>
+        <di:waypoint x="1125" y="615.0"/>
+        <di:waypoint x="1145" y="615.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1159" y="1010" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

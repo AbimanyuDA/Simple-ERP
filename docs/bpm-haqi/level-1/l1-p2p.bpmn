@@ -1,0 +1,318 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l1-p2p" xmlns:c0="https://simple-erp.local/bpm-haqi/l2-pr" xmlns:c1="https://simple-erp.local/bpm-haqi/l2-po-gr" xmlns:c2="https://simple-erp.local/bpm-haqi/l2-ap" xmlns:c3="https://simple-erp.local/bpm-haqi/l2-p2p-correction" id="Definitions_l1_p2p" targetNamespace="https://simple-erp.local/bpm-haqi/l1-p2p" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-pr" location="../level-2-p2p/l2-pr.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-po-gr" location="../level-2-p2p/l2-po-gr.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-ap" location="../level-2-p2p/l2-ap.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-p2p-correction" location="../level-2-p2p/l2-p2p-correction.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l1_p2p" name="Procure to Pay - permintaan sampai pelunasan" isExecutable="false">
+    <bpmn:documentation>Level 1; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Perspektif bisnis Staff dan Supervisor. Staff menyiapkan PR, PO, GR, invoice dan payment supplier; Supervisor mereview/menerbitkan/mem-post/match. Super Admin tidak ditampilkan sebagai pelaku proses, tetapi kode saat ini masih mengizinkan akses operasionalnya. Supervisor tidak boleh mengesahkan dokumennya sendiri; Super Admin boleh bypass self-approval. Koreksi PR/PO/GR/invoice/payment tersedia melalui l2-p2p-correction.
+backend/internal/purchasing/adapter/postgres/store.go :: CreateRequest / ConvertToOrder / PostReceipt
+backend/internal/finance/adapter/postgres/store.go :: PostSupplierPayment</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l1_p2p">
+      <bpmn:lane id="Lane_l1_p2p_0" name="Staff">
+        <bpmn:flowNodeRef>l1_p2p_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_mode</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_p2p_1" name="Staff dan Supervisor">
+        <bpmn:flowNodeRef>l1_p2p_stage0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_stage1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_stage2</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_p2p_2" name="Sistem Simple ERP">
+        <bpmn:flowNodeRef>l1_p2p_gate0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_exit0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_gate1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_exit1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_gate2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_exit2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_l1_p2p_3" name="Staff atau Supervisor sesuai aksi">
+        <bpmn:flowNodeRef>l1_p2p_correction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_p2p_corrected</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l1_p2p_start" name="Kebutuhan dokumen">
+      <bpmn:outgoing>l1_p2p_Flow_9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="l1_p2p_mode" name="Proses baru atau koreksi?" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_p2p_Flow_9</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>l1_p2p_Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l1_p2p_stage0" name="Permintaan dan review PR" calledElement="c0:Process_l2_pr">
+      <bpmn:incoming>l1_p2p_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_0</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_p2p_gate0" name="PR APPROVED?" default="l1_p2p_Flow_1" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_p2p_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_1</bpmn:outgoing>
+      <bpmn:outgoing>l1_p2p_Flow_2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_p2p_exit0" name="PR belum approved">
+      <bpmn:incoming>l1_p2p_Flow_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_p2p_stage1" name="PO dan penerimaan penuh" calledElement="c1:Process_l2_po_gr">
+      <bpmn:incoming>l1_p2p_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_p2p_gate1" name="PO RECEIVED?" default="l1_p2p_Flow_4" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_p2p_Flow_3</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l1_p2p_Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_p2p_exit1" name="PO belum diterima penuh">
+      <bpmn:incoming>l1_p2p_Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_p2p_stage2" name="Invoice dan pembayaran supplier" calledElement="c2:Process_l2_ap">
+      <bpmn:incoming>l1_p2p_Flow_5</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_6</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="l1_p2p_gate2" name="PO CLOSED dan PR COMPLETED?" default="l1_p2p_Flow_7" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_p2p_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>l1_p2p_Flow_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="l1_p2p_exit2" name="Pelunasan belum selesai">
+      <bpmn:incoming>l1_p2p_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="l1_p2p_end" name="Tahap selesai">
+      <bpmn:incoming>l1_p2p_Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_p2p_correction" name="Koreksi dokumen yang ada" calledElement="c3:Process_l2_p2p_correction">
+      <bpmn:incoming>l1_p2p_Flow_11</bpmn:incoming>
+      <bpmn:outgoing>l1_p2p_Flow_12</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l1_p2p_corrected" name="Upaya koreksi selesai; cek hasil">
+      <bpmn:incoming>l1_p2p_Flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_0" sourceRef="l1_p2p_stage0" targetRef="l1_p2p_gate0"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_1" sourceRef="l1_p2p_gate0" targetRef="l1_p2p_exit0" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_2" sourceRef="l1_p2p_gate0" targetRef="l1_p2p_stage1" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_3" sourceRef="l1_p2p_stage1" targetRef="l1_p2p_gate1"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_4" sourceRef="l1_p2p_gate1" targetRef="l1_p2p_exit1" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_5" sourceRef="l1_p2p_gate1" targetRef="l1_p2p_stage2" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_6" sourceRef="l1_p2p_stage2" targetRef="l1_p2p_gate2"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_7" sourceRef="l1_p2p_gate2" targetRef="l1_p2p_exit2" name="Tidak"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_8" sourceRef="l1_p2p_gate2" targetRef="l1_p2p_end" name="Ya">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Ya</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_9" sourceRef="l1_p2p_start" targetRef="l1_p2p_mode"/>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_10" sourceRef="l1_p2p_mode" targetRef="l1_p2p_stage0" name="Proses baru">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Proses baru</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_11" sourceRef="l1_p2p_mode" targetRef="l1_p2p_correction" name="Koreksi">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Koreksi</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_p2p_Flow_12" sourceRef="l1_p2p_correction" targetRef="l1_p2p_corrected"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l1_p2p">
+    <bpmn:participant id="Pool_l1_p2p" name="Simple ERP" processRef="Process_l1_p2p"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l1_p2p">
+    <bpmndi:BPMNPlane id="Plane_l1_p2p" bpmnElement="Collab_l1_p2p">
+      <bpmndi:BPMNShape id="Pool_l1_p2p_di" bpmnElement="Pool_l1_p2p" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="3370" height="880"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_p2p_0_di" bpmnElement="Lane_l1_p2p_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_p2p_1_di" bpmnElement="Lane_l1_p2p_1" isHorizontal="true">
+        <dc:Bounds x="50" y="320.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_p2p_2_di" bpmnElement="Lane_l1_p2p_2" isHorizontal="true">
+        <dc:Bounds x="50" y="540.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_p2p_3_di" bpmnElement="Lane_l1_p2p_3" isHorizontal="true">
+        <dc:Bounds x="50" y="760.0" width="3340" height="220.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_start_di" bpmnElement="l1_p2p_start">
+        <dc:Bounds x="200" y="171.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="214.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_mode_di" bpmnElement="l1_p2p_mode">
+        <dc:Bounds x="425" y="163.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="370" y="222.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_stage0_di" bpmnElement="l1_p2p_stage0">
+        <dc:Bounds x="650" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_gate0_di" bpmnElement="l1_p2p_gate0">
+        <dc:Bounds x="875" y="603.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="662.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_exit0_di" bpmnElement="l1_p2p_exit0">
+        <dc:Bounds x="1100" y="611.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1045" y="654.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_stage1_di" bpmnElement="l1_p2p_stage1">
+        <dc:Bounds x="1325" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_gate1_di" bpmnElement="l1_p2p_gate1">
+        <dc:Bounds x="1550" y="603.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1495" y="662.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_exit1_di" bpmnElement="l1_p2p_exit1">
+        <dc:Bounds x="1775" y="611.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1720" y="654.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_stage2_di" bpmnElement="l1_p2p_stage2">
+        <dc:Bounds x="2000" y="365.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_gate2_di" bpmnElement="l1_p2p_gate2">
+        <dc:Bounds x="2225" y="603.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2170" y="662.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_exit2_di" bpmnElement="l1_p2p_exit2">
+        <dc:Bounds x="2450" y="611.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2395" y="654.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_end_di" bpmnElement="l1_p2p_end">
+        <dc:Bounds x="2675" y="611.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2620" y="654.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_correction_di" bpmnElement="l1_p2p_correction">
+        <dc:Bounds x="2900" y="805.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_p2p_corrected_di" bpmnElement="l1_p2p_corrected">
+        <dc:Bounds x="3125" y="831.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3070" y="874.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_0_di" bpmnElement="l1_p2p_Flow_0">
+        <di:waypoint x="828" y="410.0"/>
+        <di:waypoint x="851.5" y="410.0"/>
+        <di:waypoint x="851.5" y="630.0"/>
+        <di:waypoint x="875" y="630.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_1_di" bpmnElement="l1_p2p_Flow_1">
+        <di:waypoint x="915.5" y="643.5"/>
+        <di:waypoint x="1007.75" y="643.5"/>
+        <di:waypoint x="1007.75" y="630.0"/>
+        <di:waypoint x="1100" y="630.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="930" y="575.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_2_di" bpmnElement="l1_p2p_Flow_2">
+        <di:waypoint x="929" y="630.0"/>
+        <di:waypoint x="947" y="630.0"/>
+        <di:waypoint x="947" y="728"/>
+        <di:waypoint x="1307" y="728"/>
+        <di:waypoint x="1307" y="410.0"/>
+        <di:waypoint x="1325" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1155" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_3_di" bpmnElement="l1_p2p_Flow_3">
+        <di:waypoint x="1503" y="410.0"/>
+        <di:waypoint x="1526.5" y="410.0"/>
+        <di:waypoint x="1526.5" y="630.0"/>
+        <di:waypoint x="1550" y="630.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_4_di" bpmnElement="l1_p2p_Flow_4">
+        <di:waypoint x="1590.5" y="643.5"/>
+        <di:waypoint x="1682.75" y="643.5"/>
+        <di:waypoint x="1682.75" y="630.0"/>
+        <di:waypoint x="1775" y="630.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="575.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_5_di" bpmnElement="l1_p2p_Flow_5">
+        <di:waypoint x="1604" y="630.0"/>
+        <di:waypoint x="1622" y="630.0"/>
+        <di:waypoint x="1622" y="719"/>
+        <di:waypoint x="1982" y="719"/>
+        <di:waypoint x="1982" y="410.0"/>
+        <di:waypoint x="2000" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1830" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_6_di" bpmnElement="l1_p2p_Flow_6">
+        <di:waypoint x="2178" y="410.0"/>
+        <di:waypoint x="2201.5" y="410.0"/>
+        <di:waypoint x="2201.5" y="630.0"/>
+        <di:waypoint x="2225" y="630.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_7_di" bpmnElement="l1_p2p_Flow_7">
+        <di:waypoint x="2265.5" y="643.5"/>
+        <di:waypoint x="2357.75" y="643.5"/>
+        <di:waypoint x="2357.75" y="630.0"/>
+        <di:waypoint x="2450" y="630.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2280" y="575.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_8_di" bpmnElement="l1_p2p_Flow_8">
+        <di:waypoint x="2279" y="630.0"/>
+        <di:waypoint x="2297" y="630.0"/>
+        <di:waypoint x="2297" y="710"/>
+        <di:waypoint x="2657" y="710"/>
+        <di:waypoint x="2657" y="630.0"/>
+        <di:waypoint x="2675" y="630.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2505" y="575.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_9_di" bpmnElement="l1_p2p_Flow_9">
+        <di:waypoint x="238" y="190.0"/>
+        <di:waypoint x="331.5" y="190.0"/>
+        <di:waypoint x="331.5" y="190.0"/>
+        <di:waypoint x="425" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_10_di" bpmnElement="l1_p2p_Flow_10">
+        <di:waypoint x="479" y="190.0"/>
+        <di:waypoint x="564.5" y="190.0"/>
+        <di:waypoint x="564.5" y="410.0"/>
+        <di:waypoint x="650" y="410.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="480" y="355.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_11_di" bpmnElement="l1_p2p_Flow_11">
+        <di:waypoint x="479" y="190.0"/>
+        <di:waypoint x="497" y="190.0"/>
+        <di:waypoint x="497" y="297"/>
+        <di:waypoint x="2882" y="297"/>
+        <di:waypoint x="2882" y="850.0"/>
+        <di:waypoint x="2900" y="850.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2730" y="795.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_p2p_Flow_12_di" bpmnElement="l1_p2p_Flow_12">
+        <di:waypoint x="3078" y="850.0"/>
+        <di:waypoint x="3101.5" y="850.0"/>
+        <di:waypoint x="3101.5" y="850.0"/>
+        <di:waypoint x="3125" y="850.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

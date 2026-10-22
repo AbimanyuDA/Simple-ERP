@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	email := flag.String("email", "", "initial Admin email")
+	email := flag.String("email", "", "initial Super Admin email")
 	name := flag.String("name", "Administrator", "display name")
 	flag.Parse()
 	if *email == "" {
@@ -39,5 +39,5 @@ func main() {
 	if err := svc.Execute(context.Background(), *email, *name, strings.TrimSpace(password)); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Initial Admin created.")
+	fmt.Println("Initial Super Admin created.")
 }

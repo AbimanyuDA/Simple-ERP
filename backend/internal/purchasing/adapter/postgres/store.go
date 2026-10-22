@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/simple-erp/backend/internal/platform/authorization"
 	"github.com/simple-erp/backend/internal/purchasing/application"
 	"strings"
 	"time"
@@ -150,20 +151,32 @@ func (s Store) TransitionRequest(ctx context.Context, id, action, actor, reason 
 		d.Status = "SUBMITTED"
 	case "approve":
 		trace = "PUR-PR-003"
-		if from != "SUBMITTED" || actor == d.CreatorID {
+		if from != "SUBMITTED" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		d.Status = "APPROVED"
 	case "reject":
 		trace = "PUR-PR-003"
-		if from != "SUBMITTED" || actor == d.CreatorID || reason == "" {
+		if from != "SUBMITTED" || reason == "" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		d.Status = "REJECTED"
 	case "cancel":
 		trace = "ACT-PUR-PR-CANCEL"
 		var admin bool
-		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='SUPER_ADMIN')`, actor).Scan(&admin)
 		if e != nil || from != "DRAFT" || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}
@@ -233,7 +246,7 @@ func (s Store) IssueOrder(ctx context.Context, id string, version int, actor, re
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
-	e = tx.QueryRow(ctx, `UPDATE purchase_orders SET status='ISSUED',version=version+1,updated_at=now() WHERE id=$1 AND status='DRAFT' AND version=$2 RETURNING id,document_no,status,creator_id,version`, id, version).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
+	e = tx.QueryRow(ctx, `UPDATE purchase_orders SET status='ISSUED',version=version+1,updated_at=now() WHERE id=$1 AND status='DRAFT' AND version=$2 AND (creator_id<>$3 OR EXISTS(SELECT 1 FROM users WHERE id=$3 AND role='SUPER_ADMIN' AND status='ACTIVE')) RETURNING id,document_no,status,creator_id,version`, id, version, actor).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
 	if e != nil {
 		return d, ErrConflict
 	}
@@ -302,6 +315,12 @@ func (s Store) PostReceipt(ctx context.Context, id string, version int, actor, r
 	e = tx.QueryRow(ctx, `SELECT g.id,g.document_no,g.status,g.creator_id,g.version,g.purchase_order_id,p.warehouse_id,p.status FROM goods_receipts g JOIN purchase_orders p ON p.id=g.purchase_order_id WHERE g.id=$1 FOR UPDATE OF g,p`, id).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &po, &warehouse, &parentPOStatus)
 	if e != nil || d.Status != "DRAFT" || d.Version != version {
 		return d, ErrConflict
+	}
+	if d.CreatorID == actor {
+		allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+		if roleErr != nil || !allowed {
+			return d, ErrConflict
+		}
 	}
 	if parentPOStatus != "ISSUED" && parentPOStatus != "PARTIALLY_RECEIVED" {
 		return d, ErrConflict
@@ -501,15 +520,23 @@ func (s Store) CancelOrder(ctx context.Context, id, reason, actor, request strin
 	defer func() { _ = tx.Rollback(ctx) }()
 	var d application.Document
 	var previous string
+	var requestID string
 	e = tx.QueryRow(ctx, `SELECT status FROM purchase_orders WHERE id=$1 FOR UPDATE`, id).Scan(&previous)
 	if e != nil || (previous != "DRAFT" && previous != "ISSUED") {
 		return d, ErrConflict
 	}
-	e = tx.QueryRow(ctx, `UPDATE purchase_orders p SET status='CANCELLED',reason=$2,version=version+1,updated_at=now() WHERE p.id=$1 AND p.status=$3 AND NOT EXISTS(SELECT 1 FROM goods_receipts g WHERE g.purchase_order_id=p.id AND g.status='POSTED') RETURNING id,document_no,status,creator_id,version`, id, reason, previous).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version)
+	e = tx.QueryRow(ctx, `UPDATE purchase_orders p SET status='CANCELLED',reason=$2,version=version+1,updated_at=now() WHERE p.id=$1 AND p.status=$3 AND NOT EXISTS(SELECT 1 FROM goods_receipts g WHERE g.purchase_order_id=p.id AND g.status='POSTED') RETURNING id,document_no,status,creator_id,version,purchase_request_id`, id, reason, previous).Scan(&d.ID, &d.DocumentNo, &d.Status, &d.CreatorID, &d.Version, &requestID)
 	if e != nil {
 		return d, ErrConflict
 	}
+	tag, e := tx.Exec(ctx, `UPDATE purchase_requests SET status='APPROVED',version=version+1,updated_at=now() WHERE id=$1 AND status='CONVERTED_TO_PO'`, requestID)
+	if e != nil || tag.RowsAffected() != 1 {
+		return d, ErrConflict
+	}
 	if e = audit(ctx, tx, actor, "CANCEL_PO", "ACT-PUR-PO-CANCEL", "PURCHASE_ORDER", id, previous, "CANCELLED", reason, request); e != nil {
+		return d, e
+	}
+	if e = audit(ctx, tx, actor, "REOPEN_PR_AFTER_PO_CANCEL", "ACT-PUR-PO-CANCEL", "PURCHASE_REQUEST", requestID, "CONVERTED_TO_PO", "APPROVED", reason, request); e != nil {
 		return d, e
 	}
 	e = tx.Commit(ctx)

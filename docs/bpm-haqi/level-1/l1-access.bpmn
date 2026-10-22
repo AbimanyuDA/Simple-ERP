@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l1-access" xmlns:c0="https://simple-erp.local/bpm-haqi/l2-access" xmlns:c1="https://simple-erp.local/bpm-haqi/l2-session" id="Definitions_l1_access" targetNamespace="https://simple-erp.local/bpm-haqi/l1-access" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-access" location="../level-2/l2-access.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l2-session" location="../level-2/l2-session.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l1_access" name="Akses dan pengguna" isExecutable="false">
+    <bpmn:documentation>Level 1; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Dekomposisi kapabilitas. Pilihan tahap tidak melewati precondition status di L2/L3; bukan semua tahap dijalankan berurutan oleh gateway.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l1_access">
+      <bpmn:lane id="Lane_l1_access_0" name="Pemilik kebutuhan (role pada detail)">
+        <bpmn:flowNodeRef>l1_access_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_end0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l1_access_end1</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l1_access_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>l1_access_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="l1_access_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>l1_access_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l1_access_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="l1_access_branch" name="Kebutuhan apa?" default="l1_access_Flow_4" gatewayDirection="Diverging">
+      <bpmn:incoming>l1_access_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l1_access_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l1_access_Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l1_access_call0" name="Undangan dan user admin" calledElement="c0:Process_l2_access">
+      <bpmn:incoming>l1_access_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l1_access_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l1_access_end0" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l1_access_Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l1_access_call1" name="Sesi dan password" calledElement="c1:Process_l2_session">
+      <bpmn:incoming>l1_access_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l1_access_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l1_access_end1" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l1_access_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l1_access_Flow_0" sourceRef="l1_access_start" targetRef="l1_access_choose"/>
+    <bpmn:sequenceFlow id="l1_access_Flow_1" sourceRef="l1_access_choose" targetRef="l1_access_branch"/>
+    <bpmn:sequenceFlow id="l1_access_Flow_2" sourceRef="l1_access_branch" targetRef="l1_access_call0" name="Undangan dan user admin">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Undangan dan user admin</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l1_access_Flow_3" sourceRef="l1_access_call0" targetRef="l1_access_end0"/>
+    <bpmn:sequenceFlow id="l1_access_Flow_4" sourceRef="l1_access_branch" targetRef="l1_access_call1" name="Sesi dan password"/>
+    <bpmn:sequenceFlow id="l1_access_Flow_5" sourceRef="l1_access_call1" targetRef="l1_access_end1"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l1_access">
+    <bpmn:participant id="Pool_l1_access" name="Simple ERP" processRef="Process_l1_access"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l1_access">
+    <bpmndi:BPMNPlane id="Plane_l1_access" bpmnElement="Collab_l1_access">
+      <bpmndi:BPMNShape id="Pool_l1_access_di" bpmnElement="Pool_l1_access" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1280" height="390"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l1_access_0_di" bpmnElement="Lane_l1_access_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1250" height="390.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_start_di" bpmnElement="l1_access_start">
+        <dc:Bounds x="200" y="276.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="319.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_choose_di" bpmnElement="l1_access_choose">
+        <dc:Bounds x="310" y="250.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_branch_di" bpmnElement="l1_access_branch">
+        <dc:Bounds x="550" y="268.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="327.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_call0_di" bpmnElement="l1_access_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_end0_di" bpmnElement="l1_access_end0">
+        <dc:Bounds x="1120" y="171" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="214" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_call1_di" bpmnElement="l1_access_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l1_access_end1_di" bpmnElement="l1_access_end1">
+        <dc:Bounds x="1120" y="326" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="369" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l1_access_Flow_0_di" bpmnElement="l1_access_Flow_0">
+        <di:waypoint x="238" y="295.0"/>
+        <di:waypoint x="274.0" y="295.0"/>
+        <di:waypoint x="274.0" y="295.0"/>
+        <di:waypoint x="310" y="295.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_access_Flow_1_di" bpmnElement="l1_access_Flow_1">
+        <di:waypoint x="488" y="295.0"/>
+        <di:waypoint x="519.0" y="295.0"/>
+        <di:waypoint x="519.0" y="295.0"/>
+        <di:waypoint x="550" y="295.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_access_Flow_2_di" bpmnElement="l1_access_Flow_2">
+        <di:waypoint x="604" y="295.0"/>
+        <di:waypoint x="645" y="295.0"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_access_Flow_3_di" bpmnElement="l1_access_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1120" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_access_Flow_4_di" bpmnElement="l1_access_Flow_4">
+        <di:waypoint x="604" y="295.0"/>
+        <di:waypoint x="645" y="295.0"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l1_access_Flow_5_di" bpmnElement="l1_access_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1120" y="345.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

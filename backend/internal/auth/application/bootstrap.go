@@ -31,7 +31,7 @@ func (s BootstrapService) Execute(ctx context.Context, email, displayName, passw
 	}
 	now := time.Now().UTC()
 	u := domain.User{
-		ID: uuid.NewString(), Email: strings.ToLower(strings.TrimSpace(email)), DisplayName: strings.TrimSpace(displayName), Role: "ADMIN",
+		ID: uuid.NewString(), Email: strings.ToLower(strings.TrimSpace(email)), DisplayName: strings.TrimSpace(displayName), Role: domain.RoleSuperAdmin,
 		Status: domain.UserActive, PasswordHash: hash, CreatedAt: now, UpdatedAt: now,
 	}
 	return s.store.CreateFirstAdmin(ctx, u, BootstrapTraceID)

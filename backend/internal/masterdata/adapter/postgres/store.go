@@ -59,12 +59,18 @@ func (s Store) Create(ctx context.Context, r domain.Record, actor, request strin
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	if r.Kind == domain.Product {
-		_, e = tx.Exec(ctx, `INSERT INTO products(id,sku,name,unit_id)SELECT $1,$2,$3,id FROM units WHERE code='PCS'`, r.ID, r.Code, r.Name)
+		tag, insertErr := tx.Exec(ctx, `INSERT INTO products(id,sku,name,unit_id)SELECT $1,$2,$3,id FROM units WHERE code='PCS' AND active`, r.ID, r.Code, r.Name)
+		if insertErr != nil {
+			return insertErr
+		}
+		if tag.RowsAffected() != 1 {
+			return fmt.Errorf("active PCS unit required to create product")
+		}
 	} else {
 		_, e = tx.Exec(ctx, "INSERT INTO "+t+"(id,code,name) VALUES($1,$2,$3)", r.ID, r.Code, r.Name)
-	}
-	if e != nil {
-		return e
+		if e != nil {
+			return e
+		}
 	}
 	_, e = tx.Exec(ctx, `INSERT INTO audit_entries(actor_id,action,trace_id,entity_type,entity_id,new_state,request_id)VALUES($1,'CREATE_MASTER_DATA','CAP-MDM-001',$2,$3,'ACTIVE',$4)`, actor, string(r.Kind), r.ID, request)
 	if e != nil {

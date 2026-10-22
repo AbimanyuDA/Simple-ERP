@@ -1,0 +1,376 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="https://simple-erp.local/bpm-haqi/l2-access" xmlns:c0="https://simple-erp.local/bpm-haqi/l3-bootstrap" xmlns:c1="https://simple-erp.local/bpm-haqi/l3-invite" xmlns:c2="https://simple-erp.local/bpm-haqi/l3-token-share" xmlns:c3="https://simple-erp.local/bpm-haqi/l3-activate-invitation" xmlns:c4="https://simple-erp.local/bpm-haqi/l3-user-status" xmlns:c5="https://simple-erp.local/bpm-haqi/l3-session-revoke" xmlns:c6="https://simple-erp.local/bpm-haqi/l3-token-revoke" xmlns:c7="https://simple-erp.local/bpm-haqi/l3-admin-read" id="Definitions_l2_access" targetNamespace="https://simple-erp.local/bpm-haqi/l2-access" exporter="Simple ERP source-backed documentation" exporterVersion="1">
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-bootstrap" location="../level-3/l3-bootstrap.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-invite" location="../level-3/l3-invite.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-token-share" location="../level-3/l3-token-share.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-activate-invitation" location="../level-3/l3-activate-invitation.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-user-status" location="../level-3/l3-user-status.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-session-revoke" location="../level-3/l3-session-revoke.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-token-revoke" location="../level-3/l3-token-revoke.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:import namespace="https://simple-erp.local/bpm-haqi/l3-admin-read" location="../level-3/l3-admin-read.bpmn" importType="http://www.omg.org/spec/BPMN/20100524/MODEL"/>
+  <bpmn:process id="Process_l2_access" name="Undangan dan pengelolaan pengguna" isExecutable="false">
+    <bpmn:documentation>Level 2; source snapshot 2026-10-21; descriptive as-is working tree, not deployed-runtime proof.
+Masing-masing child memiliki lane role sendiri; pilihan pada level ini adalah katalog lifecycle, bukan izin semua role.</bpmn:documentation>
+    <bpmn:laneSet id="Lanes_l2_access">
+      <bpmn:lane id="Lane_l2_access_0" name="Pemilik kebutuhan (role pada detail)">
+        <bpmn:flowNodeRef>l2_access_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_branch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_call7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>l2_access_end7</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="l2_access_start" name="Kebutuhan muncul">
+      <bpmn:outgoing>l2_access_Flow_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="l2_access_choose" name="Pilih kebutuhan">
+      <bpmn:incoming>l2_access_Flow_0</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="l2_access_branch" name="Kebutuhan apa?" default="l2_access_Flow_16" gatewayDirection="Diverging">
+      <bpmn:incoming>l2_access_Flow_1</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_14</bpmn:outgoing>
+      <bpmn:outgoing>l2_access_Flow_16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="l2_access_call0" name="Bootstrap awal" calledElement="c0:Process_l3_bootstrap">
+      <bpmn:incoming>l2_access_Flow_2</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_3</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end0" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call1" name="Undang pengguna" calledElement="c1:Process_l3_invite">
+      <bpmn:incoming>l2_access_Flow_4</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end1" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call2" name="Tandai token dibagikan" calledElement="c2:Process_l3_token_share">
+      <bpmn:incoming>l2_access_Flow_6</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_7</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end2" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call3" name="Aktivasi undangan" calledElement="c3:Process_l3_activate_invitation">
+      <bpmn:incoming>l2_access_Flow_8</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end3" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call4" name="Status pengguna" calledElement="c4:Process_l3_user_status">
+      <bpmn:incoming>l2_access_Flow_10</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_11</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end4" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call5" name="Cabut sesi" calledElement="c5:Process_l3_session_revoke">
+      <bpmn:incoming>l2_access_Flow_12</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_13</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end5" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call6" name="Cabut token" calledElement="c6:Process_l3_token_revoke">
+      <bpmn:incoming>l2_access_Flow_14</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_15</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end6" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="l2_access_call7" name="Baca pengguna" calledElement="c7:Process_l3_admin_read">
+      <bpmn:incoming>l2_access_Flow_16</bpmn:incoming>
+      <bpmn:outgoing>l2_access_Flow_17</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="l2_access_end7" name="Aksi selesai / hasil diterima">
+      <bpmn:incoming>l2_access_Flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="l2_access_Flow_0" sourceRef="l2_access_start" targetRef="l2_access_choose"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_1" sourceRef="l2_access_choose" targetRef="l2_access_branch"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_2" sourceRef="l2_access_branch" targetRef="l2_access_call0" name="Bootstrap awal">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Bootstrap awal</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_3" sourceRef="l2_access_call0" targetRef="l2_access_end0"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_4" sourceRef="l2_access_branch" targetRef="l2_access_call1" name="Undang pengguna">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Undang pengguna</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_5" sourceRef="l2_access_call1" targetRef="l2_access_end1"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_6" sourceRef="l2_access_branch" targetRef="l2_access_call2" name="Tandai token dibagikan">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Tandai token dibagikan</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_7" sourceRef="l2_access_call2" targetRef="l2_access_end2"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_8" sourceRef="l2_access_branch" targetRef="l2_access_call3" name="Aktivasi undangan">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Aktivasi undangan</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_9" sourceRef="l2_access_call3" targetRef="l2_access_end3"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_10" sourceRef="l2_access_branch" targetRef="l2_access_call4" name="Status pengguna">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Status pengguna</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_11" sourceRef="l2_access_call4" targetRef="l2_access_end4"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_12" sourceRef="l2_access_branch" targetRef="l2_access_call5" name="Cabut sesi">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cabut sesi</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_13" sourceRef="l2_access_call5" targetRef="l2_access_end5"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_14" sourceRef="l2_access_branch" targetRef="l2_access_call6" name="Cabut token">
+      <bpmn:conditionExpression language="text/plain" xsi:type="bpmn:tFormalExpression">Cabut token</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="l2_access_Flow_15" sourceRef="l2_access_call6" targetRef="l2_access_end6"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_16" sourceRef="l2_access_branch" targetRef="l2_access_call7" name="Baca pengguna"/>
+    <bpmn:sequenceFlow id="l2_access_Flow_17" sourceRef="l2_access_call7" targetRef="l2_access_end7"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collab_l2_access">
+    <bpmn:participant id="Pool_l2_access" name="Simple ERP" processRef="Process_l2_access"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_l2_access">
+    <bpmndi:BPMNPlane id="Plane_l2_access" bpmnElement="Collab_l2_access">
+      <bpmndi:BPMNShape id="Pool_l2_access_di" bpmnElement="Pool_l2_access" isHorizontal="true">
+        <dc:Bounds x="20" y="100" width="1280" height="1320"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_l2_access_0_di" bpmnElement="Lane_l2_access_0" isHorizontal="true">
+        <dc:Bounds x="50" y="100.0" width="1250" height="1320.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_start_di" bpmnElement="l2_access_start">
+        <dc:Bounds x="200" y="741.0" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="784.0" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_choose_di" bpmnElement="l2_access_choose">
+        <dc:Bounds x="310" y="715.0" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_branch_di" bpmnElement="l2_access_branch">
+        <dc:Bounds x="550" y="733.0" width="54" height="54"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="792.0" width="164" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call0_di" bpmnElement="l2_access_call0">
+        <dc:Bounds x="850" y="145" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end0_di" bpmnElement="l2_access_end0">
+        <dc:Bounds x="1120" y="171" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="214" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call1_di" bpmnElement="l2_access_call1">
+        <dc:Bounds x="850" y="300" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end1_di" bpmnElement="l2_access_end1">
+        <dc:Bounds x="1120" y="326" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="369" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call2_di" bpmnElement="l2_access_call2">
+        <dc:Bounds x="850" y="455" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end2_di" bpmnElement="l2_access_end2">
+        <dc:Bounds x="1120" y="481" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="524" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call3_di" bpmnElement="l2_access_call3">
+        <dc:Bounds x="850" y="610" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end3_di" bpmnElement="l2_access_end3">
+        <dc:Bounds x="1120" y="636" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="679" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call4_di" bpmnElement="l2_access_call4">
+        <dc:Bounds x="850" y="765" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end4_di" bpmnElement="l2_access_end4">
+        <dc:Bounds x="1120" y="791" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="834" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call5_di" bpmnElement="l2_access_call5">
+        <dc:Bounds x="850" y="920" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end5_di" bpmnElement="l2_access_end5">
+        <dc:Bounds x="1120" y="946" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="989" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call6_di" bpmnElement="l2_access_call6">
+        <dc:Bounds x="850" y="1075" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end6_di" bpmnElement="l2_access_end6">
+        <dc:Bounds x="1120" y="1101" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1144" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_call7_di" bpmnElement="l2_access_call7">
+        <dc:Bounds x="850" y="1230" width="178" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="l2_access_end7_di" bpmnElement="l2_access_end7">
+        <dc:Bounds x="1120" y="1256" width="38" height="38"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="1299" width="148" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="l2_access_Flow_0_di" bpmnElement="l2_access_Flow_0">
+        <di:waypoint x="238" y="760.0"/>
+        <di:waypoint x="274.0" y="760.0"/>
+        <di:waypoint x="274.0" y="760.0"/>
+        <di:waypoint x="310" y="760.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_1_di" bpmnElement="l2_access_Flow_1">
+        <di:waypoint x="488" y="760.0"/>
+        <di:waypoint x="519.0" y="760.0"/>
+        <di:waypoint x="519.0" y="760.0"/>
+        <di:waypoint x="550" y="760.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_2_di" bpmnElement="l2_access_Flow_2">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="190.0"/>
+        <di:waypoint x="850" y="190.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="135.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_3_di" bpmnElement="l2_access_Flow_3">
+        <di:waypoint x="1028" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1074.0" y="190.0"/>
+        <di:waypoint x="1120" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_4_di" bpmnElement="l2_access_Flow_4">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="345.0"/>
+        <di:waypoint x="850" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="290.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_5_di" bpmnElement="l2_access_Flow_5">
+        <di:waypoint x="1028" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1074.0" y="345.0"/>
+        <di:waypoint x="1120" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_6_di" bpmnElement="l2_access_Flow_6">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="500.0"/>
+        <di:waypoint x="850" y="500.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="445.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_7_di" bpmnElement="l2_access_Flow_7">
+        <di:waypoint x="1028" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1074.0" y="500.0"/>
+        <di:waypoint x="1120" y="500.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_8_di" bpmnElement="l2_access_Flow_8">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="655.0"/>
+        <di:waypoint x="850" y="655.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="600.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_9_di" bpmnElement="l2_access_Flow_9">
+        <di:waypoint x="1028" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1074.0" y="655.0"/>
+        <di:waypoint x="1120" y="655.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_10_di" bpmnElement="l2_access_Flow_10">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="810.0"/>
+        <di:waypoint x="850" y="810.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="755.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_11_di" bpmnElement="l2_access_Flow_11">
+        <di:waypoint x="1028" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1074.0" y="810.0"/>
+        <di:waypoint x="1120" y="810.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_12_di" bpmnElement="l2_access_Flow_12">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="965.0"/>
+        <di:waypoint x="850" y="965.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="910.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_13_di" bpmnElement="l2_access_Flow_13">
+        <di:waypoint x="1028" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1074.0" y="965.0"/>
+        <di:waypoint x="1120" y="965.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_14_di" bpmnElement="l2_access_Flow_14">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="1120.0"/>
+        <di:waypoint x="850" y="1120.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1065.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_15_di" bpmnElement="l2_access_Flow_15">
+        <di:waypoint x="1028" y="1120.0"/>
+        <di:waypoint x="1074.0" y="1120.0"/>
+        <di:waypoint x="1074.0" y="1120.0"/>
+        <di:waypoint x="1120" y="1120.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_16_di" bpmnElement="l2_access_Flow_16">
+        <di:waypoint x="604" y="760.0"/>
+        <di:waypoint x="645" y="760.0"/>
+        <di:waypoint x="645" y="1275.0"/>
+        <di:waypoint x="850" y="1275.0"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="1220.0" width="150" height="45"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="l2_access_Flow_17_di" bpmnElement="l2_access_Flow_17">
+        <di:waypoint x="1028" y="1275.0"/>
+        <di:waypoint x="1074.0" y="1275.0"/>
+        <di:waypoint x="1074.0" y="1275.0"/>
+        <di:waypoint x="1120" y="1275.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

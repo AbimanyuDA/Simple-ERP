@@ -34,10 +34,32 @@ func (s UserAdminStore) SetUserStatus(ctx context.Context, id, status string, ve
 		return e
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
-	var previous string
-	e = tx.QueryRow(ctx, `SELECT status FROM users WHERE id=$1 FOR UPDATE`, id).Scan(&previous)
+	var previous, role string
+	var hasPassword bool
+	e = tx.QueryRow(ctx, `SELECT status,role,password_hash IS NOT NULL AND btrim(password_hash)<>'' FROM users WHERE id=$1 FOR UPDATE`, id).Scan(&previous, &role, &hasPassword)
 	if e != nil {
 		return e
+	}
+	if status == previous {
+		return fmt.Errorf("user already has requested status")
+	}
+	if status == "ACTIVE" && (previous != "DEACTIVATED" || !hasPassword) {
+		return fmt.Errorf("only deactivated users with a password can be reactivated")
+	}
+	if status == "DEACTIVATED" && role == "SUPER_ADMIN" {
+		if actor == id {
+			return fmt.Errorf("cannot deactivate your own super admin account")
+		}
+		if _, e = tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, int64(830002)); e != nil {
+			return e
+		}
+		var active int
+		if e = tx.QueryRow(ctx, `SELECT count(*) FROM users WHERE role='SUPER_ADMIN' AND status='ACTIVE'`).Scan(&active); e != nil {
+			return e
+		}
+		if active <= 1 {
+			return fmt.Errorf("cannot deactivate the last active super admin")
+		}
 	}
 	tag, e := tx.Exec(ctx, `UPDATE users SET status=$1,version=version+1,updated_at=now() WHERE id=$2 AND version=$3`, status, id, version)
 	if e != nil {

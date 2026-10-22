@@ -30,7 +30,7 @@ func (s BootstrapStore) CreateFirstAdmin(ctx context.Context, u domain.User, tra
 		return ErrAlreadyBootstrapped
 	}
 	_, err = tx.Exec(ctx, `INSERT INTO users (id,email,display_name,password_hash,role,status,created_at,updated_at)
-		VALUES ($1,$2,$3,$4,'ADMIN','ACTIVE',$5,$5)`, u.ID, u.Email, u.DisplayName, u.PasswordHash, u.CreatedAt)
+		VALUES ($1,$2,$3,$4,$5,'ACTIVE',$6,$6)`, u.ID, u.Email, u.DisplayName, u.PasswordHash, u.Role, u.CreatedAt)
 	if err != nil {
 		return err
 	}

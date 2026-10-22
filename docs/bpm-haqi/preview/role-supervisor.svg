@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="3315" viewBox="0 0 1320 3315">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#0f172a">
+<text x="25" y="30" font-size="20" text-anchor="start"><tspan x="25" dy="0">L1 | Perspektif role Supervisor</tspan></text>
+<text x="25" y="56" font-size="12" text-anchor="start"><tspan x="25" dy="0">AS-IS KODE 2026-10-21 | Lane dengan 'atau' berarti pilihan aktor | Detail kegagalan: dokumentasi model</tspan></text>
+<rect x="20" y="100.0" width="1280" height="3180.0" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="100" y="180.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Supervisor atau</tspan><tspan x="100" dy="16">Super Admin</tspan></text>
+<polyline points="238,1690.0 274.0,1690.0 274.0,1690.0 310,1690.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="488,1690.0 519.0,1690.0 519.0,1690.0 550,1690.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,190.0 850,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="147.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Review PR</tspan></text>
+<polyline points="1028,190.0 1074.0,190.0 1074.0,190.0 1120,190.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,345.0 850,345.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="302.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Review SO</tspan></text>
+<polyline points="1028,345.0 1074.0,345.0 1074.0,345.0 1120,345.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,500.0 850,500.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="457.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Review adjustment</tspan></text>
+<polyline points="1028,500.0 1074.0,500.0 1074.0,500.0 1120,500.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,655.0 850,655.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="612.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Issue PO</tspan></text>
+<polyline points="1028,655.0 1074.0,655.0 1074.0,655.0 1120,655.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,810.0 850,810.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="767.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Post GR</tspan></text>
+<polyline points="1028,810.0 1074.0,810.0 1074.0,810.0 1120,810.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,965.0 850,965.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="922.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Cancel PO</tspan></text>
+<polyline points="1028,965.0 1074.0,965.0 1074.0,965.0 1120,965.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1120.0 850,1120.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1077.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Match invoice supplier</tspan></text>
+<polyline points="1028,1120.0 1074.0,1120.0 1074.0,1120.0 1120,1120.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1275.0 850,1275.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1232.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Post payment supplier</tspan></text>
+<polyline points="1028,1275.0 1074.0,1275.0 1074.0,1275.0 1120,1275.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1430.0 850,1430.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1387.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Void invoice supplier</tspan></text>
+<polyline points="1028,1430.0 1074.0,1430.0 1074.0,1430.0 1120,1430.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1585.0 850,1585.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1542.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Void payment supplier</tspan></text>
+<polyline points="1028,1585.0 1074.0,1585.0 1074.0,1585.0 1120,1585.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1740.0 850,1740.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1697.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Post invoice sales</tspan></text>
+<polyline points="1028,1740.0 1074.0,1740.0 1074.0,1740.0 1120,1740.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,1895.0 850,1895.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="1852.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Post payment customer</tspan></text>
+<polyline points="1028,1895.0 1074.0,1895.0 1074.0,1895.0 1120,1895.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2050.0 850,2050.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2007.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Finance AR</tspan></text>
+<polyline points="1028,2050.0 1074.0,2050.0 1074.0,2050.0 1120,2050.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2205.0 850,2205.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2162.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Koreksi Finance</tspan></text>
+<polyline points="1028,2205.0 1074.0,2205.0 1074.0,2205.0 1120,2205.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2360.0 850,2360.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2317.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Reverse GR</tspan></text>
+<polyline points="1028,2360.0 1074.0,2360.0 1074.0,2360.0 1120,2360.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2515.0 850,2515.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2472.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Reverse delivery</tspan></text>
+<polyline points="1028,2515.0 1074.0,2515.0 1074.0,2515.0 1120,2515.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2670.0 850,2670.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2627.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Reverse adjustment</tspan></text>
+<polyline points="1028,2670.0 1074.0,2670.0 1074.0,2670.0 1120,2670.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2825.0 850,2825.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2782.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Buat master</tspan></text>
+<polyline points="1028,2825.0 1074.0,2825.0 1074.0,2825.0 1120,2825.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,2980.0 850,2980.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="688" y="2937.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Status master</tspan></text>
+<polyline points="1028,2980.0 1074.0,2980.0 1074.0,2980.0 1120,2980.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="604,1690.0 645,1690.0 645,3135.0 850,3135.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="616" y1="1697.0" x2="628" y2="1683.0" stroke="#475569" stroke-width="1.5"/>
+<text x="688" y="3092.0" font-size="11" text-anchor="start"><tspan x="688" dy="0">Laporan/audit</tspan></text>
+<polyline points="1028,3135.0 1074.0,3135.0 1074.0,3135.0 1120,3135.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<circle cx="219.0" cy="1690.0" r="19.0" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="219.0" y="1729.0" font-size="12" text-anchor="middle"><tspan x="219.0" dy="0">Kebutuhan muncul</tspan></text>
+<rect x="310" y="1645.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="322" y="1660.0" font-size="9" text-anchor="start"><tspan x="322" dy="0">U</tspan></text>
+<text x="399.0" y="1677.0" font-size="12" text-anchor="middle"><tspan x="399.0" dy="0">Pilih kebutuhan</tspan></text>
+<path d="M577.0,1663.0 L604,1690.0 L577.0,1717.0 L550,1690.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="577.0" y="1695.0" font-size="18" text-anchor="middle"><tspan x="577.0" dy="0">X</tspan></text>
+<text x="577.0" y="1737.0" font-size="12" text-anchor="middle"><tspan x="577.0" dy="0">Kebutuhan apa?</tspan></text>
+<rect x="850" y="145" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="160" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="177" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Review PR</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="221" width="12" height="12"/><path d="M936.0,227 H942.0 M939.0,224 V230"/></g>
+<circle cx="1139.0" cy="190.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="229" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="300" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="315" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="332" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Review SO</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="376" width="12" height="12"/><path d="M936.0,382 H942.0 M939.0,379 V385"/></g>
+<circle cx="1139.0" cy="345.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="384" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="455" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="470" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="487" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Review adjustment</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="531" width="12" height="12"/><path d="M936.0,537 H942.0 M939.0,534 V540"/></g>
+<circle cx="1139.0" cy="500.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="539" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="610" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="625" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="642" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Issue PO</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="686" width="12" height="12"/><path d="M936.0,692 H942.0 M939.0,689 V695"/></g>
+<circle cx="1139.0" cy="655.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="694" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="765" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="780" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="797" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Post GR</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="841" width="12" height="12"/><path d="M936.0,847 H942.0 M939.0,844 V850"/></g>
+<circle cx="1139.0" cy="810.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="849" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="920" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="935" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="952" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Cancel PO</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="996" width="12" height="12"/><path d="M936.0,1002 H942.0 M939.0,999 V1005"/></g>
+<circle cx="1139.0" cy="965.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1004" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1075" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1090" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1107" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Match invoice supplier</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1151" width="12" height="12"/><path d="M936.0,1157 H942.0 M939.0,1154 V1160"/></g>
+<circle cx="1139.0" cy="1120.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1159" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1230" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1245" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1262" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Post payment supplier</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1306" width="12" height="12"/><path d="M936.0,1312 H942.0 M939.0,1309 V1315"/></g>
+<circle cx="1139.0" cy="1275.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1314" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1385" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1400" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1417" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Void invoice supplier</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1461" width="12" height="12"/><path d="M936.0,1467 H942.0 M939.0,1464 V1470"/></g>
+<circle cx="1139.0" cy="1430.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1469" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1540" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1555" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1572" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Void payment supplier</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1616" width="12" height="12"/><path d="M936.0,1622 H942.0 M939.0,1619 V1625"/></g>
+<circle cx="1139.0" cy="1585.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1624" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1695" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1710" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1727" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Post invoice sales</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1771" width="12" height="12"/><path d="M936.0,1777 H942.0 M939.0,1774 V1780"/></g>
+<circle cx="1139.0" cy="1740.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1779" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="1850" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="1865" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="1882" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Post payment customer</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="1926" width="12" height="12"/><path d="M936.0,1932 H942.0 M939.0,1929 V1935"/></g>
+<circle cx="1139.0" cy="1895.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="1934" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2005" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2020" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2037" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Finance AR</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2081" width="12" height="12"/><path d="M936.0,2087 H942.0 M939.0,2084 V2090"/></g>
+<circle cx="1139.0" cy="2050.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2089" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2160" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2175" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2192" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Koreksi Finance</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2236" width="12" height="12"/><path d="M936.0,2242 H942.0 M939.0,2239 V2245"/></g>
+<circle cx="1139.0" cy="2205.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2244" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2315" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2330" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2347" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Reverse GR</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2391" width="12" height="12"/><path d="M936.0,2397 H942.0 M939.0,2394 V2400"/></g>
+<circle cx="1139.0" cy="2360.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2399" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2470" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2485" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2502" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Reverse delivery</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2546" width="12" height="12"/><path d="M936.0,2552 H942.0 M939.0,2549 V2555"/></g>
+<circle cx="1139.0" cy="2515.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2554" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2625" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2640" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2657" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Reverse adjustment</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2701" width="12" height="12"/><path d="M936.0,2707 H942.0 M939.0,2704 V2710"/></g>
+<circle cx="1139.0" cy="2670.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2709" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2780" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2795" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2812" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Buat master</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="2856" width="12" height="12"/><path d="M936.0,2862 H942.0 M939.0,2859 V2865"/></g>
+<circle cx="1139.0" cy="2825.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="2864" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="2935" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="2950" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="2967" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Status master</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="3011" width="12" height="12"/><path d="M936.0,3017 H942.0 M939.0,3014 V3020"/></g>
+<circle cx="1139.0" cy="2980.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="3019" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+<rect x="850" y="3090" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="862" y="3105" font-size="9" text-anchor="start"><tspan x="862" dy="0">CALL</tspan></text>
+<text x="939.0" y="3122" font-size="12" text-anchor="middle"><tspan x="939.0" dy="0">Laporan/audit</tspan></text>
+<g class="collapsed-call-marker" fill="white" stroke="#334155" stroke-width="1"><rect x="933.0" y="3166" width="12" height="12"/><path d="M936.0,3172 H942.0 M939.0,3169 V3175"/></g>
+<circle cx="1139.0" cy="3135.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1139.0" y="3174" font-size="12" text-anchor="middle"><tspan x="1139.0" dy="0">Aksi selesai / hasil</tspan><tspan x="1139.0" dy="16">diterima</tspan></text>
+</g></svg>

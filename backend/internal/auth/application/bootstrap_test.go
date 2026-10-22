@@ -12,7 +12,7 @@ type bootstrapStoreFake struct{ called bool }
 
 func (s *bootstrapStoreFake) CreateFirstAdmin(_ context.Context, u domain.User, traceID string) error {
 	s.called = true
-	if traceID != "ACT-AUTH-BOOTSTRAP" || u.Role != "ADMIN" || u.Status != domain.UserActive {
+	if traceID != "ACT-AUTH-BOOTSTRAP" || u.Role != domain.RoleSuperAdmin || u.Status != domain.UserActive {
 		return errors.New("invalid bootstrap payload")
 	}
 	return nil

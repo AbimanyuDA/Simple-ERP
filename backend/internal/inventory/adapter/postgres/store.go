@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/simple-erp/backend/internal/inventory/application"
+	"github.com/simple-erp/backend/internal/platform/authorization"
 	"time"
 )
 
@@ -137,8 +138,14 @@ func (s Store) TransitionAdjustment(ctx context.Context, id, action, actor, reas
 		d.Status = "SUBMITTED"
 	case "approve":
 		trace = "INV-ADJ-003"
-		if from != "SUBMITTED" || actor == d.CreatorID {
+		if from != "SUBMITTED" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		var snapshotCurrent bool
 		e = tx.QueryRow(ctx, `SELECT COALESCE(bool_and(l.snapshot_quantity=COALESCE(b.quantity,0)),false)
@@ -152,15 +159,21 @@ func (s Store) TransitionAdjustment(ctx context.Context, id, action, actor, reas
 		d.Status = "APPROVED"
 	case "reject":
 		trace = "INV-ADJ-003"
-		if from != "SUBMITTED" || actor == d.CreatorID || reason == "" {
+		if from != "SUBMITTED" || reason == "" {
 			return d, ErrConflict
+		}
+		if actor == d.CreatorID {
+			allowed, roleErr := authorization.CanSelfReview(ctx, tx, actor)
+			if roleErr != nil || !allowed {
+				return d, ErrConflict
+			}
 		}
 		d.Status = "REJECTED"
 	case "cancel":
 		trace = "ACT-INV-ADJ-CANCEL"
 		var admin bool
-		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='ADMIN')`, actor).Scan(&admin)
-		if e != nil || from != "DRAFT" || reason == "" || (actor != d.CreatorID && !admin) {
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='SUPER_ADMIN' AND status='ACTIVE')`, actor).Scan(&admin)
+		if e != nil || (from != "DRAFT" && from != "APPROVED") || reason == "" || (actor != d.CreatorID && !admin) {
 			return d, ErrConflict
 		}
 		d.Status = "CANCELLED"

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2960" height="575" viewBox="0 0 2960 575">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="Arial, sans-serif" fill="#0f172a">
+<text x="25" y="30" font-size="20" text-anchor="start"><tspan x="25" dy="0">L3 | Kontrol request, otorisasi dan idempotency</tspan></text>
+<text x="25" y="56" font-size="12" text-anchor="start"><tspan x="25" dy="0">AS-IS KODE 2026-10-21 | Lane dengan 'atau' berarti pilihan aktor | Detail kegagalan: dokumentasi model</tspan></text>
+<rect x="20" y="100.0" width="2920" height="220.0" fill="#f1f5f9" stroke="#cbd5e1"/>
+<text x="100" y="180.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Pengguna (semua</tspan><tspan x="100" dy="16">role)</tspan></text>
+<rect x="20" y="320.0" width="2920" height="220.0" fill="#eff6ff" stroke="#cbd5e1"/>
+<text x="100" y="400.0" font-size="14" text-anchor="middle"><tspan x="100" dy="0">Sistem Simple</tspan><tspan x="100" dy="16">ERP</tspan></text>
+<polyline points="238,190.0 331.5,190.0 331.5,410.0 425,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="603,410.0 626.5,410.0 626.5,410.0 650,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="704,410.0 789.5,410.0 789.5,410.0 875,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="716" y1="417.0" x2="728" y2="403.0" stroke="#475569" stroke-width="1.5"/>
+<text x="713" y="367.0" font-size="11" text-anchor="start"><tspan x="713" dy="0">Akses ditolak</tspan></text>
+<polyline points="704,410.0 722,410.0 722,517 1082,517 1082,410.0 1100,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="938" y="367.0" font-size="11" text-anchor="start"><tspan x="938" dy="0">Mutasi group operasi</tspan></text>
+<polyline points="704,410.0 722,410.0 722,490 2207,490 2207,410.0 2225,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="2045" y="512" font-size="11" text-anchor="start"><tspan x="2045" dy="0">Route lain</tspan></text>
+<polyline points="1278,410.0 1301.5,410.0 1301.5,410.0 1325,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="1379,410.0 1397,410.0 1397,508 2207,508 2207,410.0 2225,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="2045" y="530" font-size="11" text-anchor="start"><tspan x="2045" dy="0">Key baru</tspan></text>
+<polyline points="1379,410.0 1464.5,410.0 1464.5,410.0 1550,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="1388" y="367.0" font-size="11" text-anchor="start"><tspan x="1388" dy="0">Hash sama; respons ada</tspan></text>
+<polyline points="1379,410.0 1397,410.0 1397,490 1757,490 1757,410.0 1775,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="1613" y="367.0" font-size="11" text-anchor="start"><tspan x="1613" dy="0">Konflik / in progress</tspan></text>
+<polyline points="1379,410.0 1397,410.0 1397,499 1982,499 1982,410.0 2000,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line class="default-flow-marker" x1="1391" y1="417.0" x2="1403" y2="403.0" stroke="#475569" stroke-width="1.5"/>
+<text x="1838" y="367.0" font-size="11" text-anchor="start"><tspan x="1838" dy="0">Key / claim gagal</tspan></text>
+<polyline points="2403,410.0 2426.5,410.0 2426.5,410.0 2450,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<polyline points="2628,410.0 2651.5,410.0 2651.5,410.0 2675,410.0" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+<circle cx="219.0" cy="190.0" r="19.0" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="219.0" y="229.0" font-size="12" text-anchor="middle"><tspan x="219.0" dy="0">Request HTTP</tspan></text>
+<rect x="425" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="437" y="380.0" font-size="9" text-anchor="start"><tspan x="437" dy="0">S</tspan></text>
+<text x="514.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="514.0" dy="0">Cek cookie, user ACTIVE,</tspan><tspan x="514.0" dy="16">rate limit, CSRF/origin,</tspan><tspan x="514.0" dy="16">dan tipe route</tspan></text>
+<path d="M677.0,383.0 L704,410.0 L677.0,437.0 L650,410.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="677.0" y="415.0" font-size="18" text-anchor="middle"><tspan x="677.0" dy="0">X</tspan></text>
+<text x="677.0" y="457.0" font-size="12" text-anchor="middle"><tspan x="677.0" dy="0">Hasil akses dan tipe</tspan><tspan x="677.0" dy="16">route?</tspan></text>
+<circle cx="894.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="894.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="894.0" dy="0">401 / 403 / 429</tspan></text>
+<rect x="1100" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="1112" y="380.0" font-size="9" text-anchor="start"><tspan x="1112" dy="0">S</tspan></text>
+<text x="1189.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="1189.0" dy="0">Validasi key; claim hash</tspan><tspan x="1189.0" dy="16">method/path/body</tspan></text>
+<path d="M1352.0,383.0 L1379,410.0 L1352.0,437.0 L1325,410.0 Z" fill="#fef3c7" stroke="#92400e"/>
+<text x="1352.0" y="415.0" font-size="18" text-anchor="middle"><tspan x="1352.0" dy="0">X</tspan></text>
+<text x="1352.0" y="457.0" font-size="12" text-anchor="middle"><tspan x="1352.0" dy="0">Hasil klaim key?</tspan></text>
+<circle cx="1569.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1569.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="1569.0" dy="0">Replay respons</tspan><tspan x="1569.0" dy="16">tersimpan</tspan></text>
+<circle cx="1794.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="1794.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="1794.0" dy="0">409: key berbeda atau</tspan><tspan x="1794.0" dy="16">masih diproses</tspan></text>
+<circle cx="2019.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="2019.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="2019.0" dy="0">400 / 500: key atau</tspan><tspan x="2019.0" dy="16">claim gagal</tspan></text>
+<rect x="2225" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="2237" y="380.0" font-size="9" text-anchor="start"><tspan x="2237" dy="0">S</tspan></text>
+<text x="2314.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="2314.0" dy="0">Handler cek role;</tspan><tspan x="2314.0" dy="16">validasi input; jalankan</tspan><tspan x="2314.0" dy="16">use case</tspan></text>
+<rect x="2450" y="365.0" width="178" height="90" rx="9" fill="white" stroke="#334155" stroke-width="1.5"/>
+<text x="2462" y="380.0" font-size="9" text-anchor="start"><tspan x="2462" dy="0">S</tspan></text>
+<text x="2539.0" y="397.0" font-size="12" text-anchor="middle"><tspan x="2539.0" dy="0">Simpan respons &lt;500;</tspan><tspan x="2539.0" dy="16">release key jika 5xx;</tspan><tspan x="2539.0" dy="16">kirim respons</tspan></text>
+<circle cx="2694.0" cy="410.0" r="19.0" fill="white" stroke="#334155" stroke-width="3"/>
+<text x="2694.0" y="449.0" font-size="12" text-anchor="middle"><tspan x="2694.0" dy="0">Request selesai</tspan></text>
+</g></svg>

@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	authapp "github.com/simple-erp/backend/internal/auth/application"
+	"github.com/simple-erp/backend/internal/auth/domain"
 	"github.com/simple-erp/backend/internal/inventory/application"
 	"net/http"
 )
@@ -58,6 +59,10 @@ func (h Handler) movements(w http.ResponseWriter, r *http.Request) {
 	respond(w, 200, map[string]any{"data": v})
 }
 func (h Handler) create(w http.ResponseWriter, r *http.Request) {
+	if !domain.CanCreate(p(r).Role) {
+		respond(w, 403, map[string]string{"message": "Akses ditolak."})
+		return
+	}
 	var in struct {
 		WarehouseID string
 		Lines       []application.AdjustmentLine `json:"lines"`
@@ -75,7 +80,7 @@ func (h Handler) create(w http.ResponseWriter, r *http.Request) {
 func (h Handler) action(w http.ResponseWriter, r *http.Request) {
 	a := chi.URLParam(r, "action")
 	actor := p(r)
-	if (a == "approve" || a == "reject" || a == "reverse") && actor.Role != "ADMIN" {
+	if (a == "approve" || a == "reject" || a == "reverse") && !domain.CanApprove(actor.Role) || (a != "approve" && a != "reject" && a != "reverse" && !domain.CanCreate(actor.Role)) {
 		respond(w, 403, map[string]string{"message": "Akses ditolak."})
 		return
 	}

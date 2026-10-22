@@ -27,7 +27,7 @@ type User struct {
 
 func InviteUser(id, email, role, actorID string, at time.Time) (*User, error) {
 	role = strings.ToUpper(strings.TrimSpace(role))
-	if role != "ADMIN" && role != "OPERATOR" {
+	if !ValidRole(role) {
 		return nil, ErrInvalidRole
 	}
 	return &User{ID: id, Email: strings.ToLower(strings.TrimSpace(email)), Role: role, Status: UserInvited, InvitedBy: actorID, CreatedAt: at, UpdatedAt: at}, nil
